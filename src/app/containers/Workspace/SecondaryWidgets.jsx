@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Sortable from 'react-sortablejs';
 import uuid from 'uuid';
-import { GRBL, MARLIN, SMOOTHIE, TINYG } from 'app/constants';
+import { GRBL, MARLIN, SMOOTHIE, TINYG, SWORDFISH } from 'app/constants';
 import { Button } from 'app/components/Buttons';
 import Modal from 'app/components/Modal';
 import controller from 'app/lib/controller';
@@ -200,6 +200,9 @@ class SecondaryWidgets extends Component {
                     return false;
                 }
                 if (name === 'tinyg' && !includes(controller.loadedControllers, TINYG)) {
+                    return false;
+                }
+                if (name === 'swordfish' && !includes(controller.loadedControllers, SWORDFISH)) {
                     return false;
                 }
                 return true;

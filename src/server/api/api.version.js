@@ -1,23 +1,23 @@
 import url from 'url';
 import registryUrl from 'registry-url';
-import registryAuthToken from 'registry-auth-token';
+//import registryAuthToken from 'registry-auth-token';
 import request from 'superagent';
 import {
     ERR_INTERNAL_SERVER_ERROR
 } from '../constants';
 
-const pkgName = 'cncjs';
+const pkgName = '@zealandia-systems/gladius';
 
-export const getLatestVersion = (req, res) => {
+export const getLatestVersion = async (req, res) => {
     const scope = pkgName.split('/')[0];
     const regUrl = registryUrl(scope);
     const pkgUrl = url.resolve(regUrl, encodeURIComponent(pkgName).replace(/^%40/, '@'));
-    const authInfo = registryAuthToken(regUrl);
+    //const authInfo = registryAuthToken(regUrl);
     const headers = {};
 
-    if (authInfo) {
-        headers.Authorization = `${authInfo.type} ${authInfo.token}`;
-    }
+    const result = await request.get('https://api.github.com/repos/Zealandia-Systems/Gladius/releases/latest');
+
+    console.log(JSON.stringify(result));
 
     request
         .get(pkgUrl)

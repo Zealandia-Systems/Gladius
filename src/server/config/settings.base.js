@@ -2,8 +2,8 @@ import path from 'path';
 import pkg from '../../package.json';
 import { languages } from '../../../build.config';
 
-const RC_FILE = '.cncrc';
-const SESSION_PATH = '.cncjs-sessions';
+const RC_FILE = '.gladiusrc';
+const SESSION_PATH = '.gladius-sessions';
 
 // Secret
 const secret = pkg.version;
@@ -15,7 +15,7 @@ export default {
     verbosity: 0,
     version: pkg.version,
 
-    // The secret key is loaded from the config file (defaults to "~/.cncrc")
+    // The secret key is loaded from the config file (defaults to "~/.gladiusrc")
     // @see "src/app/index.js"
     secret: secret,
 

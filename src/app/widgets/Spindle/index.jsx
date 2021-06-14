@@ -26,6 +26,8 @@ import {
     TINYG_MACHINE_STATE_STOP,
     TINYG_MACHINE_STATE_END,
     TINYG_MACHINE_STATE_HOLD,
+    // Swordfish
+    SWORDFISH,
     // Workflow
     WORKFLOW_STATE_RUNNING,
 } from '../../constants';
@@ -153,6 +155,23 @@ class SpindleWidget extends PureComponent {
                     }
                 });
             }
+
+            // Swordfish
+            if (type === SWORDFISH) {
+                const { sr } = { ...state };
+                const { modal = {} } = { ...sr };
+
+                this.setState({
+                    controller: {
+                        type: type,
+                        state: state,
+                        modal: {
+                            spindle: modal.spindle || '',
+                            coolant: modal.coolant || ''
+                        }
+                    }
+                });
+            }
         }
     };
 
@@ -220,7 +239,7 @@ class SpindleWidget extends PureComponent {
         if (workflow.state === WORKFLOW_STATE_RUNNING) {
             return false;
         }
-        if (!includes([GRBL, MARLIN, SMOOTHIE, TINYG], controllerType)) {
+        if (!includes([GRBL, MARLIN, SMOOTHIE, TINYG, SWORDFISH], controllerType)) {
             return false;
         }
         if (controllerType === GRBL) {
@@ -257,6 +276,9 @@ class SpindleWidget extends PureComponent {
             if (!includes(states, machineState)) {
                 return false;
             }
+        }
+        if (controllerType === SWORDFISH) {
+            // Marlin does not have machine state
         }
 
         return true;

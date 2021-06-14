@@ -32,6 +32,7 @@ module.exports = {
             allowArrowFunctions: true
         }],
         'react/prefer-stateless-function': 0,
-        'react/no-access-state-in-setstate': 0
+        'react/no-access-state-in-setstate': 0,
+        'no-return-assign': 0
     }
 };

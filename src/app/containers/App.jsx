@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Redirect, withRouter } from 'react-router-dom';
+import ReactTooltip from 'react-tooltip';
 import { trackPage } from '../lib/analytics';
 import Header from './Header';
 import Sidebar from './Sidebar';
@@ -44,6 +45,10 @@ class App extends PureComponent {
 
         return (
             <div>
+                <ReactTooltip
+                    delayShow={1000}
+                    effect="solid"
+                />
                 <Header {...this.props} />
                 <aside className={styles.sidebar} id="sidebar">
                     <Sidebar {...this.props} />

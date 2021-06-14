@@ -26,7 +26,7 @@ const parseMountPoint = (val, acc) => {
         mount.target = r[2];
     }
 
-    // mount.route is interpreted by cncjs code that uses posix syntax
+    // mount.route is interpreted by gladius code that uses posix syntax
     // where the separator is / , so we perform this join in posix mode
     // mode to avoid introducing \ separators when running on Windows.
     mount.route = path.posix.join('/', mount.route || '').trim(); // path.join('/', 'pendant') => '/pendant'
@@ -40,7 +40,7 @@ const parseMountPoint = (val, acc) => {
 const parseController = (val) => {
     val = val ? (val + '').toLowerCase() : '';
 
-    if (['grbl', 'marlin', 'smoothie', 'tinyg', 'g2core'].includes(val)) {
+    if (['grbl', 'marlin', 'smoothie', 'tinyg', 'g2core', 'swordfish'].includes(val)) {
         return val;
     } else {
         return '';
@@ -56,26 +56,26 @@ program
     .option('-p, --port <port>', `Set listen port (default: ${defaultPort})`, defaultPort)
     .option('-H, --host <host>', `Set listen address or hostname (default: ${defaultHost})`, defaultHost)
     .option('-b, --backlog <backlog>', 'Set listen backlog (default: 511)', 511)
-    .option('-c, --config <filename>', 'Set config file (default: ~/.cncrc)')
+    .option('-c, --config <filename>', 'Set config file (default: ~/.gladiusrc)')
     .option('-v, --verbose', 'Increase the verbosity level (-v, -vv, -vvv)', increaseVerbosityLevel, 0)
     .option('-m, --mount <route-path>:<target>', 'Add a mount point for serving static files', parseMountPoint, [])
     .option('-w, --watch-directory <path>', 'Watch a directory for changes')
     .option('--access-token-lifetime <lifetime>', 'Access token lifetime in seconds or a time span string (default: 30d)')
     .option('--allow-remote-access', 'Allow remote access to the server (default: false)')
-    .option('--controller <type>', 'Specify CNC controller: Grbl|Marlin|Smoothie|TinyG|g2core (default: \'\')', parseController, '');
+    .option('--controller <type>', 'Specify CNC controller: Grbl|Marlin|Smoothie|TinyG|g2core (default: \'\')', parseController, 'swordfish');
 
 program.on('--help', () => {
     console.log('');
     console.log('  Examples:');
     console.log('');
-    console.log('    $ cncjs -vv');
-    console.log('    $ cncjs --mount /pendant:/home/pi/tinyweb');
-    console.log('    $ cncjs --mount /widget:~+/widget --mount /pendant:~/pendant');
-    console.log('    $ cncjs --mount /widget:https://cncjs.github.io/cncjs-widget-boilerplate/v1/');
-    console.log('    $ cncjs --watch-directory /home/pi/watch');
-    console.log('    $ cncjs --access-token-lifetime 60d  # e.g. 3600, 30m, 12h, 30d');
-    console.log('    $ cncjs --allow-remote-access');
-    console.log('    $ cncjs --controller Grbl');
+    console.log('    $ gladius -vv');
+    console.log('    $ gladius --mount /pendant:/home/pi/tinyweb');
+    console.log('    $ gladius --mount /widget:~+/widget --mount /pendant:~/pendant');
+    console.log('    $ gladius --mount /widget:https://gladius.github.io/gladius-widget-boilerplate/v1/');
+    console.log('    $ gladius --watch-directory /home/pi/watch');
+    console.log('    $ gladius --access-token-lifetime 60d  # e.g. 3600, 30m, 12h, 30d');
+    console.log('    $ gladius --allow-remote-access');
+    console.log('    $ gladius --controller Grbl');
     console.log('');
 });
 

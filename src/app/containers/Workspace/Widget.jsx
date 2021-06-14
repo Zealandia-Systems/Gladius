@@ -13,6 +13,7 @@ import SmoothieWidget from 'app/widgets/Smoothie';
 import SpindleWidget from 'app/widgets/Spindle';
 import CustomWidget from 'app/widgets/Custom';
 import TinyGWidget from 'app/widgets/TinyG';
+import SwordfishWidget from 'app/widgets/Swordfish';
 import VisualizerWidget from 'app/widgets/Visualizer';
 import WebcamWidget from 'app/widgets/Webcam';
 
@@ -31,6 +32,7 @@ const getWidgetByName = (name) => {
         'spindle': SpindleWidget,
         'custom': CustomWidget,
         'tinyg': TinyGWidget,
+        'swordfish': SwordfishWidget,
         'visualizer': VisualizerWidget,
         'webcam': WebcamWidget
     }[name] || null;

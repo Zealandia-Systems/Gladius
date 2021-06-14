@@ -13,12 +13,14 @@ import {
     GrblController,
     MarlinController,
     SmoothieController,
-    TinyGController
+    TinyGController,
+    SwordfishController
 } from '../../controllers';
 import { GRBL } from '../../controllers/Grbl/constants';
 import { MARLIN } from '../../controllers/Marlin/constants';
 import { SMOOTHIE } from '../../controllers/Smoothie/constants';
 import { G2CORE, TINYG } from '../../controllers/TinyG/constants';
+import { SWORDFISH } from '../../controllers/Swordfish/constants';
 import {
     authorizeIPAddress,
     validateUser
@@ -38,15 +40,17 @@ const caseInsensitiveEquals = (str1, str2) => {
 
 const isValidController = (controller) => (
     // Grbl
-    caseInsensitiveEquals(GRBL, controller) ||
+    //caseInsensitiveEquals(GRBL, controller) ||
     // Marlin
-    caseInsensitiveEquals(MARLIN, controller) ||
+    //caseInsensitiveEquals(MARLIN, controller) ||
     // Smoothie
-    caseInsensitiveEquals(SMOOTHIE, controller) ||
+    //caseInsensitiveEquals(SMOOTHIE, controller) ||
     // g2core
-    caseInsensitiveEquals(G2CORE, controller) ||
+    //caseInsensitiveEquals(G2CORE, controller) ||
     // TinyG
-    caseInsensitiveEquals(TINYG, controller)
+    //caseInsensitiveEquals(TINYG, controller) ||
+    // Swordfish
+    caseInsensitiveEquals(SWORDFISH, controller)
 );
 
 class CNCEngine {
@@ -112,6 +116,10 @@ class CNCEngine {
         // TinyG / G2core
         if (!controller || caseInsensitiveEquals(G2CORE, controller) || caseInsensitiveEquals(TINYG, controller)) {
             this.controllerClass[TINYG] = TinyGController;
+        }
+        // Swordfish
+        if (!controller || caseInsensitiveEquals(SWORDFISH, controller)) {
+            this.controllerClass[SWORDFISH] = SwordfishController;
         }
 
         if (Object.keys(this.controllerClass).length === 0) {

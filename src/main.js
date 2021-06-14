@@ -87,7 +87,8 @@ const main = () => {
             };
             const options = {
                 ...bounds,
-                title: `${pkg.name} ${pkg.version}`
+                //title: `${pkg.name} ${pkg.version}`
+                title: `Gladius ${pkg.version}`
             };
             const window = windowManager.openWindow(url, options);
 

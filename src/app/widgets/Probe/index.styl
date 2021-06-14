@@ -23,3 +23,36 @@
         padding-left: 5px;
     }
 }
+
+.probe-selector {
+    display: inline-block;
+    position: relative;
+    width: 317px;
+    height: 209px;
+}
+
+.probe-selector-background, .probe-selector-corner, .probe-selector-arrow, .probe-selector-map {
+    left: 0px;
+    top: 0px;
+    position: absolute;
+    display: inline-block;
+    width: 317px;
+    height: 209px;
+}
+
+.probe-selector-corner {
+    opacity: 0.1;
+    transition: opacity 0.25s ease-in-out;
+}
+
+.probe-selector-corner.is-hover {
+    opacity: 0.5;
+}
+
+.probe-selector-corner.is-selected {
+    opacity: 1;
+}
+
+.probe-selector-map {
+    opacity: 0;
+}

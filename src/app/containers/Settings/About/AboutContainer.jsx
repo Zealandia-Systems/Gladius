@@ -6,7 +6,7 @@ import i18n from 'app/lib/i18n';
 import styles from './index.styl';
 
 const AboutContainer = ({ version }) => {
-    const wiki = 'https://github.com/cncjs/cncjs/wiki';
+    const wiki = 'https://github.com/Zealandia-Systems/Gladius/wiki';
 
     return (
         <div className={styles.aboutContainer}>

@@ -17,8 +17,9 @@ import * as user from 'app/lib/user';
 import store from 'app/store';
 import QuickAccessToolbar from './QuickAccessToolbar';
 import styles from './index.styl';
+//import NavbarConnection from '../../widgets/NavbarConnection';
 
-const releases = 'https://github.com/cncjs/cncjs/releases';
+const releases = 'https://github.com/Zealandia-Systems/Gladius/releases';
 
 const newUpdateAvailableTooltip = () => {
     return (
@@ -138,7 +139,7 @@ class Header extends PureComponent {
                     body: code === 0
                         ? i18n._('Command succeeded')
                         : i18n._('Command failed ({{err}})', { err: err }),
-                    icon: 'images/logo-badge-32x32.png',
+                    icon: 'images/gladius-logo-32x32.png',
                     timeout: 10 * 1000,
                     onClick: function () {
                         window.focus();
@@ -168,7 +169,7 @@ class Header extends PureComponent {
             if (cmd && this.state.pushPermission === Push.Permission.GRANTED) {
                 Push.create(cmd.title, {
                     body: i18n._('Command failed ({{err}})', { err: err }),
-                    icon: 'images/logo-badge-32x32.png',
+                    icon: 'images/gladius-logo-32x32.png',
                     timeout: 10 * 1000,
                     onClick: function () {
                         window.focus();
@@ -277,7 +278,7 @@ class Header extends PureComponent {
                             style={{
                                 padding: 0,
                                 position: 'relative',
-                                height: 50,
+                                height: 70,
                                 width: 60
                             }}
                             href={releases}
@@ -288,7 +289,7 @@ class Header extends PureComponent {
                                 style={{
                                     margin: '4px auto 0 auto'
                                 }}
-                                src="images/logo-badge-32x32.png"
+                                src="images/gladius-logo-48x48.png"
                                 alt=""
                             />
                             <div
@@ -439,13 +440,13 @@ class Header extends PureComponent {
                             <MenuItem divider />
                             }
                             <MenuItem
-                                href="https://github.com/cncjs/cncjs/wiki"
+                                href="https://github.com/Zealandia-Systems/Gladius/wiki"
                                 target="_blank"
                             >
                                 {i18n._('Help')}
                             </MenuItem>
                             <MenuItem
-                                href="https://github.com/cncjs/cncjs/issues"
+                                href="https://github.com/Zealandia-Systems/Gladius/issues"
                                 target="_blank"
                             >
                                 {i18n._('Report an issue')}

@@ -39,5 +39,21 @@
             "alarm": "Alarm",
             "check": "Check"
         }
+    },
+    "Swordfish": {
+        "activeState": {
+            "stopped": "Stopped",
+            "idle": "Idle",
+            "run": "Run",
+            "hold": "Hold",
+            "door": "Door",
+            "paused": "Paused",
+            "busy": "Busy",
+            "waiting": "Waiting",
+            "homing": "Homing",
+            "probing": "Probing",
+            "alarm": "Alarm",
+            "check": "Check"
+        }
     }
 }

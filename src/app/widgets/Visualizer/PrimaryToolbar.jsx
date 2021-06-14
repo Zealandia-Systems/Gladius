@@ -48,6 +48,19 @@ import {
     TINYG_MACHINE_STATE_INTERLOCK,
     TINYG_MACHINE_STATE_SHUTDOWN,
     TINYG_MACHINE_STATE_PANIC,
+    // Swordfish
+    SWORDFISH,
+    SWORDFISH_ACTIVE_STATE_IDLE,
+    SWORDFISH_ACTIVE_STATE_RUN,
+    SWORDFISH_ACTIVE_STATE_HOLD,
+    SWORDFISH_ACTIVE_STATE_DOOR,
+    SWORDFISH_ACTIVE_STATE_PAUSED,
+    SWORDFISH_ACTIVE_STATE_BUSY,
+    SWORDFISH_ACTIVE_STATE_WAITING,
+    SWORDFISH_ACTIVE_STATE_HOMING,
+    SWORDFISH_ACTIVE_STATE_PROBING,
+    SWORDFISH_ACTIVE_STATE_ALARM,
+    SWORDFISH_ACTIVE_STATE_CHECK,
     // Workflow
     WORKFLOW_STATE_IDLE
 } from 'app/constants';
@@ -187,6 +200,42 @@ class PrimaryToolbar extends PureComponent {
             }[machineState];
         }
 
+        if (controllerType === SWORDFISH) {
+            const activeState = _.get(controllerState, 'activeState');
+
+            stateStyle = {
+                [SWORDFISH_ACTIVE_STATE_IDLE]: 'controller-state-default',
+                [SWORDFISH_ACTIVE_STATE_RUN]: 'controller-state-primary',
+                [SWORDFISH_ACTIVE_STATE_HOLD]: 'controller-state-warning',
+                [SWORDFISH_ACTIVE_STATE_DOOR]: 'controller-state-warning',
+                [SWORDFISH_ACTIVE_STATE_PAUSED]: 'controller-state-info',
+                [SWORDFISH_ACTIVE_STATE_BUSY]: 'controller-state-info',
+                [SWORDFISH_ACTIVE_STATE_WAITING]: 'controller-state-info',
+                [SWORDFISH_ACTIVE_STATE_HOMING]: 'controller-state-primary',
+                [SWORDFISH_ACTIVE_STATE_PROBING]: 'controller-state-primary',
+                [SWORDFISH_ACTIVE_STATE_ALARM]: 'controller-state-danger',
+                [SWORDFISH_ACTIVE_STATE_CHECK]: 'controller-state-info'
+            }[activeState];
+
+            stateText = {
+                [SWORDFISH_ACTIVE_STATE_IDLE]: i18n.t('controller:Swordfish.activeState.idle'),
+                [SWORDFISH_ACTIVE_STATE_RUN]: i18n.t('controller:Swordfish.activeState.run'),
+                [SWORDFISH_ACTIVE_STATE_HOLD]: i18n.t('controller:Swordfish.activeState.hold'),
+                [SWORDFISH_ACTIVE_STATE_DOOR]: i18n.t('controller:Swordfish.activeState.door'),
+                [SWORDFISH_ACTIVE_STATE_PAUSED]: i18n.t('controller:Swordfish.activeState.paused'),
+                [SWORDFISH_ACTIVE_STATE_BUSY]: i18n.t('controller:Swordfish.activeState.busy'),
+                [SWORDFISH_ACTIVE_STATE_WAITING]: i18n.t('controller:Swordfish.activeState.waiting'),
+                [SWORDFISH_ACTIVE_STATE_HOMING]: i18n.t('controller:Swordfish.activeState.homing'),
+                [SWORDFISH_ACTIVE_STATE_PROBING]: i18n.t('controller:Swordfish.activeState.probing'),
+                [SWORDFISH_ACTIVE_STATE_ALARM]: i18n.t('controller:Swordfish.activeState.alarm'),
+                [SWORDFISH_ACTIVE_STATE_CHECK]: i18n.t('controller:Swordfish.activeState.check')
+            }[activeState];
+
+            if (state.statusMessage) {
+                stateText += `: ${state.statusMessage}`;
+            }
+        }
+
         return (
             <div
                 className={classNames(
@@ -219,6 +268,10 @@ class PrimaryToolbar extends PureComponent {
 
         if (controllerType === TINYG) {
             return _.get(controllerState, 'sr.modal.wcs') || defaultWCS;
+        }
+
+        if (controllerType === SWORDFISH) {
+            return _.get(controllerState, 'modal.wcs') || defaultWCS;
         }
 
         return defaultWCS;

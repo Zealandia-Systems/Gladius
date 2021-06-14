@@ -16,7 +16,7 @@ const defaultState = {
             primary: {
                 show: true,
                 widgets: [
-                    'connection', 'console', 'grbl', 'marlin', 'smoothie', 'tinyg', 'webcam'
+                    'connection', 'console', 'swordfish', 'grbl', 'marlin', 'smoothie', 'tinyg', 'webcam'
                 ]
             },
             secondary: {
@@ -111,6 +111,9 @@ const defaultState = {
             }
         },
         macro: {
+            minimized: false
+        },
+        swordfish: {
             minimized: false
         },
         marlin: {

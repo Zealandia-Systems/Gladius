@@ -9,7 +9,7 @@ const HelpContainer = () => {
                 type="button"
                 className="btn btn-default"
                 onClick={() => {
-                    const url = 'https://github.com/cncjs/cncjs/releases';
+                    const url = 'https://github.com/Zealandia-Systems/Gladius/releases';
                     window.open(url, '_blank');
                 }}
             >
@@ -19,7 +19,7 @@ const HelpContainer = () => {
                 type="button"
                 className="btn btn-default"
                 onClick={() => {
-                    const url = 'https://github.com/cncjs/cncjs/issues';
+                    const url = 'https://github.com/Zealandia-Systems/Gladius/issues';
                     window.open(url, '_blank');
                 }}
             >

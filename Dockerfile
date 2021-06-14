@@ -7,4 +7,4 @@ RUN npm install --production
 
 ADD . .
 EXPOSE 8000
-CMD ["bin/cncjs"]
+CMD ["bin/gladius"]

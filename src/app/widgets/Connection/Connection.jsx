@@ -14,7 +14,8 @@ import {
     GRBL,
     MARLIN,
     SMOOTHIE,
-    TINYG
+    TINYG,
+    SWORDFISH
 } from '../../constants';
 
 class Connection extends PureComponent {
@@ -113,6 +114,7 @@ class Connection extends PureComponent {
         const hasMarlinController = includes(controller.loadedControllers, MARLIN);
         const hasSmoothieController = includes(controller.loadedControllers, SMOOTHIE);
         const hasTinyGController = includes(controller.loadedControllers, TINYG);
+        const hasSwordfishController = includes(controller.loadedControllers, SWORDFISH);
         const notLoading = !loading;
         const notConnecting = !connecting;
         const notConnected = !connected;
@@ -203,14 +205,31 @@ class Connection extends PureComponent {
                                         {TINYG}
                                     </button>
                                 )}
+                                {hasSwordfishController && (
+                                    <button
+                                        type="button"
+                                        className={cx(
+                                            'btn',
+                                            'btn-default',
+                                            { 'btn-select': controllerType === SWORDFISH }
+                                        )}
+                                        disabled={!canChangeController}
+                                        onClick={() => {
+                                            actions.changeController(SWORDFISH);
+                                        }}
+                                    >
+                                        {SWORDFISH}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
                 )}
                 <div className="form-group">
-                    <label className="control-label">{i18n._('Port')}</label>
+                    {/*<label className="control-label">{i18n._('Port')}</label>*/}
                     <div className="input-group input-group-sm">
                         <Select
+                            label={i18n._('Port')}
                             backspaceRemoves={false}
                             className="sm"
                             clearable={false}
@@ -251,8 +270,9 @@ class Connection extends PureComponent {
                     </div>
                 </div>
                 <div className="form-group">
-                    <label className="control-label">{i18n._('Baud rate')}</label>
+                    {/*<label className="control-label">{i18n._('Baud rate')}</label>*/}
                     <Select
+                        label={i18n._('Baud rate')}
                         backspaceRemoves={false}
                         className="sm"
                         clearable={false}
@@ -270,21 +290,23 @@ class Connection extends PureComponent {
                         valueRenderer={this.renderBaudrateValue}
                     />
                 </div>
-                <div
-                    className={cx('checkbox', {
-                        'disabled': !canToggleHardwareFlowControl
-                    })}
-                >
-                    <label>
-                        <input
-                            type="checkbox"
-                            defaultChecked={enableHardwareFlowControl}
-                            onChange={actions.toggleHardwareFlowControl}
-                            disabled={!canToggleHardwareFlowControl}
-                        />
-                        {i18n._('Enable hardware flow control')}
-                    </label>
-                </div>
+                {notConnected && (
+                    <div
+                        className={cx('checkbox', {
+                            'disabled': !canToggleHardwareFlowControl
+                        })}
+                    >
+                        <label>
+                            <input
+                                type="checkbox"
+                                defaultChecked={enableHardwareFlowControl}
+                                onChange={actions.toggleHardwareFlowControl}
+                                disabled={!canToggleHardwareFlowControl}
+                            />
+                            {i18n._('Enable hardware flow control')}
+                        </label>
+                    </div>
+                )}
                 <div className="checkbox">
                     <label>
                         <input
