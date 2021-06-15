@@ -1,48 +1,15 @@
 import React, { PureComponent } from 'react';
-import { Redirect, withRouter } from 'react-router-dom';
 import ReactTooltip from 'react-tooltip';
-import { trackPage } from '../lib/analytics';
 import Header from './Header';
-import Sidebar from './Sidebar';
 import Workspace from './Workspace';
-import Settings from './Settings';
 import styles from './App.styl';
 
 class App extends PureComponent {
     static propTypes = {
-        ...withRouter.propTypes
+
     };
 
     render() {
-        const { location } = this.props;
-        const accepted = ([
-            '/workspace',
-            '/settings',
-            '/settings/general',
-            '/settings/workspace',
-            '/settings/machine-profiles',
-            '/settings/user-accounts',
-            '/settings/controller',
-            '/settings/commands',
-            '/settings/events',
-            '/settings/about'
-        ].indexOf(location.pathname) >= 0);
-
-        if (!accepted) {
-            return (
-                <Redirect
-                    to={{
-                        pathname: '/workspace',
-                        state: {
-                            from: location
-                        }
-                    }}
-                />
-            );
-        }
-
-        trackPage(location.pathname);
-
         return (
             <div>
                 <ReactTooltip
@@ -50,20 +17,11 @@ class App extends PureComponent {
                     effect="solid"
                 />
                 <Header {...this.props} />
-                <aside className={styles.sidebar} id="sidebar">
-                    <Sidebar {...this.props} />
-                </aside>
                 <div className={styles.main}>
                     <div className={styles.content}>
                         <Workspace
                             {...this.props}
-                            style={{
-                                display: (location.pathname !== '/workspace') ? 'none' : 'block'
-                            }}
                         />
-                        {location.pathname.indexOf('/settings') === 0 &&
-                            <Settings {...this.props} />
-                        }
                     </div>
                 </div>
             </div>
@@ -71,4 +29,4 @@ class App extends PureComponent {
     }
 }
 
-export default withRouter(App);
+export default App;

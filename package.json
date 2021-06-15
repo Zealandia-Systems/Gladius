@@ -59,10 +59,8 @@
     "start": "./bin/gladius",
     "start-electron": "electron ./dist/gladius/main",
     "watch-dev": "cross-env NODE_ENV=development webpack-cli --watch --config webpack.config.server.development.js",
-    "start-dev": "cross-env NODE_ENV=development ./bin/gladius -vvv -p 8000 -m /widget:https://gladius.github.io/gladius-widget-boilerplate/v1/",
-    "start-dev-swordfish": "cross-env NODE_ENV=development ./bin/gladius -vvv -p 8000 --controller Swordfish",
+    "start-dev": "cross-env NODE_ENV=development ./bin/gladius -vvv -p 8000",
     "dev": "npm run build-dev && npm run start-dev",
-    "dev-swordfish": "npm run build-dev && npm run start-dev-swordfish",
     "prod": "npm run build-prod && NODE_ENV=production ./bin/gladius",
     "eslint": "npm run eslint:build",
     "eslint:build": "eslint --ext .js --ext .jsx *.js scripts test",
@@ -351,9 +349,5 @@
   },
   "pre-push": [
     "eslint:debug"
-  ],
-  "collective": {
-    "type": "opencollective",
-    "url": "https://opencollective.com/gladius"
-  }
+  ]
 }

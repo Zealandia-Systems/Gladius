@@ -30,13 +30,6 @@ class WidgetManager extends PureComponent {
             disabled: true
         },
         {
-            id: 'connection',
-            caption: i18n._('Connection Widget'),
-            details: i18n._('This widget lets you establish a connection to a serial port.'),
-            visible: true,
-            disabled: true
-        },
-        {
             id: 'console',
             caption: i18n._('Console Widget'),
             details: i18n._('This widget lets you read and write data to the CNC controller connected to a serial port.'),

@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import AxesWidget from 'app/widgets/Axes';
-import ConnectionWidget from 'app/widgets/Connection';
 import ConsoleWidget from 'app/widgets/Console';
 import GCodeWidget from 'app/widgets/GCode';
 import GrblWidget from 'app/widgets/Grbl';
@@ -20,7 +19,6 @@ import WebcamWidget from 'app/widgets/Webcam';
 const getWidgetByName = (name) => {
     return {
         'axes': AxesWidget,
-        'connection': ConnectionWidget,
         'console': ConsoleWidget,
         'gcode': GCodeWidget,
         'grbl': GrblWidget,

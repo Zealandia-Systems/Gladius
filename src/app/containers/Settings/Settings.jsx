@@ -1,45 +1,53 @@
-import classNames from 'classnames';
+//import classNames from 'classnames';
 import ensureArray from 'ensure-array';
 import i18next from 'i18next';
 import Uri from 'jsuri';
-import _camelCase from 'lodash/camelCase';
+//import _camelCase from 'lodash/camelCase';
 import _find from 'lodash/find';
 import _findIndex from 'lodash/findIndex';
 import _get from 'lodash/get';
 import _isEqual from 'lodash/isEqual';
 import pubsub from 'pubsub-js';
 import React, { PureComponent } from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { Tab, Nav, NavItem, Row, Col } from 'react-bootstrap';
 import api from 'app/api';
 import {
     ERR_CONFLICT,
     ERR_PRECONDITION_FAILED
 } from 'app/api/constants';
 import settings from 'app/config/settings';
-import Breadcrumbs from 'app/components/Breadcrumbs';
+//import Breadcrumbs from 'app/components/Breadcrumbs';
+import Modal from 'app/components/Modal';
 import i18n from 'app/lib/i18n';
 import store from 'app/store';
-import General from './General';
-import Workspace from './Workspace';
-import MachineProfiles from './MachineProfiles';
-import UserAccounts from './UserAccounts';
-import Controller from './Controller';
+//import General from './General';
+//import Workspace from './Workspace';
+//import MachineProfiles from './MachineProfiles';
+//import UserAccounts from './UserAccounts';
+//import Controller from './Controller';
 import Commands from './Commands';
 import Events from './Events';
 import About from './About';
-import styles from './index.styl';
+//import styles from './index.styl';
 
-const mapSectionPathToId = (path = '') => {
+/*const mapSectionPathToId = (path = '') => {
     return _camelCase(path.split('/')[0] || '');
-};
+};*/
 
 class Settings extends PureComponent {
     static propTypes = {
-        ...withRouter.propTypes
+    };
+
+    state = {
+        show: true
+    };
+
+    handleClose = () => {
+        this.setState({ show: false });
     };
 
     sections = [
-        {
+        /*{
             id: 'general',
             path: 'general',
             title: i18n._('General'),
@@ -68,7 +76,7 @@ class Settings extends PureComponent {
             path: 'user-accounts',
             title: i18n._('User Accounts'),
             component: (props) => <UserAccounts {...props} />
-        },
+        },*/
         {
             id: 'commands',
             path: 'commands',
@@ -1202,62 +1210,66 @@ class Settings extends PureComponent {
         const actions = {
             ...this.actions
         };
-        const { pathname = '' } = this.props.location;
-        const initialSectionPath = this.sections[0].path;
-        const sectionPath = pathname.replace(/^\/settings(\/)?/, ''); // TODO
-        const id = mapSectionPathToId(sectionPath || initialSectionPath);
-        const activeSection = _find(this.sections, { id: id }) || this.sections[0];
-        const sectionItems = this.sections.map((section, index) => (
-            <li
-                key={section.id}
-                className={classNames(
-                    { [styles.active]: activeSection.id === section.id }
-                )}
-            >
-                <Link to={`/settings/${section.path}`}>
-                    {section.title}
-                </Link>
-            </li>
-        ));
 
-        // Section component
-        const Section = activeSection.component;
-        const sectionInitialState = this.initialState[activeSection.id];
-        const sectionState = state[activeSection.id];
-        const sectionStateChanged = !_isEqual(sectionInitialState, sectionState);
-        const sectionActions = actions[activeSection.id];
+        const sectionItems = this.sections.map((section, index) => (
+            <NavItem key={section.id} eventKey={section.id}>{section.title}</NavItem>
+        ));
+        const sectionPanes = this.sections.map((section, id) => {
+            const Section = section.component;
+            const sectionInitialState = this.initialState[section.id];
+            const sectionState = state[section.id];
+            const sectionStateChanged = !_isEqual(sectionInitialState, sectionState);
+            const sectionActions = actions[section.id];
+
+            return (
+                <Tab.Pane key={section.id} eventKey={section.id}>
+                    <Section
+                        initialState={sectionInitialState}
+                        state={sectionState}
+                        stateChanged={sectionStateChanged}
+                        actions={sectionActions}
+                    />
+                </Tab.Pane>
+            );
+        });
 
         return (
-            <div className={styles.settings}>
-                <Breadcrumbs>
-                    <Breadcrumbs.Item active>{i18n._('Settings')}</Breadcrumbs.Item>
-                </Breadcrumbs>
-                <div className={classNames(styles.container, styles.border)}>
-                    <div className={styles.row}>
-                        <div className={classNames(styles.col, styles.sidenav)}>
-                            <nav className={styles.navbar}>
-                                <ul className={styles.nav}>
+            <Modal
+                size="lg"
+                onClose={this.handleClose}
+                show={this.state.show}
+            >
+                <Modal.Header>
+                    <Modal.Title>{i18n._('Settings')}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Tab.Container id="left-tabs-example" defaultActiveKey={this.sections[0].id}>
+                        <Row className="clearfix">
+                            <Col sm={4}>
+                                <Nav bsStyle="pills" stacked>
                                     {sectionItems}
-                                </ul>
-                            </nav>
-                        </div>
-                        <div className={classNames(styles.col, styles.splitter)} />
-                        <div className={classNames(styles.col, styles.section)}>
-                            <div className={styles.heading}>{activeSection.title}</div>
-                            <div className={styles.content}>
-                                <Section
-                                    initialState={sectionInitialState}
-                                    state={sectionState}
-                                    stateChanged={sectionStateChanged}
-                                    actions={sectionActions}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                </Nav>
+                            </Col>
+                            <Col sm={8}>
+                                <Tab.Content animation>
+                                    {sectionPanes}
+                                </Tab.Content>
+                            </Col>
+                        </Row>
+                    </Tab.Container>
+                </Modal.Body>
+                <Modal.Footer>
+                    <button
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={this.handleClose}
+                    >
+                        {i18n._('OK')}
+                    </button>
+                </Modal.Footer>
+            </Modal>
         );
     }
 }
 
-export default withRouter(Settings);
+export default Settings;
