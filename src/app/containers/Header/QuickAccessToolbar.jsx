@@ -4,6 +4,7 @@ import Space from 'app/components/Space';
 import controller from 'app/lib/controller';
 import i18n from 'app/lib/i18n';
 import styles from './index.styl';
+import * as settings from '../Settings';
 
 class QuickAccessToolbar extends PureComponent {
     static propTypes = {
@@ -36,7 +37,7 @@ class QuickAccessToolbar extends PureComponent {
         return (
             <div className={styles.quickAccessToolbar}>
                 <ul className="nav navbar-nav">
-                    <li className="btn-group btn-group-sm" role="group">
+                    <li className="btn-group btn-group-lg" role="group">
                         <button
                             type="button"
                             className="btn btn-default"
@@ -58,7 +59,7 @@ class QuickAccessToolbar extends PureComponent {
                             {i18n._('Feedhold')}
                         </button>
                     </li>
-                    <li className="btn-group btn-group-sm" role="group">
+                    <li className="btn-group btn-group-lg" role="group">
                         <button
                             type="button"
                             className="btn btn-primary"
@@ -98,6 +99,16 @@ class QuickAccessToolbar extends PureComponent {
                             <i className="fa fa-undo" />
                             <Space width="8" />
                             {i18n._('Reset')}
+                        </button>
+                        <button
+                            type="button"
+                            className="btn"
+                            onClick={() => settings.show()}
+                            title={i18n._('Settings')}
+                        >
+                            <i className="fa fa-cogs"/>
+                            <Space width="8"/>
+                            {i18n._('Settings')}
                         </button>
                     </li>
                 </ul>

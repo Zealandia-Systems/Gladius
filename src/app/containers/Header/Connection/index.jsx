@@ -1,51 +1,22 @@
-/*
- * Copyright (C) 2021 Zealandia Systems Ltd.
- *
- * This file is part of Gladius.
- *
- * Gladius is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, under version 3 of the License.
- *
- * Gladius is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Gladius.  If not, see <https://www.gnu.org/licenses/>.
- *
- * Contact for information regarding this program and its license
- * can be sent through gladius@zealandia.systems.
- *
- */
-
 import get from 'lodash/get';
 import reverse from 'lodash/reverse';
 import sortBy from 'lodash/sortBy';
 import uniq from 'lodash/uniq';
-import { connect } from 'react-redux';
-import { GRBL } from 'app/constants';
 import includes from 'lodash/includes';
-//import map from 'lodash/map';
+import map from 'lodash/map';
 import PropTypes from 'prop-types';
-import pubsub from 'pubsub-js';
 import React, { PureComponent } from 'react';
 import controller from 'app/lib/controller';
 import i18n from 'app/lib/i18n';
 import log from 'app/lib/log';
-import WidgetConfig from '../WidgetConfig';
-import NavbarConnection from './NavbarConnection';
+import WidgetConfig from 'app/widgets/WidgetConfig';
+import Connection from './Connection';
+//import styles from './index.styl';
 
-
-class NavbarConnectionWidget extends PureComponent {
+class ConnectionWidget extends PureComponent {
     static propTypes = {
-        widgetId: PropTypes.string.isRequired,
-        disableWizardFunction: PropTypes.func,
-        enableWizardFunction: PropTypes.func
+        widgetId: PropTypes.string.isRequired
     };
-
-    pubsubTokens = [];
 
     // Public methods
     collapse = () => {
@@ -90,14 +61,11 @@ class NavbarConnectionWidget extends PureComponent {
                 port: option.value
             }));
         },
-        onClickPortListing: (selectedPort) => {
+        onChangeBaudrateOption: (option) => {
             this.setState(state => ({
                 alertMessage: '',
-                port: selectedPort.port
-            }), () => {
-                const { port, baudrate } = this.state;
-                this.openPort(port, { baudrate: baudrate });
-            });
+                baudrate: option.value
+            }));
         },
         toggleAutoReconnect: (event) => {
             const checked = event.target.checked;
@@ -130,39 +98,107 @@ class NavbarConnectionWidget extends PureComponent {
         }
     };
 
+    controllerEvents = {
+        'serialport:list': (ports) => {
+            log.debug('Received a list of serial ports:', ports);
 
-    setConnectedState() {
-        const { port, connectedBaudrate } = this.props;
-        this.setState(state => ({
-            alertMessage: '',
-            connecting: false,
-            connected: true,
-            controllerType: GRBL,
-            port: port,
-            baudrate: connectedBaudrate
-        }));
+            this.stopLoading();
 
-        log.debug(`Established a connection to the serial port "${port}"`);
-    }
+            const port = this.config.get('port') || '';
 
-    setDisconnectedState() {
-        this.setState(state => ({
-            alertMessage: '',
-            connecting: false,
-            connected: false
-        }));
+            if (includes(map(ports, 'port'), port)) {
+                this.setState(state => ({
+                    alertMessage: '',
+                    port: port,
+                    ports: ports
+                }));
 
-        this.refreshPorts();
-    }
+                const { autoReconnect, hasReconnected } = this.state;
+
+                if (autoReconnect && !hasReconnected) {
+                    const { baudrate } = this.state;
+
+                    this.setState(state => ({
+                        hasReconnected: true
+                    }));
+                    this.openPort(port, {
+                        baudrate: baudrate
+                    });
+                }
+            } else {
+                this.setState(state => ({
+                    alertMessage: '',
+                    ports: ports
+                }));
+            }
+        },
+        'serialport:change': (options) => {
+            const { port, inuse } = options;
+            const ports = this.state.ports.map((o) => {
+                if (o.port !== port) {
+                    return o;
+                }
+                return { ...o, inuse };
+            });
+
+            this.setState(state => ({
+                ports: ports
+            }));
+        },
+        'serialport:open': (options) => {
+            const { controllerType, port, baudrate, inuse } = options;
+            const ports = this.state.ports.map((o) => {
+                if (o.port !== port) {
+                    return o;
+                }
+                return { ...o, inuse };
+            });
+
+            this.setState(state => ({
+                alertMessage: '',
+                connecting: false,
+                connected: true,
+                controllerType: controllerType, // Grbl|Marlin|Smoothie|TinyG
+                port: port,
+                baudrate: baudrate,
+                ports: ports
+            }));
+
+            log.debug(`Established a connection to the serial port "${port}"`);
+        },
+        'serialport:close': (options) => {
+            const { port } = options;
+
+            log.debug(`The serial port "${port}" is disconected`);
+
+            this.setState(state => ({
+                alertMessage: '',
+                connecting: false,
+                connected: false
+            }));
+
+            this.refreshPorts();
+        },
+        'serialport:error': (options) => {
+            const { port } = options;
+
+            this.setState(state => ({
+                alertMessage: i18n._('Error opening serial port \'{{- port}}\'', { port: port }),
+                connecting: false,
+                connected: false
+            }));
+
+            log.error(`Error opening serial port "${port}"`);
+        }
+    };
 
     componentDidMount() {
+        this.addControllerEvents();
         this.refreshPorts();
-        this.attemptAutoConnect();
-        this.subscribe();
     }
 
     componentWillUnmount() {
-        this.unsubscribe();
+        this.removeControllerEvents();
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -172,21 +208,12 @@ class NavbarConnectionWidget extends PureComponent {
             port,
             baudrate,
             autoReconnect,
-            connection,
+            connection
         } = this.state;
-        const { isConnected, type } = this.props;
-        const wasConnected = prevProps.isConnected;
-
-        if (!wasConnected && isConnected) {
-            this.setConnectedState();
-        }
-        if (!isConnected && wasConnected) {
-            this.setDisconnectedState();
-        }
 
         this.config.set('minimized', minimized);
-        if (controllerType !== type) {
-            this.config.set('controller.type', type);
+        if (controllerType) {
+            this.config.set('controller.type', controllerType);
         }
         if (port) {
             this.config.set('port', port);
@@ -223,9 +250,10 @@ class NavbarConnectionWidget extends PureComponent {
             loading: false,
             connecting: false,
             connected: false,
+            ports: [],
             baudrates: reverse(sortBy(uniq(controller.baudrates.concat(defaultBaudrates)))),
             controllerType: controllerType,
-            port: this.config.get('port'),
+            port: controller.port,
             baudrate: this.config.get('baudrate'),
             connection: {
                 serial: {
@@ -236,6 +264,20 @@ class NavbarConnectionWidget extends PureComponent {
             hasReconnected: false,
             alertMessage: ''
         };
+    }
+
+    addControllerEvents() {
+        Object.keys(this.controllerEvents).forEach(eventName => {
+            const callback = this.controllerEvents[eventName];
+            controller.addListener(eventName, callback);
+        });
+    }
+
+    removeControllerEvents() {
+        Object.keys(this.controllerEvents).forEach(eventName => {
+            const callback = this.controllerEvents[eventName];
+            controller.removeListener(eventName, callback);
+        });
     }
 
     startLoading() {
@@ -249,25 +291,6 @@ class NavbarConnectionWidget extends PureComponent {
                 loading: false
             }));
         }, delay);
-    }
-
-    attemptAutoConnect() {
-        const { autoReconnect, hasReconnected, port, baudrate } = this.state;
-        const { ports } = this.props;
-
-        if (autoReconnect && !hasReconnected) {
-            this.setState(state => ({
-                hasReconnected: true
-            }));
-            this.openPort(port, {
-                baudrate: baudrate
-            });
-        } else {
-            this.setState(state => ({
-                alertMessage: '',
-                ports: ports
-            }));
-        }
     }
 
     stopLoading() {
@@ -293,13 +316,13 @@ class NavbarConnectionWidget extends PureComponent {
         }));
 
         controller.openPort(port, {
-            controllerType: GRBL,
+            controllerType: this.state.controllerType,
             baudrate: baudrate,
             rtscts: this.state.connection.serial.rtscts
         }, (err) => {
             if (err) {
                 this.setState(state => ({
-                    alertMessage: i18n._('Error opening port \'{{- port}}\'', { port: port }),
+                    alertMessage: i18n._('Error opening serial port \'{{- port}}\'', { port: port }),
                     connecting: false,
                     connected: false
                 }));
@@ -326,60 +349,19 @@ class NavbarConnectionWidget extends PureComponent {
         });
     }
 
-    subscribe() {
-        const tokens = [
-            pubsub.subscribe('autoReconnect:update', (msg, value) => {
-                this.setState({
-                    autoReconnect: value
-                });
-            }),
-            pubsub.subscribe('baudrate:update', (msg, value) => {
-                this.setState({
-                    baudrate: value
-                });
-            }),
-            pubsub.subscribe('autoReconnect:attempt'), (msg) => {
-
-            }
-        ];
-        this.pubsubTokens = this.pubsubTokens.concat(tokens);
-    }
-
-    unsubscribe() {
-        this.pubsubTokens.forEach((token) => {
-            pubsub.unsubscribe(token);
-        });
-        this.pubsubTokens = [];
-    }
-
     render() {
-        const { ports } = this.props;
+        //const { widgetId } = this.props;
         const state = {
-            ...this.state,
-            ports,
-            controllerType: GRBL,
+            ...this.state
         };
         const actions = {
             ...this.actions
         };
 
         return (
-            <NavbarConnection actions={actions} state={state} />
+            <Connection state={state} actions={actions} />
         );
     }
 }
 
-export default connect((store) => {
-    const ports = get(store, 'connection.ports');
-    const isConnected = get(store, 'connection.isConnected');
-    const type = get(store, 'controller.type');
-    const port = get(store, 'connection.port');
-    const connectedBaudrate = get(store, 'connection.baudrate');
-    return {
-        ports,
-        isConnected,
-        type,
-        port,
-        connectedBaudrate
-    };
-})(NavbarConnectionWidget);
+export default ConnectionWidget;

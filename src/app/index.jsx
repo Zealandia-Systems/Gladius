@@ -5,10 +5,6 @@ import pubsub from 'pubsub-js';
 import qs from 'qs';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
-    HashRouter as Router,
-    Route
-} from 'react-router-dom';
 import i18next from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import XHR from 'i18next-xhr-backend';
@@ -25,12 +21,10 @@ import * as user from './lib/user';
 import store from './store';
 import defaultState from './store/defaultState';
 import App from './containers/App';
-import Login from './containers/Login';
 import Anchor from './components/Anchor';
 import { Button } from './components/Buttons';
 import ModalTemplate from './components/ModalTemplate';
 import Modal from './components/Modal';
-import ProtectedRoute from './components/ProtectedRoute';
 import Space from './components/Space';
 import './styles/vendor.styl';
 import './styles/app.styl';
@@ -47,12 +41,7 @@ const renderPage = () => {
             gutterWidth={0}
             layout="floats"
         >
-            <Router>
-                <div>
-                    <Route path="/login" component={Login} />
-                    <ProtectedRoute path="/" component={App} />
-                </div>
-            </Router>
+            <App />
         </GridSystemProvider>,
         container
     );

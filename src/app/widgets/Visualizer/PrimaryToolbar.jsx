@@ -286,7 +286,6 @@ class PrimaryToolbar extends PureComponent {
 
         return (
             <div className={styles.primaryToolbar}>
-                {this.renderControllerType()}
                 {this.renderControllerState()}
                 <div className="pull-right">
                     <Dropdown
