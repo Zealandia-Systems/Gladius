@@ -45,7 +45,8 @@ import {
     // Swordfish
     SWORDFISH,
     // Workflow
-    WORKFLOW_STATE_RUNNING
+    WORKFLOW_STATE_RUNNING,
+    SWORDFISH_ACTIVE_STATE_IDLE
 } from '../../constants';
 import {
     MODAL_NONE,
@@ -186,9 +187,7 @@ class AxesWidget extends PureComponent {
         },
         jog: (params = {}) => {
             const s = map(params, (value, letter) => ('' + letter.toUpperCase() + value)).join(' ');
-            controller.command('gcode', 'G91'); // relative
-            controller.command('gcode', 'G0 ' + s);
-            controller.command('gcode', 'G90'); // absolute
+            controller.command('gcode', 'G91 G0' + s);
         },
         move: (params = {}) => {
             const s = map(params, (value, letter) => ('' + letter.toUpperCase() + value)).join(' ');
@@ -818,9 +817,16 @@ class AxesWidget extends PureComponent {
             }
         }
         if (controllerType === SWORDFISH) {
-            // Ignore
-        }
+            const activeState = get(controllerState, 'activeState');
 
+            const states = [
+                SWORDFISH_ACTIVE_STATE_IDLE
+            ];
+
+            if (!includes(states, activeState)) {
+                return false;
+            }
+        }
 
         return true;
     }

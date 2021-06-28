@@ -20,7 +20,6 @@
     "Error": "",
     "Username": "Felhasználó",
     "Password": "Jelszó",
-    "A web-based interface for CNC milling controller running Grbl, Smoothieware, or TinyG": "Web-alapú felület CNC vezérlő: Grbl, Smoothieware, TinyG",
     "Learn more": "További információ",
     "Downloads": "Letöltés",
     "Checking for updates...": "Frissítések keresése ...",
@@ -516,5 +515,6 @@
     "Probe Z Only": "",
     "Probe Distance": "",
     "Disconnected": "",
-    "Connected": ""
+    "Connected": "",
+    "A web-based interface for CNC milling controller running Swordfish": ""
 }

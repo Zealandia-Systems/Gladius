@@ -2,8 +2,11 @@
   "name": "gladius",
   "version": "1.0.0",
   "description": "A web-based interface for CNC milling controller running Swordfish",
-  "homepage": "https://github.com/gladius/gladius",
-  "author": "Cheton Wu <cheton@gmail.com>",
+  "homepage": "https://github.com/Zealandia-Systems/Gladius",
+  "author": {
+    "name": "Scott Mohekey",
+    "email": "scott.mohekey@zealandia.systems"
+  },
   "main": "./dist/gladius/server-cli.js",
   "bin": {
     "gladius": "./bin/gladius",
@@ -16,7 +19,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:gladius/gladius.git"
+    "url": "git@github.com:Zealandia-Systems/Gladius.git"
   },
   "license": "MIT",
   "engines": {
@@ -302,7 +305,7 @@
     "css-split-webpack-plugin": "~0.2.6",
     "dotenv": "~7.0.0",
     "electron": "~4.2.12",
-    "electron-builder": "~22.4.0",
+    "electron-builder": "~22.8.1",
     "electron-rebuild": "^1.10.1",
     "eslint": "~5.16.0",
     "eslint-config-trendmicro": "~1.4.1",

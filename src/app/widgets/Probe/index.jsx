@@ -221,13 +221,13 @@ class ProbeWidget extends PureComponent {
             const MAX_PROBE_DIST_Y = probeDepth;
             const MAX_PROBE_DIST_Z = probeDepth;
 
-            const CORNER_POSITION_X = 5 + toolDiameter / 2;
-            const CORNER_POSITION_Y = 5 + toolDiameter / 2;
-            const CORNER_POSITION_Z = 15;
+            const CORNER_POSITION_X = 31 - toolDiameter / 2;
+            const CORNER_POSITION_Y = 31 - toolDiameter / 2;
+            const CORNER_POSITION_Z = 9;
 
             const RETRACT_DISTANCE_X = 20 / 2 - toolDiameter / 2;
             const RETRACT_DISTANCE_Y = 20 / 2 - toolDiameter / 2;
-            const RETRACT_DISTANCE_Z = 5;
+            const RETRACT_DISTANCE_Z = 2;
 
             let wcsProbeCommands = [
                 'M120',
@@ -265,7 +265,7 @@ class ProbeWidget extends PureComponent {
                     gcode('G90 G10', {
                         L: 20,
                         P: mapWCSToP(wcs),
-                        X: dirX * CORNER_POSITION_X,
+                        X: -dirX * CORNER_POSITION_X,
                     }),
                     '',
                     '; Retract X',
@@ -284,7 +284,7 @@ class ProbeWidget extends PureComponent {
                     gcode('G90 G10', {
                         L: 20,
                         P: mapWCSToP(wcs),
-                        Y: dirY * CORNER_POSITION_Y
+                        Y: -dirY * CORNER_POSITION_Y
                     }),
                     '',
                     '; Retract Y',

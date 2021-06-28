@@ -1,49 +1,27 @@
-import url from 'url';
-import registryUrl from 'registry-url';
-//import registryAuthToken from 'registry-auth-token';
 import request from 'superagent';
 import {
     ERR_INTERNAL_SERVER_ERROR
 } from '../constants';
 
-const pkgName = '@zealandia-systems/gladius';
-
-export const getLatestVersion = async (req, res) => {
-    const scope = pkgName.split('/')[0];
-    const regUrl = registryUrl(scope);
-    const pkgUrl = url.resolve(regUrl, encodeURIComponent(pkgName).replace(/^%40/, '@'));
-    //const authInfo = registryAuthToken(regUrl);
-    const headers = {};
-
-    const result = await request.get('https://api.github.com/repos/Zealandia-Systems/Gladius/releases/latest');
-
-    console.log(JSON.stringify(result));
+export const getLatestVersion = (req, res) => {
+    const releaseUrl = 'https://api.github.com/repos/Zealandia-Systems/Gladius/releases/latest';
 
     request
-        .get(pkgUrl)
-        .set(headers)
+        .get(releaseUrl)
         .end((err, _res) => {
             if (err) {
                 res.status(ERR_INTERNAL_SERVER_ERROR).send({
-                    msg: `Failed to connect to ${pkgUrl}: code=${err.code}`
+                    msg: `Failed to connect to ${releaseUrl}: code=${err.code}`
                 });
                 return;
             }
 
-            const { body: data = {} } = { ..._res };
-            data.time = data.time || {};
-            data['dist-tags'] = data['dist-tags'] || {};
-            data.versions = data.versions || {};
-
-            const time = data.time[latest];
-            const latest = data['dist-tags'].latest;
-            const {
-                name,
-                version,
-                description,
-                homepage
-            } = { ...data.versions[latest] };
-
-            res.send({ time, name, version, description, homepage });
+            res.send({
+                time: _res.body.published_at,
+                name: _res.body.tag_name,
+                version: _res.body.tag_name,
+                description: _res.body.body,
+                homepage: _res.body.url
+            });
         });
 };

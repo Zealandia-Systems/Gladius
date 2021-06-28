@@ -105,6 +105,7 @@ export const SWORDFISH_ACTIVE_STATE_WAITING = 'waiting';
 export const SWORDFISH_ACTIVE_STATE_HOMING = 'homing';
 export const SWORDFISH_ACTIVE_STATE_PROBING = 'probing';
 export const SWORDFISH_ACTIVE_STATE_ALARM = 'alarm';
+export const SWORDFISH_ACTIVE_STATE_ESTOP = 'estop';
 export const SWORDFISH_ACTIVE_STATE_CHECK = 'check';
 
 // TinyG Machine State

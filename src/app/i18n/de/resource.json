@@ -20,7 +20,6 @@
     "Error": "Fehler",
     "Username": "Benutzername",
     "Password": "Kennwort",
-    "A web-based interface for CNC milling controller running Grbl, Smoothieware, or TinyG": "Eine web-basierte Oberfläche für CNC-Fräsen-Steuerungen die mit Grbl, Smoothieware or TinyG laufen",
     "Learn more": "Weitere Informationen",
     "Downloads": "Downloads",
     "Checking for updates...": "Es wird nach Updates gesucht...",
@@ -516,5 +515,6 @@
     "Probe Z Only": "",
     "Probe Distance": "",
     "Disconnected": "",
-    "Connected": ""
+    "Connected": "",
+    "A web-based interface for CNC milling controller running Swordfish": ""
 }

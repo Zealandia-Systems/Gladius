@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "productName": "Gladius",
   "description": "CNC Milling Controller",
-  "homepage": "https://github.com/gladius/gladius",
-  "author": "Cheton Wu <cheton@gmail.com>",
+  "homepage": "https://github.com/Zealandia-Systems/Gladius",
+  "author": {
+    "name": "Scott Mohekey",
+    "email": "scott.mohekey@zealandia.systems"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:gladius/gladius.git"
+    "url": "git@github.com:Zealandia-Systems/Gladius.git"
   },
   "main": "main.js",
   "dependencies": {

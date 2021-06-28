@@ -60,6 +60,7 @@ import {
     SWORDFISH_ACTIVE_STATE_HOMING,
     SWORDFISH_ACTIVE_STATE_PROBING,
     SWORDFISH_ACTIVE_STATE_ALARM,
+    SWORDFISH_ACTIVE_STATE_ESTOP,
     SWORDFISH_ACTIVE_STATE_CHECK,
     // Workflow
     WORKFLOW_STATE_IDLE
@@ -214,6 +215,7 @@ class PrimaryToolbar extends PureComponent {
                 [SWORDFISH_ACTIVE_STATE_HOMING]: 'controller-state-primary',
                 [SWORDFISH_ACTIVE_STATE_PROBING]: 'controller-state-primary',
                 [SWORDFISH_ACTIVE_STATE_ALARM]: 'controller-state-danger',
+                [SWORDFISH_ACTIVE_STATE_ESTOP]: 'controller-state-danger',
                 [SWORDFISH_ACTIVE_STATE_CHECK]: 'controller-state-info'
             }[activeState];
 
@@ -228,6 +230,7 @@ class PrimaryToolbar extends PureComponent {
                 [SWORDFISH_ACTIVE_STATE_HOMING]: i18n.t('controller:Swordfish.activeState.homing'),
                 [SWORDFISH_ACTIVE_STATE_PROBING]: i18n.t('controller:Swordfish.activeState.probing'),
                 [SWORDFISH_ACTIVE_STATE_ALARM]: i18n.t('controller:Swordfish.activeState.alarm'),
+                [SWORDFISH_ACTIVE_STATE_ESTOP]: i18n.t('controller:Swordfish.activeState.estop'),
                 [SWORDFISH_ACTIVE_STATE_CHECK]: i18n.t('controller:Swordfish.activeState.check')
             }[activeState];
 

@@ -20,7 +20,6 @@
     "Error": "错误",
     "Username": "用户名",
     "Password": "密码",
-    "A web-based interface for CNC milling controller running Grbl, Smoothieware, or TinyG": "这是一款基于web图形化CNC雕刻机控制器，适用于Grbl，Smoothieware或TinyG等开源固件。",
     "Learn more": "了解详情",
     "Downloads": "下载",
     "Checking for updates...": "正在检查更新...",
@@ -516,5 +515,6 @@
     "Probe Z Only": "",
     "Probe Distance": "",
     "Disconnected": "",
-    "Connected": ""
+    "Connected": "",
+    "A web-based interface for CNC milling controller running Swordfish": ""
 }

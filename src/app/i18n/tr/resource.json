@@ -20,7 +20,6 @@
     "Error": "Hata",
     "Username": "Kullanıcı adı",
     "Password": "şifre",
-    "A web-based interface for CNC milling controller running Grbl, Smoothieware, or TinyG": "Grbl, Smoothieware veya TinyG'yi çalıştıran CNC freze kontrolörü için web tabanlı bir arayüz",
     "Learn more": "Daha fazla",
     "Downloads": "İndir",
     "Checking for updates...": "Güncellemeler Kontrol Ediliyor...",
@@ -516,5 +515,6 @@
     "Probe Z Only": "",
     "Probe Distance": "",
     "Disconnected": "",
-    "Connected": ""
+    "Connected": "",
+    "A web-based interface for CNC milling controller running Swordfish": ""
 }

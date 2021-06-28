@@ -53,6 +53,7 @@
             "homing": "Homing",
             "probing": "Probing",
             "alarm": "Alarm",
+            "estop": "Emergency Stop",
             "check": "Check"
         }
     }
