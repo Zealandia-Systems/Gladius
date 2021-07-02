@@ -31,7 +31,7 @@ import About from './About';
 //import styles from './index.styl';
 
 /*const mapSectionPathToId = (path = '') => {
-    return _camelCase(path.split('/')[0] || '');
+        return _camelCase(path.split('/')[0] || '');
 };*/
 
 class Settings extends PureComponent {
@@ -66,16 +66,16 @@ class Settings extends PureComponent {
             component: (props) => <Controller {...props} />
         },
         {
-            id: 'machineProfiles',
-            path: 'machine-profiles',
-            title: i18n._('Machine Profiles'),
-            component: (props) => <MachineProfiles {...props} />
+                id: 'machineProfiles',
+                path: 'machine-profiles',
+                title: i18n._('Machine Profiles'),
+                component: (props) => <MachineProfiles {...props} />
         },
         {
-            id: 'userAccounts',
-            path: 'user-accounts',
-            title: i18n._('User Accounts'),
-            component: (props) => <UserAccounts {...props} />
+                id: 'userAccounts',
+                path: 'user-accounts',
+                title: i18n._('User Accounts'),
+                component: (props) => <UserAccounts {...props} />
         },*/
         {
             id: 'commands',

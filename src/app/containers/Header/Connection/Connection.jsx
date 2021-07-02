@@ -48,7 +48,7 @@ class Connection extends PureComponent {
                     {label}
                 </div>
                 {manufacturer &&
-                <i>{i18n._('Manufacturer: {{manufacturer}}', { manufacturer })}</i>
+                    <i>{i18n._('Manufacturer: {{manufacturer}}', { manufacturer })}</i>
                 }
             </div>
         );
@@ -242,8 +242,15 @@ class Connection extends PureComponent {
                             overlay={overlay()}
                             onEntering={actions.handleRefreshPorts}
                         >
-                            <Button>
-                                <i className="fa fa-plug" />
+                            <Button
+                                className="btn btn-info"
+                            >
+                                {notConnected && (
+                                    <i className="fa fa-plug" />
+                                )}
+                                {connected && (
+                                    <i className="fa fa-check" />
+                                )}
                                 <Space width="8" />
                                 {notConnected && i18n._('Disconnected')}
                                 {connected && i18n._('Connected')}

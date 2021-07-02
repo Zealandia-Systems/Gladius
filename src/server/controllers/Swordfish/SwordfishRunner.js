@@ -12,7 +12,7 @@ import SwordfishLineParserResultState from './SwordfishLineParserResultState';
 import SwordfishLineParserResultError from './SwordfishLineParserResultError';
 import {
     SWORDFISH_ACTIVE_STATE_IDLE,
-    SWORDFISH_ACTIVE_STATE_ALARM
+    SWORDFISH_ACTIVE_STATE_ALARM,
 } from '../../../app/constants';
 
 const log = logger('controller:Swordfish');
@@ -23,12 +23,12 @@ class SwordfishRunner extends events.EventEmitter {
         mpos: {
             x: '0.000',
             y: '0.000',
-            z: '0.000'
+            z: '0.000',
         },
         wpos: {
             x: '0.000',
             y: '0.000',
-            z: '0.000'
+            z: '0.000',
         },
         modal: {
             motion: 'G0', // G0, G1, G2, G3, G38.2, G38.3, G38.4, G38.5, G80
@@ -39,7 +39,7 @@ class SwordfishRunner extends events.EventEmitter {
             feedrate: 'G94', // G93: Inverse time mode, G94: Units per minute
             program: 'M0', // M0, M1, M2, M30
             spindle: 'M5', // M3: Spindle (cw), M4: Spindle (ccw), M5: Spindle off
-            coolant: 'M9' // M7: Mist coolant, M8: Flood coolant, M9: Coolant off, [M7,M8]: Both on
+            coolant: 'M9', // M7: Mist coolant, M8: Flood coolant, M9: Coolant off, [M7,M8]: Both on
         },
         ovF: 100,
         ovR: 100,
@@ -48,11 +48,11 @@ class SwordfishRunner extends events.EventEmitter {
         heatedBed: {}, // { deg, degTarget, power }
         rapidFeedrate: 0, // Related to G0
         feedrate: 0, // Related to G1, G2, G3, G38.2, G38.3, G38.4, G38.5, G80
-        spindle: 0 // Related to M3, M4, M5
+        spindle: 0, // Related to M3, M4, M5
+        tool: 1,
     };
 
-    settings = {
-    };
+    settings = {};
 
     parser = new SwordfishLineParser();
 
@@ -71,13 +71,11 @@ class SwordfishRunner extends events.EventEmitter {
             return;
         }
         if (type === SwordfishLineParserResultFirmware) {
-            const {
-                firmware
-            } = payload;
+            const { firmware } = payload;
 
             const nextSettings = {
                 ...this.settings,
-                firmware: firmware
+                firmware: firmware,
             };
 
             if (!_.isEqual(this.settings, nextSettings)) {
@@ -93,16 +91,16 @@ class SwordfishRunner extends events.EventEmitter {
                 activeState: payload.activeState,
                 mpos: {
                     ...this.state.mpos,
-                    ...payload.mpos
+                    ...payload.mpos,
                 },
                 wpos: {
                     ...this.state.wpos,
-                    ...payload.wpos
+                    ...payload.wpos,
                 },
                 modal: {
                     ...this.state.modal,
-                    ...payload.wcs
-                }
+                    ...payload.wcs,
+                },
             };
 
             if (!_.isEqual(this.state, nextState)) {
@@ -114,7 +112,7 @@ class SwordfishRunner extends events.EventEmitter {
         if (type === SwordfishLineParserResultState) {
             const nextState = {
                 ...this.state,
-                activeState: payload.activeState
+                activeState: payload.activeState,
             };
 
             if (!_.isEqual(this.state.activeState, nextState.activeState)) {
@@ -163,8 +161,7 @@ class SwordfishRunner extends events.EventEmitter {
     }
 
     getTool(state = this.state) {
-        // Not supported
-        return 0;
+        return _.get(state, 'tool', 1);
     }
 
     isAlarm() {

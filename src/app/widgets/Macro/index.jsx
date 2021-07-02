@@ -31,6 +31,9 @@ import {
     TINYG_MACHINE_STATE_STOP,
     TINYG_MACHINE_STATE_END,
     TINYG_MACHINE_STATE_RUN,
+    // Swordfish
+    SWORDFISH,
+    SWORDFISH_ACTIVE_STATE_IDLE,
     // Workflow
     WORKFLOW_STATE_RUNNING
 } from '../../constants';
@@ -285,7 +288,7 @@ class MacroWidget extends PureComponent {
         if (workflow.state === WORKFLOW_STATE_RUNNING) {
             return false;
         }
-        if (!includes([GRBL, MARLIN, SMOOTHIE, TINYG], controllerType)) {
+        if (!includes([GRBL, MARLIN, SMOOTHIE, TINYG, SWORDFISH], controllerType)) {
             return false;
         }
         if (controllerType === GRBL) {
@@ -323,6 +326,11 @@ class MacroWidget extends PureComponent {
                 return false;
             }
         }
+        if (controllerType === SWORDFISH) {
+            const activeState = get(controllerState, 'activeState');
+
+            return (activeState === SWORDFISH_ACTIVE_STATE_IDLE);
+        }
 
         return true;
     }
@@ -348,7 +356,7 @@ class MacroWidget extends PureComponent {
                             <Space width="8" />
                         </Widget.Sortable>
                         {isForkedWidget &&
-                        <i className="fa fa-code-fork" style={{ marginRight: 5 }} />
+                            <i className="fa fa-code-fork" style={{ marginRight: 5 }} />
                         }
                         {i18n._('Macro')}
                     </Widget.Title>
@@ -417,13 +425,13 @@ class MacroWidget extends PureComponent {
                     )}
                 >
                     {state.modal.name === MODAL_ADD_MACRO &&
-                    <AddMacro state={state} actions={actions} />
+                        <AddMacro state={state} actions={actions} />
                     }
                     {state.modal.name === MODAL_EDIT_MACRO &&
-                    <EditMacro state={state} actions={actions} />
+                        <EditMacro state={state} actions={actions} />
                     }
                     {state.modal.name === MODAL_RUN_MACRO &&
-                    <RunMacro state={state} actions={actions} />
+                        <RunMacro state={state} actions={actions} />
                     }
                     <Macro state={state} actions={actions} />
                 </Widget.Content>
