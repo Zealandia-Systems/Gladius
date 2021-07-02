@@ -22,11 +22,8 @@ class QuickAccessToolbar extends PureComponent {
         'homing': () => {
             controller.command('homing');
         },
-        'sleep': () => {
-            controller.command('sleep');
-        },
-        'unlock': () => {
-            controller.command('unlock');
+        'toolChange': () => {
+            controller.command('toolChange');
         },
         'reset': () => {
             controller.command('reset');
@@ -40,7 +37,7 @@ class QuickAccessToolbar extends PureComponent {
                     <li className="btn-group btn-group-lg" role="group">
                         <button
                             type="button"
-                            className="btn btn-default"
+                            className="btn"
                             onClick={this.command.cyclestart}
                             title={i18n._('Cycle Start')}
                         >
@@ -50,7 +47,7 @@ class QuickAccessToolbar extends PureComponent {
                         </button>
                         <button
                             type="button"
-                            className="btn btn-default"
+                            className="btn"
                             onClick={this.command.feedhold}
                             title={i18n._('Feedhold')}
                         >
@@ -62,7 +59,7 @@ class QuickAccessToolbar extends PureComponent {
                     <li className="btn-group btn-group-lg" role="group">
                         <button
                             type="button"
-                            className="btn btn-primary"
+                            className="btn"
                             onClick={this.command.homing}
                             title={i18n._('Homing')}
                         >
@@ -72,27 +69,17 @@ class QuickAccessToolbar extends PureComponent {
                         </button>
                         <button
                             type="button"
-                            className="btn btn-success"
-                            onClick={this.command.sleep}
-                            title={i18n._('Sleep')}
+                            className="btn"
+                            onClick={this.command.toolChange}
+                            title={i18n._('Tool Change')}
                         >
-                            <i className="fa fa-bed" />
+                            <i className="fa fa-wrench" />
                             <Space width="8" />
-                            {i18n._('Sleep')}
+                            {i18n._('Tool Change')}
                         </button>
                         <button
                             type="button"
-                            className="btn btn-warning"
-                            onClick={this.command.unlock}
-                            title={i18n._('Unlock')}
-                        >
-                            <i className="fa fa-unlock-alt" />
-                            <Space width="8" />
-                            {i18n._('Unlock')}
-                        </button>
-                        <button
-                            type="button"
-                            className="btn btn-danger"
+                            className="btn"
                             onClick={this.command.reset}
                             title={i18n._('Reset')}
                         >
@@ -106,8 +93,8 @@ class QuickAccessToolbar extends PureComponent {
                             onClick={() => settings.show()}
                             title={i18n._('Settings')}
                         >
-                            <i className="fa fa-cogs"/>
-                            <Space width="8"/>
+                            <i className="fa fa-cogs" />
+                            <Space width="8" />
                             {i18n._('Settings')}
                         </button>
                     </li>
