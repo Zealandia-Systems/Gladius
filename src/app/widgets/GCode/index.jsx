@@ -15,6 +15,7 @@ import {
     MARLIN,
     SMOOTHIE,
     TINYG,
+    SWORDFISH,
     // Units
     IMPERIAL_UNITS,
     METRIC_UNITS
@@ -145,6 +146,18 @@ class GCodeWidget extends PureComponent {
             if (type === TINYG) {
                 const { sr } = { ...state };
                 const { modal = {} } = { ...sr };
+                const units = {
+                    'G20': IMPERIAL_UNITS,
+                    'G21': METRIC_UNITS
+                }[modal.units] || this.state.units;
+
+                if (this.state.units !== units) {
+                    this.setState({ units: units });
+                }
+            }
+
+            if (type === SWORDFISH) {
+                const { modal = {} } = { ...state };
                 const units = {
                     'G20': IMPERIAL_UNITS,
                     'G21': METRIC_UNITS

@@ -29,6 +29,8 @@ import {
     TINYG_MACHINE_STATE_READY,
     TINYG_MACHINE_STATE_STOP,
     TINYG_MACHINE_STATE_END,
+    // Swordfish
+    SWORDFISH,
     // Workflow
     WORKFLOW_STATE_IDLE
 } from '../../constants';
@@ -103,15 +105,87 @@ class ProbeWidget extends PureComponent {
                 }
             });
         },
-        changeProbeAxis: (value) => {
-            this.setState({ probeAxis: value });
+        mouseOverPlate: (e, id) => {
+            let state = {
+                ...this.state,
+                plate1IsHover: false,
+                plate2IsHover: false,
+                plate3IsHover: false,
+                plate4IsHover: false
+            };
+
+            switch (id) {
+            case 1: state = { ...state, plate1IsHover: true }; break;
+            case 2: state = { ...state, plate2IsHover: true }; break;
+            case 3: state = { ...state, plate3IsHover: true }; break;
+            case 4: state = { ...state, plate4IsHover: true }; break;
+            default: break;
+            }
+
+            this.setState(state);
         },
-        changeProbeCommand: (value) => {
-            this.setState({ probeCommand: value });
+        mouseOutOfPlate: (e, id) => {
+            let state = {
+                ...this.state,
+                plate1IsHover: false,
+                plate2IsHover: false,
+                plate3IsHover: false,
+                plate4IsHover: false
+            };
+
+            this.setState(state);
         },
-        toggleUseTLO: () => {
-            const { useTLO } = this.state;
-            this.setState({ useTLO: !useTLO });
+        changeProbeAxis: (e, id) => {
+            const {
+                plate1IsSelected,
+                plate2IsSelected,
+                plate3IsSelected,
+                plate4IsSelected
+            } = this.state;
+
+            let state = {
+                ...this.state,
+                plate1IsSelected: false,
+                plate2IsSelected: false,
+                plate3IsSelected: false,
+                plate4IsSelected: false
+            };
+
+            switch (id) {
+            case 1: state = {
+                ...state,
+                plate1IsSelected: !plate1IsSelected,
+                dirX: -1,
+                dirY: +1
+            }; break;
+            case 2: state = {
+                ...state,
+                plate2IsSelected: !plate2IsSelected,
+                dirX: 1,
+                dirY: 1
+            }; break;
+            case 3: state = {
+                ...state,
+                plate3IsSelected: !plate3IsSelected,
+                dirX: +1,
+                dirY: -1
+            }; break;
+            case 4: state = {
+                ...state,
+                plate4IsSelected: !plate4IsSelected,
+                dirX: -1,
+                dirY: -1
+            }; break;
+            default: break;
+            }
+
+            this.setState(state);
+
+            e.preventDefault();
+        },
+        handleToolDiameterChange: (event) => {
+            const toolDiameter = event.target.value;
+            this.setState({ toolDiameter });
         },
         handleProbeDepthChange: (event) => {
             const probeDepth = event.target.value;
@@ -121,22 +195,121 @@ class ProbeWidget extends PureComponent {
             const probeFeedrate = event.target.value;
             this.setState({ probeFeedrate });
         },
-        handleTouchPlateHeightChange: (event) => {
-            const touchPlateHeight = event.target.value;
-            this.setState({ touchPlateHeight });
-        },
         handleRetractionDistanceChange: (event) => {
             const retractionDistance = event.target.value;
             this.setState({ retractionDistance });
         },
-        populateProbeCommands: () => {
+        populateProbeCommands: (doXY) => {
             const {
-                probeAxis,
-                probeCommand,
-                useTLO,
+                dirX,
+                dirY,
                 probeDepth,
                 probeFeedrate,
-                touchPlateHeight,
+                toolDiameter
+            } = this.state;
+            const wcs = this.getWorkCoordinateSystem();
+            const mapWCSToP = (wcs) => ({
+                'G54': 1,
+                'G55': 2,
+                'G56': 3,
+                'G57': 4,
+                'G58': 5,
+                'G59': 6
+            }[wcs] || 0);
+
+            const MAX_PROBE_DIST_X = probeDepth;
+            const MAX_PROBE_DIST_Y = probeDepth;
+            const MAX_PROBE_DIST_Z = probeDepth;
+
+            const CORNER_POSITION_X = 31 - toolDiameter / 2;
+            const CORNER_POSITION_Y = 31 - toolDiameter / 2;
+            const CORNER_POSITION_Z = 9;
+
+            const RETRACT_DISTANCE_X = 20 / 2 - toolDiameter / 2;
+            const RETRACT_DISTANCE_Y = 20 / 2 - toolDiameter / 2;
+            const RETRACT_DISTANCE_Z = 2;
+
+            let wcsProbeCommands = [
+                'M120',
+                '',
+                '; Probe Z',
+                gcode('G91 G38.2', {
+                    Z: -MAX_PROBE_DIST_Z,
+                    F: probeFeedrate
+                }),
+                '%wait',
+                '',
+                '; Set the active WCS Z0',
+                gcode('G90 G10', {
+                    L: 20,
+                    P: mapWCSToP(wcs),
+                    Z: CORNER_POSITION_Z
+                }),
+                '',
+                '; Retract Z',
+                gcode('G91 G0', {
+                    Z: RETRACT_DISTANCE_Z
+                })
+            ];
+
+            if (doXY) {
+                wcsProbeCommands = wcsProbeCommands.concat([
+                    '; Probe X',
+                    gcode('G91 G38.2', {
+                        X: -dirX * MAX_PROBE_DIST_X,
+                        F: probeFeedrate
+                    }),
+                    '%wait',
+                    '',
+                    '; Set the active WCS X0',
+                    gcode('G90 G10', {
+                        L: 20,
+                        P: mapWCSToP(wcs),
+                        X: -dirX * CORNER_POSITION_X,
+                    }),
+                    '',
+                    '; Retract X',
+                    gcode('G91 G0', {
+                        X: dirX * RETRACT_DISTANCE_X
+                    }),
+                    '',
+                    '; Probe Y',
+                    gcode('G91 G38.2', {
+                        Y: -dirY * MAX_PROBE_DIST_Y,
+                        F: probeFeedrate
+                    }),
+                    '%wait',
+                    '',
+                    '; Set the active WCS Y0',
+                    gcode('G90 G10', {
+                        L: 20,
+                        P: mapWCSToP(wcs),
+                        Y: -dirY * CORNER_POSITION_Y
+                    }),
+                    '',
+                    '; Retract Y',
+                    gcode('G91 G0', {
+                        Y: dirY * RETRACT_DISTANCE_Y
+                    }),
+                    '',
+                    '; Retract Z',
+                    gcode('G91 G0', {
+                        Z: RETRACT_DISTANCE_Z + probeDepth
+                    })
+                ]);
+            }
+
+            wcsProbeCommands.push('', 'M121');
+
+            return wcsProbeCommands;
+        },
+        populateProbeCommandsOld: (doXY) => {
+            const {
+                dirX,
+                dirY,
+                probeDepth,
+                probeFeedrate,
+                toolDiameter,
                 retractionDistance
             } = this.state;
             const wcs = this.getWorkCoordinateSystem();
@@ -148,72 +321,113 @@ class ProbeWidget extends PureComponent {
                 'G58': 5,
                 'G59': 6
             }[wcs] || 0);
-            const towardWorkpiece = includes(['G38.2', 'G38.3'], probeCommand);
-            const posname = `pos${probeAxis.toLowerCase()}`;
-            const tloProbeCommands = [
-                gcode('; Cancel tool length offset'),
-                // Cancel tool length offset
-                gcode('G49'),
+            const DIST_TO_CORNER_X = 20 + toolDiameter;
+            const DIST_TO_CORNER_Y = 20 + toolDiameter;
 
-                // Probe (use relative distance mode)
-                gcode(`; ${probeAxis}-Probe`),
-                gcode('G91'),
-                gcode(probeCommand, {
-                    [probeAxis]: towardWorkpiece ? -probeDepth : probeDepth,
+            const MAX_PROBE_DIST_X = probeDepth;
+            const MAX_PROBE_DIST_Y = probeDepth;
+            const MAX_PROBE_DIST_Z = probeDepth;
+
+            const CORNER_POSITION_X = 5 + toolDiameter / 2;
+            const CORNER_POSITION_Y = 5 + toolDiameter / 2;
+            const CORNER_POSITION_Z = 15;
+
+            const RETRACT_DISTANCE_X = retractionDistance;
+            const RETRACT_DISTANCE_Y = retractionDistance;
+            const RETRACT_DISTANCE_Z = retractionDistance;
+
+            let wcsProbeCommands = [
+                'M120',
+                '',
+                '; Probe Z',
+                gcode('G91 G38.2', {
+                    Z: -MAX_PROBE_DIST_Z,
                     F: probeFeedrate
                 }),
-                // Use absolute distance mode
-                gcode('G90'),
-
-                // Dwell
-                gcode('; A dwell time of one second'),
-                gcode('G4 P1'),
-
-                // Apply touch plate height with tool length offset
-                gcode('; Set tool length offset'),
-                gcode('G43.1', {
-                    [probeAxis]: towardWorkpiece ? `[${posname}-${touchPlateHeight}]` : `[${posname}+${touchPlateHeight}]`
-                }),
-
-                // Retract from the touch plate (use relative distance mode)
-                gcode('; Retract from the touch plate'),
-                gcode('G91'),
-                gcode('G0', {
-                    [probeAxis]: retractionDistance
-                }),
-                // Use asolute distance mode
-                gcode('G90')
-            ];
-            const wcsProbeCommands = [
-                // Probe (use relative distance mode)
-                gcode(`; ${probeAxis}-Probe`),
-                gcode('G91'),
-                gcode(probeCommand, {
-                    [probeAxis]: towardWorkpiece ? -probeDepth : probeDepth,
-                    F: probeFeedrate
-                }),
-                // Use absolute distance mode
-                gcode('G90'),
-
-                // Set the WCS 0 offset
-                gcode(`; Set the active WCS ${probeAxis}0`),
-                gcode('G10', {
+                '%wait',
+                '',
+                '; Set the active WCS Z0',
+                gcode('G90 G10', {
                     L: 20,
                     P: mapWCSToP(wcs),
-                    [probeAxis]: touchPlateHeight
+                    Z: CORNER_POSITION_Z
                 }),
-
-                // Retract from the touch plate (use relative distance mode)
-                gcode('; Retract from the touch plate'),
-                gcode('G91'),
-                gcode('G0', {
-                    [probeAxis]: retractionDistance
-                }),
-                // Use absolute distance mode
-                gcode('G90')
+                '',
+                '; Retract Z',
+                gcode('G91 G0', {
+                    Z: retractionDistance + RETRACT_DISTANCE_Z
+                })
             ];
 
-            return useTLO ? tloProbeCommands : wcsProbeCommands;
+            if (doXY) {
+                wcsProbeCommands = wcsProbeCommands.concat([
+                    '',
+                    '; Move to position ready to probe X',
+                    gcode('G91 G0', {
+                        X: dirX * DIST_TO_CORNER_X
+                    }),
+                    gcode('G91 G0', {
+                        Z: -(RETRACT_DISTANCE_Z + 10)
+                    }),
+                    '%wait',
+                    '',
+                    '; Probe X',
+                    gcode('G91 G38.2', {
+                        X: -dirX * MAX_PROBE_DIST_X,
+                        F: probeFeedrate
+                    }),
+                    '%wait',
+                    '',
+                    '; Set the active WCS X0',
+                    gcode('G90 G10', {
+                        L: 20,
+                        P: mapWCSToP(wcs),
+                        X: dirX * CORNER_POSITION_X,
+                    }),
+                    '',
+                    '; Retract X',
+                    gcode('G91 G0', {
+                        X: dirX * RETRACT_DISTANCE_Z
+                    }),
+                    '',
+                    '; Move to position ready to probe Y',
+                    gcode('G91 G0', {
+                        Y: dirY * DIST_TO_CORNER_Y
+                    }),
+                    gcode('G91 G0', {
+                        X: -dirX * (DIST_TO_CORNER_X + RETRACT_DISTANCE_X)
+                    }),
+                    '%wait',
+                    '',
+                    '; Probe Y',
+                    gcode('G91 G38.2', {
+                        Y: -dirY * MAX_PROBE_DIST_Y,
+                        F: probeFeedrate
+                    }),
+                    '%wait',
+                    '',
+                    '; Set the active WCS Y0',
+                    gcode('G90 G10', {
+                        L: 20,
+                        P: mapWCSToP(wcs),
+                        Y: dirY * CORNER_POSITION_Y
+                    }),
+                    '',
+                    '; Retract Y',
+                    gcode('G91 G0', {
+                        Y: dirY * RETRACT_DISTANCE_Y
+                    }),
+                    '',
+                    '; Retract Z',
+                    gcode('G91 G0', {
+                        Z: RETRACT_DISTANCE_Z + probeDepth
+                    })
+                ]);
+            }
+
+            wcsProbeCommands.push('', 'M121');
+
+            return wcsProbeCommands;
         },
         runProbeCommands: (commands) => {
             controller.command('gcode', commands);
@@ -278,6 +492,15 @@ class ProbeWidget extends PureComponent {
                 }[modal.units] || units;
             }
 
+            // Swordfish
+            if (type === SWORDFISH) {
+                const { modal = {} } = { ...state };
+                units = {
+                    'G20': IMPERIAL_UNITS,
+                    'G21': METRIC_UNITS
+                }[modal.units] || units;
+            }
+
             if (this.state.units !== units) {
                 // Set `this.unitsDidChange` to true if the unit has changed
                 this.unitsDidChange = true;
@@ -289,9 +512,9 @@ class ProbeWidget extends PureComponent {
                     type: type,
                     state: state
                 },
+                toolDiameter: mapValueToUnits(this.config.get('toolDiameter'), units),
                 probeDepth: mapValueToUnits(this.config.get('probeDepth'), units),
                 probeFeedrate: mapValueToUnits(this.config.get('probeFeedrate'), units),
-                touchPlateHeight: mapValueToUnits(this.config.get('touchPlateHeight'), units),
                 retractionDistance: mapValueToUnits(this.config.get('retractionDistance'), units)
             });
         }
@@ -320,27 +543,25 @@ class ProbeWidget extends PureComponent {
             return;
         }
 
-        const { units, probeCommand, useTLO } = this.state;
-        this.config.set('probeCommand', probeCommand);
-        this.config.set('useTLO', useTLO);
+        const { units } = this.state;
 
         let {
+            toolDiameter,
             probeDepth,
             probeFeedrate,
-            touchPlateHeight,
             retractionDistance
         } = this.state;
 
         // To save in mm
         if (units === IMPERIAL_UNITS) {
+            toolDiameter = in2mm(toolDiameter);
             probeDepth = in2mm(probeDepth);
             probeFeedrate = in2mm(probeFeedrate);
-            touchPlateHeight = in2mm(touchPlateHeight);
             retractionDistance = in2mm(retractionDistance);
         }
+        this.config.set('toolDiameter', Number(toolDiameter));
         this.config.set('probeDepth', Number(probeDepth));
         this.config.set('probeFeedrate', Number(probeFeedrate));
-        this.config.set('touchPlateHeight', Number(touchPlateHeight));
         this.config.set('retractionDistance', Number(retractionDistance));
     }
 
@@ -348,7 +569,7 @@ class ProbeWidget extends PureComponent {
         return {
             minimized: this.config.get('minimized', false),
             isFullscreen: false,
-            canClick: true, // Defaults to true
+            canClick: false, // Defaults to true
             port: controller.port,
             units: METRIC_UNITS,
             controller: {
@@ -362,12 +583,9 @@ class ProbeWidget extends PureComponent {
                 name: MODAL_NONE,
                 params: {}
             },
-            probeAxis: this.config.get('probeAxis', 'Z'),
-            probeCommand: this.config.get('probeCommand', 'G38.2'),
-            useTLO: this.config.get('useTLO'),
+            toolDiameter: Number(this.config.get('toolDiameter') || 0).toFixed(3) * 1,
             probeDepth: Number(this.config.get('probeDepth') || 0).toFixed(3) * 1,
             probeFeedrate: Number(this.config.get('probeFeedrate') || 0).toFixed(3) * 1,
-            touchPlateHeight: Number(this.config.get('touchPlateHeight') || 0).toFixed(3) * 1,
             retractionDistance: Number(this.config.get('retractionDistance') || 0).toFixed(3) * 1
         };
     }
@@ -407,11 +625,23 @@ class ProbeWidget extends PureComponent {
             return get(controllerState, 'sr.modal.wcs') || defaultWCS;
         }
 
+        if (controllerType === SWORDFISH) {
+            return get(controllerState, 'modal.wcs') || defaultWCS;
+        }
+
         return defaultWCS;
     }
 
     canClick() {
-        const { port, workflow } = this.state;
+        const {
+            port,
+            workflow,
+            plate1IsSelected,
+            plate2IsSelected,
+            plate3IsSelected,
+            plate4IsSelected
+        } = this.state;
+
         const controllerType = this.state.controller.type;
         const controllerState = this.state.controller.state;
 
@@ -421,7 +651,7 @@ class ProbeWidget extends PureComponent {
         if (workflow.state !== WORKFLOW_STATE_IDLE) {
             return false;
         }
-        if (!includes([GRBL, MARLIN, SMOOTHIE, TINYG], controllerType)) {
+        if (!includes([GRBL, MARLIN, SMOOTHIE, TINYG, SWORDFISH], controllerType)) {
             return false;
         }
         if (controllerType === GRBL) {
@@ -457,7 +687,11 @@ class ProbeWidget extends PureComponent {
             }
         }
 
-        return true;
+        if (controllerType === SWORDFISH) {
+            // Marlin does not have machine state
+        }
+
+        return plate1IsSelected || plate2IsSelected || plate3IsSelected || plate4IsSelected;
     }
 
     render() {
@@ -544,7 +778,7 @@ class ProbeWidget extends PureComponent {
                     )}
                 >
                     {state.modal.name === MODAL_PREVIEW &&
-                    <RunProbe state={state} actions={actions} />
+                    <RunProbe state={state} actions={actions}/>
                     }
                     <Probe
                         state={state}

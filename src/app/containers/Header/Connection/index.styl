@@ -1,0 +1,26 @@
+.connection {
+    margin: 10px 5px 10px 5px;
+
+    @media (min-width: 768px) {
+        float: right;
+    }
+    
+    :global {
+        .btn-group {
+            float: left;
+        }
+        .btn {
+            height: 50px;
+            font-size: 30px;
+        }
+
+        .btn .fa {
+            font-size: 20px;
+        }
+
+        // Remove the outline on buttons
+        button:focus {
+            outline: 0;
+        }
+    }
+}

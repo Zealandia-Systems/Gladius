@@ -1,0 +1,37 @@
+{
+  "ports": [
+     {
+       "comName": "/dev/ttyAMA0",
+       "manufacturer": ""
+     }
+  ],
+  "baudrates": [115200, 250000],
+  "watchDirectory": "/path/to/dir",
+  "accessTokenLifetime": "30d",
+  "allowRemoteAccess": false,
+  "controller": "",
+  "state": {
+    "checkForUpdates": true
+  },
+  "commands": [
+    {
+      "title": "Update (root user)",
+      "commands": "sudo npm install -g gladius@latest --unsafe-perm; pkill -f gladius"
+    },
+    {
+      "title": "Update (non-root user)",
+      "commands": "npm install -g gladius@latest; pkill -f gladius"
+    },
+    {
+      "title": "Reboot",
+      "commands": "sudo /sbin/reboot"
+    },
+    {
+      "title": "Shutdown",
+      "commands": "sudo /sbin/shutdown"
+    }
+  ],
+  "events": [],
+  "macros": [],
+  "users": []
+}

@@ -4,6 +4,7 @@ import Space from 'app/components/Space';
 import controller from 'app/lib/controller';
 import i18n from 'app/lib/i18n';
 import styles from './index.styl';
+import * as settings from '../Settings';
 
 class QuickAccessToolbar extends PureComponent {
     static propTypes = {
@@ -21,11 +22,8 @@ class QuickAccessToolbar extends PureComponent {
         'homing': () => {
             controller.command('homing');
         },
-        'sleep': () => {
-            controller.command('sleep');
-        },
-        'unlock': () => {
-            controller.command('unlock');
+        'toolChange': () => {
+            controller.command('toolChange');
         },
         'reset': () => {
             controller.command('reset');
@@ -36,10 +34,10 @@ class QuickAccessToolbar extends PureComponent {
         return (
             <div className={styles.quickAccessToolbar}>
                 <ul className="nav navbar-nav">
-                    <li className="btn-group btn-group-sm" role="group">
+                    <li className="btn-group btn-group-lg" role="group">
                         <button
                             type="button"
-                            className="btn btn-default"
+                            className="btn"
                             onClick={this.command.cyclestart}
                             title={i18n._('Cycle Start')}
                         >
@@ -49,7 +47,7 @@ class QuickAccessToolbar extends PureComponent {
                         </button>
                         <button
                             type="button"
-                            className="btn btn-default"
+                            className="btn"
                             onClick={this.command.feedhold}
                             title={i18n._('Feedhold')}
                         >
@@ -58,10 +56,10 @@ class QuickAccessToolbar extends PureComponent {
                             {i18n._('Feedhold')}
                         </button>
                     </li>
-                    <li className="btn-group btn-group-sm" role="group">
+                    <li className="btn-group btn-group-lg" role="group">
                         <button
                             type="button"
-                            className="btn btn-primary"
+                            className="btn"
                             onClick={this.command.homing}
                             title={i18n._('Homing')}
                         >
@@ -71,33 +69,33 @@ class QuickAccessToolbar extends PureComponent {
                         </button>
                         <button
                             type="button"
-                            className="btn btn-success"
-                            onClick={this.command.sleep}
-                            title={i18n._('Sleep')}
+                            className="btn"
+                            onClick={this.command.toolChange}
+                            title={i18n._('Tool Change')}
                         >
-                            <i className="fa fa-bed" />
+                            <i className="fa fa-wrench" />
                             <Space width="8" />
-                            {i18n._('Sleep')}
+                            {i18n._('Tool Change')}
                         </button>
                         <button
                             type="button"
-                            className="btn btn-warning"
-                            onClick={this.command.unlock}
-                            title={i18n._('Unlock')}
-                        >
-                            <i className="fa fa-unlock-alt" />
-                            <Space width="8" />
-                            {i18n._('Unlock')}
-                        </button>
-                        <button
-                            type="button"
-                            className="btn btn-danger"
+                            className="btn"
                             onClick={this.command.reset}
                             title={i18n._('Reset')}
                         >
                             <i className="fa fa-undo" />
                             <Space width="8" />
                             {i18n._('Reset')}
+                        </button>
+                        <button
+                            type="button"
+                            className="btn"
+                            onClick={() => settings.show()}
+                            title={i18n._('Settings')}
+                        >
+                            <i className="fa fa-cogs" />
+                            <Space width="8" />
+                            {i18n._('Settings')}
                         </button>
                     </li>
                 </ul>

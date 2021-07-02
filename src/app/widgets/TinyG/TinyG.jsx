@@ -55,7 +55,7 @@ class TinyG extends PureComponent {
         const controllerState = state.controller.state;
         const controllerSettings = state.controller.settings;
         const { fv, mfo, mto, sso } = controllerSettings;
-        // https://github.com/cncjs/cncjs/issues/160
+        // https://github.com/Zealandia-Systems/Gladius/issues/160
         // Firmware | mfo | sso | mto
         // -------- | --- | --- | ----
         // 0.97     | No  | No  | No

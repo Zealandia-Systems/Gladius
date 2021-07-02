@@ -9,8 +9,17 @@
     }
 }
 
+.navbar-brand {
+    img {
+        opacity: 0.8;
+    }
+    img:hover {
+        opacity: 1;
+    }
+}
+
 .btn-icon {
-    color: #444;
+    color:#444;
     &:hover,
     &:focus {
         color: #222;
@@ -18,7 +27,7 @@
 }
 
 .quick-access-toolbar {
-    margin: 10px 0 10px 15px;
+    margin: 10px 5px 10px 5px;
 
     @media (min-width: 768px) {
         float: right;
@@ -27,10 +36,28 @@
     :global {
         .btn-group {
             float: left;
-            margin-right: 10px;
+            margin-left: 5px;
+            margin-right: 5px;
         }
         .btn {
-            height: 30px;
+            height: 50px;
+            font-size: 30px;
+        }
+
+        .btn .fa {
+            font-size: 20px;
+        }
+
+        .btn {
+            color: #eee;
+            background-color: #48a;
+            &:hover {
+                color: #ddd;
+                background-color: #379;
+            }
+            &:focus {
+                color: #eee;
+            }
         }
 
         // Remove the outline on buttons

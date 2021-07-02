@@ -104,7 +104,7 @@ export default (options) => {
                 {
                     label: 'Learn More',
                     click: () => {
-                        shell.openExternal('https://github.com/cncjs/cncjs/wiki');
+                        shell.openExternal('https://github.com/Zealandia-Systems/Gladius/wiki');
                     }
                 }
             ]

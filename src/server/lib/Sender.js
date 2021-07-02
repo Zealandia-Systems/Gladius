@@ -126,6 +126,7 @@ class Sender extends events.EventEmitter {
     state = {
         hold: false,
         holdReason: null,
+        statusMessage: null,
         name: '',
         gcode: '',
         context: {},
@@ -227,6 +228,7 @@ class Sender extends events.EventEmitter {
             sp: this.sp.type,
             hold: this.state.hold,
             holdReason: this.state.holdReason,
+            statusMessage: this.state.statusMessage,
             name: this.state.name,
             context: this.state.context,
             size: this.state.gcode.length,
@@ -238,6 +240,12 @@ class Sender extends events.EventEmitter {
             elapsedTime: this.state.elapsedTime,
             remainingTime: this.state.remainingTime
         };
+    }
+
+    status(message) {
+        this.state.statusMessage = message;
+        this.emit('status');
+        this.emit('change');
     }
 
     hold(reason) {
@@ -274,6 +282,7 @@ class Sender extends events.EventEmitter {
         }
         this.state.hold = false;
         this.state.holdReason = null;
+        this.state.statusMessage = null;
         this.state.name = name;
         this.state.gcode = gcode;
         this.state.context = context;
@@ -298,6 +307,7 @@ class Sender extends events.EventEmitter {
         }
         this.state.hold = false;
         this.state.holdReason = null;
+        this.state.statusMessage = null;
         this.state.name = '';
         this.state.gcode = '';
         this.state.context = {};
@@ -386,6 +396,7 @@ class Sender extends events.EventEmitter {
         }
         this.state.hold = false; // clear hold off state
         this.state.holdReason = null;
+        this.state.statusMessage = null;
         this.state.sent = 0;
         this.state.received = 0;
         this.emit('change');

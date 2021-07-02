@@ -4,7 +4,6 @@ import Dropzone from 'react-dropzone';
 import pubsub from 'pubsub-js';
 import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
-import { withRouter } from 'react-router-dom';
 import { Button, ButtonGroup, ButtonToolbar } from 'app/components/Buttons';
 import api from 'app/api';
 import {
@@ -44,7 +43,6 @@ const stopWaiting = () => {
 
 class Workspace extends PureComponent {
     static propTypes = {
-        ...withRouter.propTypes
     };
 
     state = {
@@ -222,7 +220,6 @@ class Workspace extends PureComponent {
     };
 
     resizeDefaultContainer = () => {
-        const sidebar = document.querySelector('#sidebar');
         const primaryContainer = ReactDOM.findDOMNode(this.primaryContainer);
         const secondaryContainer = ReactDOM.findDOMNode(this.secondaryContainer);
         const primaryToggler = ReactDOM.findDOMNode(this.primaryToggler);
@@ -231,10 +228,9 @@ class Workspace extends PureComponent {
         const { showPrimaryContainer, showSecondaryContainer } = this.state;
 
         { // Mobile-Friendly View
-            const { location } = this.props;
             const disableHorizontalScroll = !(showPrimaryContainer && showSecondaryContainer);
 
-            if (location.pathname === '/workspace' && disableHorizontalScroll) {
+            if (disableHorizontalScroll) {
                 // Disable horizontal scroll
                 document.body.scrollLeft = 0;
                 document.body.style.overflowX = 'hidden';
@@ -245,9 +241,9 @@ class Workspace extends PureComponent {
         }
 
         if (showPrimaryContainer) {
-            defaultContainer.style.left = primaryContainer.offsetWidth + sidebar.offsetWidth + 'px';
+            defaultContainer.style.left = primaryContainer.offsetWidth + 'px';
         } else {
-            defaultContainer.style.left = primaryToggler.offsetWidth + sidebar.offsetWidth + 'px';
+            defaultContainer.style.left = primaryToggler.offsetWidth + 'px';
         }
 
         if (showSecondaryContainer) {
@@ -443,7 +439,7 @@ class Workspace extends PureComponent {
                     />
                 )}
                 {modal.name === MODAL_SERVER_DISCONNECTED &&
-                <ServerDisconnected />
+                    <ServerDisconnected />
                 }
                 <div
                     className={classNames(
@@ -713,4 +709,4 @@ class Workspace extends PureComponent {
     }
 }
 
-export default withRouter(Workspace);
+export default Workspace;

@@ -68,6 +68,7 @@ export const GRBL = 'Grbl';
 export const MARLIN = 'Marlin';
 export const SMOOTHIE = 'Smoothie';
 export const TINYG = 'TinyG';
+export const SWORDFISH = 'Swordfish';
 
 // Workflow State
 export const WORKFLOW_STATE_IDLE = 'idle';
@@ -92,6 +93,20 @@ export const SMOOTHIE_ACTIVE_STATE_DOOR = 'Door';
 export const SMOOTHIE_ACTIVE_STATE_HOME = 'Home';
 export const SMOOTHIE_ACTIVE_STATE_ALARM = 'Alarm';
 export const SMOOTHIE_ACTIVE_STATE_CHECK = 'Check';
+
+// Swordfish Active State
+export const SWORDFISH_ACTIVE_STATE_IDLE = 'idle';
+export const SWORDFISH_ACTIVE_STATE_RUN = 'run';
+export const SWORDFISH_ACTIVE_STATE_HOLD = 'hold';
+export const SWORDFISH_ACTIVE_STATE_DOOR = 'door';
+export const SWORDFISH_ACTIVE_STATE_PAUSED = 'paused';
+export const SWORDFISH_ACTIVE_STATE_BUSY = 'busy';
+export const SWORDFISH_ACTIVE_STATE_WAITING = 'waiting';
+export const SWORDFISH_ACTIVE_STATE_HOMING = 'homing';
+export const SWORDFISH_ACTIVE_STATE_PROBING = 'probing';
+export const SWORDFISH_ACTIVE_STATE_ALARM = 'alarm';
+export const SWORDFISH_ACTIVE_STATE_ESTOP = 'estop';
+export const SWORDFISH_ACTIVE_STATE_CHECK = 'check';
 
 // TinyG Machine State
 // https://github.com/synthetos/g2/wiki/Status-Reports#stat-values

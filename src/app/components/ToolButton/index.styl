@@ -1,0 +1,48 @@
+.tool-button {
+  width: 100%;
+  background: none;
+  border: solid 1px #3e85c7;
+  --tw-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  border-radius: 0.5rem;
+  color: #3e85c7;
+  display flex;
+  flex-direction row;
+  padding: 0;
+  align-items stretch;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+
+  &:hover {
+    background: #F3F4F6;
+  }
+
+  &:disabled {
+    background-color: rgba(0, 0, 0, 0.15);
+    color: rgba(0, 0, 0, 0.3);
+    border: solid 1px rgba(0, 0, 0, 0.15);
+    cursor: not-allowed;
+  }
+}
+
+.tool-button-content {
+  padding: 1rem 0;
+  display: flex;
+  flex-grow: 1;
+  justify-content center;
+}
+
+.tool-button-icon {
+  width: 3rem;
+  background: #3e85c7;
+  display flex;
+  align-items stretch;
+  justify-content center;
+  margin-right: 0.5rem;
+  flex-direction column;
+
+  i {
+    color: #FFFFFF !important;
+    font-size: 1.6rem !important;
+  }
+}

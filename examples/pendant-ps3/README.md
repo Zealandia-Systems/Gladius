@@ -1,5 +1,5 @@
-# cncjs-pendant-ps3
+# gladius-pendant-ps3
 
-Dual Shock / PS3 Bluetooth Remote Pendant for CNCjs
+Dual Shock / PS3 Bluetooth Remote Pendant for Gladius
 
-#### This project has been moved to https://github.com/cncjs/cncjs-pendant-ps3.
+#### This project has been moved to https://github.com/gladius/gladius-pendant-ps3.

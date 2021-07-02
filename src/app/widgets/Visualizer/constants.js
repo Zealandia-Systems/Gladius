@@ -2,6 +2,7 @@ import constants from 'namespace-constants';
 
 export const {
     MODAL_WATCH_DIRECTORY,
+    NOTIFICATION_ECHO,
     NOTIFICATION_PROGRAM_ERROR,
     NOTIFICATION_M0_PROGRAM_PAUSE,
     NOTIFICATION_M1_PROGRAM_PAUSE,

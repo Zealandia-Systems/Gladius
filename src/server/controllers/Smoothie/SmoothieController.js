@@ -358,8 +358,8 @@ class SmoothieController {
             }
 
             // Check if the receive buffer is available in the status report (#115)
-            // @see https://github.com/cncjs/cncjs/issues/115
-            // @see https://github.com/cncjs/cncjs/issues/133
+            // @see https://github.com/Zealandia-Systems/Gladius/issues/115
+            // @see https://github.com/Zealandia-Systems/Gladius/issues/133
             const rx = Number(_.get(res, 'buf.rx', 0)) || 0;
             if (rx > 0) {
                 // Do not modify the buffer size when running a G-code program
@@ -520,8 +520,8 @@ class SmoothieController {
 
             // Do not force query parser state ($G) when running a G-code program,
             // it will consume 3 bytes from the receive buffer in each time period.
-            // @see https://github.com/cncjs/cncjs/issues/176
-            // @see https://github.com/cncjs/cncjs/issues/186
+            // @see https://github.com/Zealandia-Systems/Gladius/issues/176
+            // @see https://github.com/Zealandia-Systems/Gladius/issues/186
             if ((this.workflow.state === WORKFLOW_STATE_IDLE) && this.runner.isIdle()) {
                 const lastQueryTime = this.actionTime.queryParserState;
                 if (lastQueryTime > 0) {

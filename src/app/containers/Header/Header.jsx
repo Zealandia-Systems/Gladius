@@ -1,24 +1,19 @@
 import classNames from 'classnames';
 import React, { PureComponent } from 'react';
 import { Nav, Navbar, NavDropdown, MenuItem, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { withRouter } from 'react-router-dom';
 import semver from 'semver';
 import without from 'lodash/without';
 import Push from 'push.js';
 import api from 'app/api';
 import Anchor from 'app/components/Anchor';
-import Space from 'app/components/Space';
 import settings from 'app/config/settings';
 import combokeys from 'app/lib/combokeys';
 import controller from 'app/lib/controller';
 import i18n from 'app/lib/i18n';
-import log from 'app/lib/log';
-import * as user from 'app/lib/user';
-import store from 'app/store';
+import ConnectionWidget from './Connection';
 import QuickAccessToolbar from './QuickAccessToolbar';
 import styles from './index.styl';
-
-const releases = 'https://github.com/cncjs/cncjs/releases';
+import Logo from './Logo';
 
 const newUpdateAvailableTooltip = () => {
     return (
@@ -33,7 +28,6 @@ const newUpdateAvailableTooltip = () => {
 
 class Header extends PureComponent {
     static propTypes = {
-        ...withRouter.propTypes
     };
 
     state = this.getInitialState();
@@ -138,7 +132,7 @@ class Header extends PureComponent {
                     body: code === 0
                         ? i18n._('Command succeeded')
                         : i18n._('Command failed ({{err}})', { err: err }),
-                    icon: 'images/logo-badge-32x32.png',
+                    icon: 'images/gladius-logo-32x32.png',
                     timeout: 10 * 1000,
                     onClick: function () {
                         window.focus();
@@ -168,7 +162,7 @@ class Header extends PureComponent {
             if (cmd && this.state.pushPermission === Push.Permission.GRANTED) {
                 Push.create(cmd.title, {
                     body: i18n._('Command failed ({{err}})', { err: err }),
-                    icon: 'images/logo-badge-32x32.png',
+                    icon: 'images/gladius-logo-32x32.png',
                     timeout: 10 * 1000,
                     onClick: function () {
                         window.focus();
@@ -248,13 +242,9 @@ class Header extends PureComponent {
     }
 
     render() {
-        const { history, location } = this.props;
         const { pushPermission, commands, runningTasks, currentVersion, latestVersion } = this.state;
         const newUpdateAvailable = semver.lt(currentVersion, latestVersion);
         const tooltip = newUpdateAvailable ? newUpdateAvailableTooltip() : <div />;
-        const sessionEnabled = store.get('session.enabled');
-        const signedInName = store.get('session.name');
-        const hideUserDropdown = !sessionEnabled;
         const showCommands = commands.length > 0;
 
         return (
@@ -272,94 +262,15 @@ class Header extends PureComponent {
                         overlay={tooltip}
                         placement="right"
                     >
-                        <Anchor
-                            className="navbar-brand"
-                            style={{
-                                padding: 0,
-                                position: 'relative',
-                                height: 50,
-                                width: 60
-                            }}
-                            href={releases}
-                            target="_blank"
-                            title={`${settings.productName} ${settings.version}`}
-                        >
-                            <img
-                                style={{
-                                    margin: '4px auto 0 auto'
-                                }}
-                                src="images/logo-badge-32x32.png"
-                                alt=""
-                            />
-                            <div
-                                style={{
-                                    fontSize: '50%',
-                                    lineHeight: '14px',
-                                    textAlign: 'center'
-                                }}
-                            >
-                                {settings.version}
-                            </div>
-                            {newUpdateAvailable && (
-                                <span
-                                    className="label label-primary"
-                                    style={{
-                                        fontSize: '50%',
-                                        position: 'absolute',
-                                        top: 2,
-                                        right: 2
-                                    }}
-                                >
-                                N
-                                </span>
-                            )}
-                        </Anchor>
+                        <Logo
+                            settings={settings}
+                            newUpdateAvailable={newUpdateAvailable}
+                        />
                     </OverlayTrigger>
                     <Navbar.Toggle />
                 </Navbar.Header>
                 <Navbar.Collapse>
                     <Nav pullRight>
-                        <NavDropdown
-                            className={classNames(
-                                { 'hidden': hideUserDropdown }
-                            )}
-                            id="nav-dropdown-user"
-                            title={(
-                                <div title={i18n._('My Account')}>
-                                    <i className="fa fa-fw fa-user" />
-                                </div>
-                            )}
-                            noCaret
-                        >
-                            <MenuItem header>
-                                {i18n._('Signed in as {{name}}', { name: signedInName })}
-                            </MenuItem>
-                            <MenuItem divider />
-                            <MenuItem
-                                href="#/settings/user-accounts"
-                            >
-                                <i className="fa fa-fw fa-user" />
-                                <Space width="8" />
-                                {i18n._('Account')}
-                            </MenuItem>
-                            <MenuItem
-                                onClick={() => {
-                                    if (user.isAuthenticated()) {
-                                        log.debug('Destroy and cleanup the WebSocket connection');
-                                        controller.disconnect();
-
-                                        user.signout();
-
-                                        // Remember current location
-                                        history.replace(location.pathname);
-                                    }
-                                }}
-                            >
-                                <i className="fa fa-fw fa-sign-out" />
-                                <Space width="8" />
-                                {i18n._('Sign Out')}
-                            </MenuItem>
-                        </NavDropdown>
                         <NavDropdown
                             id="nav-dropdown-menu"
                             title={(
@@ -439,26 +350,25 @@ class Header extends PureComponent {
                             <MenuItem divider />
                             }
                             <MenuItem
-                                href="https://github.com/cncjs/cncjs/wiki"
+                                href="https://github.com/Zealandia-Systems/Gladius/wiki"
                                 target="_blank"
                             >
                                 {i18n._('Help')}
                             </MenuItem>
                             <MenuItem
-                                href="https://github.com/cncjs/cncjs/issues"
+                                href="https://github.com/Zealandia-Systems/Gladius/issues"
                                 target="_blank"
                             >
                                 {i18n._('Report an issue')}
                             </MenuItem>
                         </NavDropdown>
                     </Nav>
-                    {location.pathname === '/workspace' &&
                     <QuickAccessToolbar state={this.state} actions={this.actions} />
-                    }
+                    <ConnectionWidget widgetId="connection"/>
                 </Navbar.Collapse>
             </Navbar>
         );
     }
 }
 
-export default withRouter(Header);
+export default Header;

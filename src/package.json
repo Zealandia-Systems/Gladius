@@ -1,14 +1,17 @@
 {
-  "name": "cncjs-app",
-  "version": "1.9.22",
-  "productName": "CNCjs",
+  "name": "gladius-app",
+  "version": "1.0.0",
+  "productName": "Gladius",
   "description": "CNC Milling Controller",
-  "homepage": "https://github.com/cncjs/cncjs",
-  "author": "Cheton Wu <cheton@gmail.com>",
+  "homepage": "https://github.com/Zealandia-Systems/Gladius",
+  "author": {
+    "name": "Scott Mohekey",
+    "email": "scott.mohekey@zealandia.systems"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:cncjs/cncjs.git"
+    "url": "git@github.com:Zealandia-Systems/Gladius.git"
   },
   "main": "main.js",
   "dependencies": {
@@ -47,8 +50,6 @@
     "mkdirp": "~0.5.1",
     "morgan": "~1.9.1",
     "range_check": "~1.4.0",
-    "registry-auth-token": "~3.4.0",
-    "registry-url": "~5.1.0",
     "rimraf": "~2.6.3",
     "serialport": "~7.1.5",
     "serve-favicon": "~2.5.0",

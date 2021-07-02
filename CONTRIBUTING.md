@@ -12,20 +12,20 @@
 
 ## Troubleshooting
 
-https://github.com/cncjs/cncjs/wiki/Troubleshooting
+https://github.com/gladius/gladius/wiki/Troubleshooting
 
 ## Code Contributions
 
 ### Step 1: Fork
 
-Fork the project [on GitHub](https://github.com/cncjs/cncjs) and check out your copy locally. 
+Fork the project [on GitHub](https://github.com/gladius/gladius) and check out your copy locally. 
 
 ![image](https://cloud.githubusercontent.com/assets/447801/16153930/28241308-34db-11e6-81b6-dd8222f044b4.png)
 
 ```bash
-$ git clone git@github.com:username/cncjs.git
-$ cd cncjs
-$ git remote add upstream git://github.com/cncjs/cncjs.git
+$ git clone git@github.com:username/gladius.git
+$ cd gladius
+$ git remote add upstream git://github.com/gladius/gladius.git
 ```
 
 ### Step 2: Branch
@@ -74,7 +74,7 @@ $ npm run prepare
 $ git push origin my-feature-branch
 ```
 
-Go to https://github.com/username/cncjs and select your feature branch. Click on the <kbd>New pull request</kbd> button and fill out the form.
+Go to https://github.com/username/gladius and select your feature branch. Click on the <kbd>New pull request</kbd> button and fill out the form.
 
 ![image](https://cloud.githubusercontent.com/assets/447801/16153975/6a41541c-34db-11e6-997c-5781b8fa8f68.png)
 
@@ -82,13 +82,13 @@ Go to https://github.com/username/cncjs and select your feature branch. Click on
 
 ### Clone your fork
 ```bash
-git clone git@github.com:USERNAME/cncjs.git
+git clone git@github.com:USERNAME/gladius.git
 ```
 
 ### Add remote from original repository in your forked repository
 ```bash
-cd cncjs
-git remote add upstream git://github.com/cncjs/cncjs.git
+cd gladius
+git remote add upstream git://github.com/gladius/gladius.git
 git fetch upstream
 ```
 
@@ -128,7 +128,7 @@ Now you're ready to go!
 ```bash
 $ npm install  # Ensure that packages are installed
 $ npm run prepare
-$ ./bin/cncjs -vv
+$ ./bin/gladius -vv
   :  :  :
 Server is listening on 0.0.0.0:8000
 ```
@@ -172,17 +172,17 @@ $ ls -al output/linux/
 
 ## Localization
 
-If you'd like to help contribute translations, you can fork the repository, update resource files in the [src/app/i18n](https://github.com/cncjs/cncjs/tree/master/src/app/i18n) directory, and create a pull request to submit your changes.
+If you'd like to help contribute translations, you can fork the repository, update resource files in the [src/app/i18n](https://github.com/gladius/gladius/tree/master/src/app/i18n) directory, and create a pull request to submit your changes.
 
 ### Fork the repository
 
-To fork the cncjs repository, click the <b>Fork</b> button in the header of the repository.
+To fork the gladius repository, click the <b>Fork</b> button in the header of the repository.
 
 ![image](https://user-images.githubusercontent.com/447801/30472117-d757e742-9a2d-11e7-80f8-4ba9ffba97d8.png)
 
-When it’s finished, you’ll be taken to your copy of the cncjs repository. Now you can update the resource files on GitHub, or clone it to your computer.
+When it’s finished, you’ll be taken to your copy of the gladius repository. Now you can update the resource files on GitHub, or clone it to your computer.
 
-If you're using <b>GitHub for Desktop</b> application, navigate over to the toolbar, open the <b>Clone or download</b> dropdown, and click <b>Open in Desktop</b> to clone cncjs/cncjs to your computer and use it in GitHub Desktop.
+If you're using <b>GitHub for Desktop</b> application, navigate over to the toolbar, open the <b>Clone or download</b> dropdown, and click <b>Open in Desktop</b> to clone gladius/gladius to your computer and use it in GitHub Desktop.
 
 ![image](https://user-images.githubusercontent.com/447801/30471510-956b51fe-9a2b-11e7-9e43-c5e3fa19e0cb.png)
 
@@ -198,7 +198,7 @@ You can continue to make more changes and create new commits. When you’re read
 
 ### Creating the pull request
 
-1. Head on over to the repository on GitHub.com where your project lives. For your example, it would be at `https://www.github.com/<your_username>/cncjs`.
+1. Head on over to the repository on GitHub.com where your project lives. For your example, it would be at `https://www.github.com/<your_username>/gladius`.
   ![image](https://user-images.githubusercontent.com/447801/30475866-ce417044-9a3a-11e7-814f-c991a92a3be3.png)
 
 2. To the right of the branch menu, click <b>New pull request</b>.<br>
@@ -213,9 +213,9 @@ You can continue to make more changes and create new commits. When you’re read
 
 You can validate the translation by copying translated resource files to the installed directory. Note that your path may differ based on the Node installation path you have in place.
 ```bash
-$ cd $(dirname `which cncjs`)/../lib/node_modules/cncjs/dist/app/i18n/
+$ cd $(dirname `which gladius`)/../lib/node_modules/gladius/dist/app/i18n/
 $ pwd
-/home/cheton/.nvm/versions/node/v10.15.3/lib/node_modules/cncjs/dist/app/i18n
+/home/cheton/.nvm/versions/node/v10.15.3/lib/node_modules/gladius/dist/app/i18n
 ```
 
 To verify your changes during runtime, it's recommended that you open <b>Developer Tools</b> and disable browser cache. For example:
@@ -226,6 +226,6 @@ To verify your changes during runtime, it's recommended that you open <b>Develop
 ##### Step 2: Disable cache
 ![image](https://cloud.githubusercontent.com/assets/447801/16014264/1d32e872-31c3-11e6-9178-6cc06bd0f6b5.png)
 
-Now you can copy resource files to the <b>dist/cncjs/app/i18n</b> directory and refresh your browser to see new updates.
+Now you can copy resource files to the <b>dist/gladius/app/i18n</b> directory and refresh your browser to see new updates.
 
 <b>Note that you should not close DevTools to make sure your browser won't cache anything.</b>

@@ -5,7 +5,7 @@ import union from 'lodash/union';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import Modal from 'app/components/Modal';
-import { GRBL, MARLIN, SMOOTHIE, TINYG } from 'app/constants';
+import { GRBL, MARLIN, SMOOTHIE, TINYG, SWORDFISH } from 'app/constants';
 import controller from 'app/lib/controller';
 import i18n from 'app/lib/i18n';
 import store from 'app/store';
@@ -26,13 +26,6 @@ class WidgetManager extends PureComponent {
             id: 'visualizer',
             caption: i18n._('Visualizer Widget'),
             details: i18n._('This widget visualizes a G-code file and simulates the tool path.'),
-            visible: true,
-            disabled: true
-        },
-        {
-            id: 'connection',
-            caption: i18n._('Connection Widget'),
-            details: i18n._('This widget lets you establish a connection to a serial port.'),
             visible: true,
             disabled: true
         },
@@ -68,6 +61,13 @@ class WidgetManager extends PureComponent {
             id: 'tinyg',
             caption: i18n._('TinyG Widget'),
             details: i18n._('This widget shows the TinyG state and provides TinyG specific features.'),
+            visible: true,
+            disabled: false
+        },
+        {
+            id: 'swordfish',
+            caption: i18n._('Swordfish Widget'),
+            details: i18n._('This widget shows the Swordfish state and provides Swordfish specific features.'),
             visible: true,
             disabled: false
         },
@@ -159,6 +159,9 @@ class WidgetManager extends PureComponent {
                 return false;
             }
             if (widgetItem.id === 'tinyg' && !includes(controller.loadedControllers, TINYG)) {
+                return false;
+            }
+            if (widgetItem.id === 'swordfish' && !includes(controller.loadedControllers, SWORDFISH)) {
                 return false;
             }
             return true;

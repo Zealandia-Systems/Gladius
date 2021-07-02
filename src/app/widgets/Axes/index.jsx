@@ -42,8 +42,11 @@ import {
     TINYG_MACHINE_STATE_STOP,
     TINYG_MACHINE_STATE_END,
     TINYG_MACHINE_STATE_RUN,
+    // Swordfish
+    SWORDFISH,
     // Workflow
-    WORKFLOW_STATE_RUNNING
+    WORKFLOW_STATE_RUNNING,
+    SWORDFISH_ACTIVE_STATE_IDLE
 } from '../../constants';
 import {
     MODAL_NONE,
@@ -160,6 +163,10 @@ class AxesWidget extends PureComponent {
                 return get(controllerState, 'sr.modal.wcs') || defaultWCS;
             }
 
+            if (controllerType === SWORDFISH) {
+                return get(controllerState, 'modal.wcs') || defaultWCS;
+            }
+
             return defaultWCS;
         },
         setWorkOffsets: (axis, value) => {
@@ -180,9 +187,7 @@ class AxesWidget extends PureComponent {
         },
         jog: (params = {}) => {
             const s = map(params, (value, letter) => ('' + letter.toUpperCase() + value)).join(' ');
-            controller.command('gcode', 'G91'); // relative
-            controller.command('gcode', 'G0 ' + s);
-            controller.command('gcode', 'G90'); // absolute
+            controller.command('gcode', 'G91 G0' + s);
         },
         move: (params = {}) => {
             const s = map(params, (value, letter) => ('' + letter.toUpperCase() + value)).join(' ');
@@ -584,6 +589,34 @@ class AxesWidget extends PureComponent {
                     })
                 }));
             }
+
+            // Swordfish
+            if (type === SWORDFISH) {
+                const { mpos, wpos, modal = {} } = { ...controllerState };
+                const units = {
+                    'G20': IMPERIAL_UNITS,
+                    'G21': METRIC_UNITS
+                }[modal.units] || this.state.units;
+
+                this.setState(state => ({
+                    units: units,
+                    controller: {
+                        ...state.controller,
+                        type: type,
+                        state: controllerState
+                    },
+                    // Machine position is always reported in mm
+                    machinePosition: {
+                        ...state.machinePosition,
+                        ...mpos
+                    },
+                    // Work position is always reported in mm
+                    workPosition: {
+                        ...state.workPosition,
+                        ...wpos
+                    }
+                }));
+            }
         }
     };
 
@@ -745,7 +778,7 @@ class AxesWidget extends PureComponent {
         if (workflow.state === WORKFLOW_STATE_RUNNING) {
             return false;
         }
-        if (!includes([GRBL, MARLIN, SMOOTHIE, TINYG], controllerType)) {
+        if (!includes([GRBL, MARLIN, SMOOTHIE, TINYG, SWORDFISH], controllerType)) {
             return false;
         }
         if (controllerType === GRBL) {
@@ -780,6 +813,17 @@ class AxesWidget extends PureComponent {
                 TINYG_MACHINE_STATE_RUN
             ];
             if (!includes(states, machineState)) {
+                return false;
+            }
+        }
+        if (controllerType === SWORDFISH) {
+            const activeState = get(controllerState, 'activeState');
+
+            const states = [
+                SWORDFISH_ACTIVE_STATE_IDLE
+            ];
+
+            if (!includes(states, activeState)) {
                 return false;
             }
         }

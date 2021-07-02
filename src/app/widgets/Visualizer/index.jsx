@@ -43,6 +43,8 @@ import {
     // TinyG
     TINYG,
     TINYG_MACHINE_STATE_RUN,
+    // Swordfish
+    SWORDFISH,
     // Workflow
     WORKFLOW_STATE_RUNNING,
     WORKFLOW_STATE_PAUSED,
@@ -611,10 +613,14 @@ class VisualizerWidget extends PureComponent {
             this.actions.unloadGCode();
         },
         'sender:status': (data) => {
-            const { hold, holdReason, name, size, total, sent, received } = data;
+            const { hold, holdReason, statusMessage, name, size, total, sent, received } = data;
             const notification = {
                 type: '',
                 data: ''
+            };
+
+            const status = {
+                message: ''
             };
 
             if (hold) {
@@ -647,6 +653,10 @@ class VisualizerWidget extends PureComponent {
                 }
             }
 
+            if (statusMessage) {
+                status.message = statusMessage;
+            }
+
             this.setState(state => ({
                 gcode: {
                     ...state.gcode,
@@ -659,6 +669,10 @@ class VisualizerWidget extends PureComponent {
                 notification: {
                     ...state.notification,
                     ...notification
+                },
+                status: {
+                    ...state.status,
+                    ...status
                 }
             }));
         },
@@ -812,6 +826,36 @@ class VisualizerWidget extends PureComponent {
                     })
                 }));
             }
+
+            // Swordfish
+            if (type === SWORDFISH) {
+                const { mpos, wpos, modal = {} } = { ...controllerState };
+                const units = {
+                    'G20': IMPERIAL_UNITS,
+                    'G21': METRIC_UNITS
+                }[modal.units] || this.state.units;
+
+                this.setState(state => ({
+                    units: units,
+                    controller: {
+                        ...state.controller,
+                        type: type,
+                        state: controllerState
+                    },
+
+                    machinePosition: {
+                        ...state.machinePosition,
+                        ...mpos
+                    },
+
+                    workPosition: mapValues({
+                        ...state.workPosition,
+                        ...wpos
+                    }, (val) => {
+                        return (units === IMPERIAL_UNITS) ? in2mm(val) : val;
+                    })
+                }));
+            }
         }
     };
 
@@ -882,6 +926,9 @@ class VisualizerWidget extends PureComponent {
             notification: {
                 type: '',
                 data: ''
+            },
+            status: {
+                message: ''
             },
             modal: {
                 name: '',

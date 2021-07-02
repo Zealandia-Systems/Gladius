@@ -129,11 +129,11 @@ const createServer = (options, callback) => {
                     // routeWithoutTrailingSlash
                     // > '/custom-widget'
                     // target
-                    // > 'https://cncjs.github.io/cncjs-widget-boilerplate/'
+                    // > 'https://gladius.github.io/gladius-widget-boilerplate/'
                     // targetPathname
-                    // > '/cncjs-widget-boilerplate/'
+                    // > '/gladius-widget-boilerplate/'
                     // proxyPathPattern
-                    // > RegExp('^/cncjs-widget-boilerplate/custom-widget')
+                    // > RegExp('^/gladius-widget-boilerplate/custom-widget')
                     const { route = '/' } = { ...options };
                     const routeWithoutTrailingSlash = trimEnd(route, '/');
                     const target = mount.target;

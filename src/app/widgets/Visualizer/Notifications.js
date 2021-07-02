@@ -79,7 +79,7 @@ const Notifications = ({ show, type, data, onDismiss, style, ...props }) => (
                         <Space width="4" />
                         <Anchor
                             target="_blank"
-                            href="https://github.com/cncjs/cncjs/wiki/Tool-Change"
+                            href="https://github.com/Zealandia-Systems/Gladius/wiki/Tool-Change"
                         >
                             {i18n._('Learn more')}
                         </Anchor>
