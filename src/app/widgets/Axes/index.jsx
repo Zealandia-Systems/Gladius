@@ -187,7 +187,9 @@ class AxesWidget extends PureComponent {
         },
         jog: (params = {}) => {
             const s = map(params, (value, letter) => ('' + letter.toUpperCase() + value)).join(' ');
-            controller.command('gcode', 'G91 G0' + s);
+            controller.command('gcode', 'G91');
+            controller.command('gcode', 'G0 ' + s);
+            controller.command('gcode', 'G90');
         },
         move: (params = {}) => {
             const s = map(params, (value, letter) => ('' + letter.toUpperCase() + value)).join(' ');
@@ -863,7 +865,7 @@ class AxesWidget extends PureComponent {
                             <Space width="8" />
                         </Widget.Sortable>
                         {isForkedWidget &&
-                        <i className="fa fa-code-fork" style={{ marginRight: 5 }} />
+                            <i className="fa fa-code-fork" style={{ marginRight: 5 }} />
                         }
                         {i18n._('Axes')}
                     </Widget.Title>
