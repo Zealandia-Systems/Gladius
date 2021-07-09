@@ -107,6 +107,7 @@ class SwordfishRunner extends events.EventEmitter {
                 this.state = nextState; // enforce change
             }
             this.emit('pos', payload);
+            this.emit('state', payload);
             return;
         }
         if (type === SwordfishLineParserResultState) {
