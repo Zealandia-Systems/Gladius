@@ -27,7 +27,7 @@ import {
 } from '../constants';
 import SwordfishRunner from './SwordfishRunner';
 import interpret from './interpret';
-import { SWORDFISH, QUERY_TYPE_POSITION } from './constants';
+import { SWORDFISH } from './constants';
 import { getMacros, toolChangeMacroId } from '../../services/macros';
 
 // % commands
@@ -126,62 +126,6 @@ class SwordfishController {
     // Query
     queryTimer = null;
 
-    query = {
-        // state
-        type: null,
-        lastQueryTime: 0,
-
-        // action
-        issue: () => {
-            if (!this.query.type) {
-                return;
-            }
-
-            const now = new Date().getTime();
-
-            if (this.query.type === QUERY_TYPE_POSITION) {
-                this.connection.write('M114\n', {
-                    source: WRITE_SOURCE_SERVER,
-                });
-                this.query.lastQueryTime = now;
-            } else {
-                log.error('Unsupported query type:', this.query.type);
-            }
-
-            this.query.type = null;
-        },
-    };
-
-    // Get the current position of the active nozzle and stepper values.
-    queryPosition = (() => {
-        let lastQueryTime = 0;
-
-        return _.throttle(() => {
-            // Check the ready flag
-            if (!this.ready) {
-                return;
-            }
-
-            const now = new Date().getTime();
-
-            if (!this.query.type) {
-                this.query.type = QUERY_TYPE_POSITION;
-                lastQueryTime = now;
-            } else if (lastQueryTime > 0) {
-                const timespan = Math.abs(now - lastQueryTime);
-                const toleranceTime = 5000; // 5 seconds
-
-                if (timespan >= toleranceTime) {
-                    log.silly(
-                        `Reschedule current position query due to ${this.query.type}: now=${now}ms, timespan=${timespan}ms`
-                    );
-                    this.query.type = QUERY_TYPE_POSITION;
-                    lastQueryTime = now;
-                }
-            }
-        }, 500);
-    })();
-
     constructor(engine, options) {
         if (!engine) {
             throw new Error('engine must be specified');
@@ -204,6 +148,8 @@ class SwordfishController {
             writeFilter: (data, context) => {
                 const { source = null } = { ...context };
                 const line = data.trim();
+
+                log.silly(`> ${data}`);
 
                 // Update write history
                 this.history.writeSource = source;
@@ -379,10 +325,10 @@ class SwordfishController {
                 }
 
                 // M6 Tool Change
-                if (_.includes(words, 'M6')) {
+                /*if (_.includes(words, 'M6')) {
                     log.debug('M6 Tool Change');
                     this.feeder.hold({ data: 'M6' }); // Hold reason
-                }
+                }*/
 
                 return line;
             },
@@ -414,7 +360,6 @@ class SwordfishController {
             this.connection.write(line + '\n', {
                 source: WRITE_SOURCE_FEEDER,
             });
-            log.silly(`> ${line}`);
         });
         this.feeder.on('hold', noop);
         this.feeder.on('unhold', noop);
@@ -474,14 +419,14 @@ class SwordfishController {
                 }
 
                 // M6 Tool Change
-                if (_.includes(words, 'M6')) {
+                /*if (_.includes(words, 'M6')) {
                     log.debug(
                         `M6 Tool Change: line=${
                             sent + 1
                         }, sent=${sent}, received=${received}`
                     );
                     this.workflow.pause({ data: 'M6' });
-                }
+                }*/
 
                 return line;
             },
@@ -591,30 +536,33 @@ class SwordfishController {
         });
 
         this.runner.on('action', (res) => {
+            log.silly(`action: type=${res.type}, message=${res.message}`);
+
             if (res.type === 'prompt') {
-                noop();
+                const running = this.workflow.state === WORKFLOW_STATE_RUNNING;
+
+                if (running) {
+                    this.workflow.pause();
+                }
+
+                this.emit('prompt:open', {
+                    resume: running,
+                    ...res,
+                });
             } else if (res.type === 'status') {
                 this.sender.status(res.message);
             }
         });
 
         this.runner.on('pos', (res) => {
-            log.silly(
-                `controller.on('pos'): source=${
-                    this.history.writeSource
-                }, line=${JSON.stringify(
-                    this.history.writeLine
-                )}, res=${JSON.stringify(res)}`
-            );
-
-            if (
+            /*if (
                 _.includes(
                     [WRITE_SOURCE_CLIENT, WRITE_SOURCE_FEEDER],
                     this.history.writeSource
                 )
             ) {
                 this.emit('serialport:read', res.raw);
-            }
+            }*/
         });
 
         this.runner.on('ok', (res) => {
@@ -642,14 +590,6 @@ class SwordfishController {
 
             this.history.writeSource = null;
             this.history.writeLine = '';
-
-            // Perform preemptive query to prevent starvation
-            const now = new Date().getTime();
-            const timespan = Math.abs(now - this.query.lastQueryTime);
-            if (this.query.type && timespan > 2000) {
-                this.query.issue();
-                return;
-            }
 
             const { hold, sent, received } = this.sender.state;
 
@@ -692,8 +632,6 @@ class SwordfishController {
             if (this.feeder.next()) {
                 return;
             }
-
-            this.query.issue();
         });
 
         this.runner.on('error', (res) => {
@@ -768,21 +706,6 @@ class SwordfishController {
             // Check the ready flag
             if (!this.ready) {
                 return;
-            }
-
-            // M114: Get Current Position
-            this.queryPosition();
-
-            {
-                // The following criteria must be met to issue a query
-                const notBusy = !this.history.writeSource;
-                const senderIdle =
-                    this.sender.state.sent === this.sender.state.received;
-                const feederEmpty = this.feeder.size() === 0;
-
-                if (notBusy && senderIdle && feederEmpty) {
-                    this.query.issue();
-                }
             }
 
             // Check if the machine has stopped movement after completion
@@ -1433,6 +1356,15 @@ class SwordfishController {
 
                     this.command('gcode:load', file, data, context, callback);
                 });
+            },
+            'prompt:response': () => {
+                const { resume, response } = args[0];
+
+                this.connection.write(`M876 S${response}\n`);
+
+                if (resume) {
+                    this.workflow.resume();
+                }
             },
         }[cmd];
 
