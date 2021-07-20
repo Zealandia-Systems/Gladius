@@ -19,12 +19,14 @@ import PrimaryWidgets from './PrimaryWidgets';
 import SecondaryWidgets from './SecondaryWidgets';
 import FeederPaused from './modals/FeederPaused';
 import FeederWait from './modals/FeederWait';
+import Prompt from './modals/Prompt';
 import ServerDisconnected from './modals/ServerDisconnected';
 import styles from './index.styl';
 import {
     MODAL_NONE,
     MODAL_FEEDER_PAUSED,
     MODAL_FEEDER_WAIT,
+    MODAL_PROMPT,
     MODAL_SERVER_DISCONNECTED
 } from './constants';
 
@@ -177,6 +179,24 @@ class Workspace extends PureComponent {
 
             this.action.openModal(MODAL_FEEDER_PAUSED, {
                 title: title
+            });
+        },
+        'prompt:open': (prompt) => {
+            const { message } = prompt;
+
+            const buttons = Object.keys(prompt).filter(key => {
+                return /^button[0-9]+$/.test(key);
+            }).map(key => {
+                return {
+                    label: prompt[key],
+                    response: Number(key.substring(6))
+                };
+            });
+
+            this.action.openModal(MODAL_PROMPT, {
+                title: message,
+                resume: prompt.resume || false,
+                buttons: buttons
             });
         }
     };
@@ -435,6 +455,14 @@ class Workspace extends PureComponent {
                 {modal.name === MODAL_FEEDER_WAIT && (
                     <FeederWait
                         title={modal.params.title}
+                        onClose={this.action.closeModal}
+                    />
+                )}
+                {modal.name === MODAL_PROMPT && (
+                    <Prompt
+                        title={modal.params.title}
+                        resume={modal.params.resume}
+                        buttons={modal.params.buttons}
                         onClose={this.action.closeModal}
                     />
                 )}

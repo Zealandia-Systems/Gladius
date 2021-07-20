@@ -48,8 +48,13 @@ class SwordfishRunner extends events.EventEmitter {
         heatedBed: {}, // { deg, degTarget, power }
         rapidFeedrate: 0, // Related to G0
         feedrate: 0, // Related to G1, G2, G3, G38.2, G38.3, G38.4, G38.5, G80
-        spindle: 0, // Related to M3, M4, M5
+        spindle: {
+            freq: 0,
+            rpm: 0,
+            dir: 0,
+        },
         tool: 1,
+        ntool: 1,
     };
 
     settings = {};
@@ -101,12 +106,17 @@ class SwordfishRunner extends events.EventEmitter {
                     ...this.state.modal,
                     ...payload.wcs,
                 },
+                spindle: {
+                    ...this.state.spindle,
+                    ...payload.spindle,
+                },
             };
 
             if (!_.isEqual(this.state, nextState)) {
                 this.state = nextState; // enforce change
             }
             this.emit('pos', payload);
+            this.emit('state', payload);
             return;
         }
         if (type === SwordfishLineParserResultState) {
@@ -158,6 +168,10 @@ class SwordfishRunner extends events.EventEmitter {
 
     getModalGroup(state = this.state) {
         return _.get(state, 'modal', {});
+    }
+
+    getSpindle(state = this.state) {
+        return _.get(state, 'spindle', {});
     }
 
     getTool(state = this.state) {

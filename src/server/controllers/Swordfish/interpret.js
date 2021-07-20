@@ -3,7 +3,7 @@ import { parseLine } from 'gcode-parser';
 
 const fromPairs = (pairs) => {
     let index = -1;
-    const length = (!pairs) ? 0 : pairs.length;
+    const length = !pairs ? 0 : pairs.length;
     const result = {};
 
     while (++index < length) {
@@ -21,7 +21,7 @@ const partitionWordsByGroup = (words = []) => {
         const word = words[i];
         const letter = word[0];
 
-        if ((letter === 'G') || (letter === 'M')) {
+        if (letter === 'G' || letter === 'M') {
             groups.push([word]);
             continue;
         }
@@ -36,7 +36,7 @@ const partitionWordsByGroup = (words = []) => {
     return groups;
 };
 
-const interpret = (function() {
+const interpret = (() => {
     let cmd = '';
 
     return function (line, callback) {
@@ -49,7 +49,7 @@ const interpret = (function() {
             const letter = word[0];
             const arg = word[1];
 
-            if (letter === 'G' || letter === 'M') {
+            if (letter === 'G' || letter === 'M' || letter === 'T') {
                 cmd = letter + arg;
                 const params = fromPairs(words.slice(1));
                 callback(cmd, params);
@@ -63,6 +63,6 @@ const interpret = (function() {
             }
         }
     };
-}());
+})();
 
 export default interpret;
