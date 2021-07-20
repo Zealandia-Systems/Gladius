@@ -31,7 +31,7 @@ class Swordfish extends PureComponent {
 
         return (
             <div>
-                <Overrides ovF={ovF} ovR={ovR} ovS={ovS}/>
+                <Overrides ovF={ovF} ovR={ovR} ovS={ovS} />
                 <Panel className={styles.panel}>
                     <Panel.Heading className={styles.panelHeading}>
                         <Toggler
@@ -80,9 +80,14 @@ class Swordfish extends PureComponent {
                                         {i18n._('Spindle')}
                                     </div>
                                 </div>
-                                <div className="col col-xs-8">
+                                <div className="col col-xs-4">
                                     <div className={styles.well}>
-                                        {spindle}
+                                        {spindle.rpm}
+                                    </div>
+                                </div>
+                                <div className="col col-xs-4">
+                                    <div className={styles.well}>
+                                        {spindle.dir === 0 ? 'Forward' : 'Reverse'}
                                     </div>
                                 </div>
                             </div>

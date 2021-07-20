@@ -239,11 +239,11 @@ class SwordfishController {
                         // M3: Spindle (cw), M4: Spindle (ccw), M5: Spindle off
                         nextState.modal.spindle = cmd;
 
-                        if (cmd === 'M3' || cmd === 'M4') {
+                        /*if (cmd === 'M3' || cmd === 'M4') {
                             if (params.S !== undefined) {
-                                nextState.spindle = params.S;
+                                nextState.spindle.rpm = params.S;
                             }
-                        }
+                        }*/
                     }
 
                     // coolant
@@ -756,6 +756,9 @@ class SwordfishController {
         // Modal group
         const modal = this.runner.getModalGroup();
 
+        // Spindle
+        const spindle = this.runner.getSpindle();
+
         // Tool
         const tool = this.runner.getTool();
 
@@ -803,8 +806,11 @@ class SwordfishController {
                 coolant: ensureArray(modal.coolant).join('\n'),
             },
 
+            spindle: spindle,
             // Tool
             tool: Number(tool) || 0,
+            toolChangeX: 50,
+            toolChangeY: 50,
 
             // Global objects
             ...globalObjects,

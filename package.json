@@ -1,6 +1,6 @@
 {
   "name": "gladius",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A web-based interface for CNC milling controller running Swordfish",
   "homepage": "https://github.com/Zealandia-Systems/Gladius",
   "author": {

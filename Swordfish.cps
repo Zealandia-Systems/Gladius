@@ -428,8 +428,10 @@ function onCircular(clockwise, cx, cy, cz, x, y, z, feed) {
   }
 
   let start = getCurrentPosition();
-  
-  if (isFullCircle()) {
+
+  if((cx - start.x) == 0 && (cy - start.y) == 0) {
+    linearize(tolerance);
+  } else if (isFullCircle()) {
     switch (getCircularPlane()) {
       case PLANE_XY: {
         writeBlock(G.format(17), G.format(clockwise ? 2 : 3), xOutput.format(x), iOutput.format(cx - start.x, 0), jOutput.format(cy - start.y, 0), fOutput.format(feed));
@@ -437,15 +439,15 @@ function onCircular(clockwise, cx, cy, cz, x, y, z, feed) {
         break;
       }
 
-      case PLANE_YZ: {
-        writeBlock(G.format(18), G.format(clockwise ? 2 : 3), xOutput.format(x), iOutput.format(cx - start.x, 0), jOutput.format(cy - start.y, 0), fOutput.format(feed));
-        
+      case PLANE_ZX: {
+        writeBlock(G.format(18), G.format(clockwise ? 2 : 3), xOutput.format(x), kOutput.format(cx - start.x, 0), iOutput.format(cy - start.y, 0), fOutput.format(feed));
+
         break;
       }
 
-      case PLANE_ZX: {
-        writeBlock(G.format(19), G.format(clockwise ? 2 : 3), xOutput.format(x), iOutput.format(cx - start.x, 0), jOutput.format(cy - start.y, 0), fOutput.format(feed));
-
+      case PLANE_YZ: {
+        writeBlock(G.format(19), G.format(clockwise ? 2 : 3), xOutput.format(x), jOutput.format(cx - start.x, 0), kOutput.format(cy - start.y, 0), fOutput.format(feed));
+        
         break;
       }
 
@@ -461,14 +463,14 @@ function onCircular(clockwise, cx, cy, cz, x, y, z, feed) {
         break;
       }
 
-      case PLANE_YZ: {
-        writeBlock(G.format(17), G.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zOutput.format(z), iOutput.format(cx - start.x, 0), jOutput.format(cy - start.y, 0), fOutput.format(feed));
+      case PLANE_ZX: {
+        writeBlock(G.format(18), G.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zOutput.format(z), kOutput.format(cx - start.x, 0), iOutput.format(cy - start.y, 0), fOutput.format(feed));
 
         break;
       }
 
-      case PLANE_ZX: {
-        writeBlock(G.format(17), G.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zOutput.format(z), iOutput.format(cx - start.x, 0), jOutput.format(cy - start.y, 0), fOutput.format(feed));
+      case PLANE_YZ: {
+        writeBlock(G.format(19), G.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zOutput.format(z), jOutput.format(cx - start.x, 0), kOutput.format(cy - start.y, 0), fOutput.format(feed));
 
         break;
       }
