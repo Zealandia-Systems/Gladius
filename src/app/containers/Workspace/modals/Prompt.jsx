@@ -1,10 +1,11 @@
 import chainedFunction from 'chained-function';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Button } from 'app/components/Buttons';
+import { Button } from 'react-bootstrap';
 import ModalTemplate from 'app/components/ModalTemplate';
 import Modal from 'app/components/Modal';
 import controller from 'app/lib/controller';
+
 
 const Prompt = (props) => (
     <Modal
@@ -21,6 +22,7 @@ const Prompt = (props) => (
             {props.buttons.map(button => {
                 return (
                     <Button
+                        autoFocus
                         key={button.response}
                         onClick={chainedFunction(
                             () => {

@@ -1,13 +1,24 @@
+import { noop } from 'lodash';
+
 class SwordfishLineParserResultError {
     // Error:Printer halted. kill() called!
     static parse(line) {
-        const r = line.match(/^Error:\s*(.+)$/i);
+        const r = line.match(/^error(#(\d+))?(:(.*))?$/i);
         if (!r) {
             return null;
         }
 
+        let result = {};
+
+        try {
+            result = JSON.parse(r[4]);
+        } catch {
+            noop();
+        }
+
         const payload = {
-            message: r[1]
+            id: r[2],
+            result: result
         };
 
         return {

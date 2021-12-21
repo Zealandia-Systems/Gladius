@@ -172,7 +172,12 @@ class SerialConnection extends EventEmitter {
 
         data = this.writeFilter(data, context);
 
-        this.port.write(data);
+        this.port.write(data, () => {
+            console.log('draining');
+            this.port.drain(() => {
+                console.log('drained');
+            });
+        });
     }
 }
 

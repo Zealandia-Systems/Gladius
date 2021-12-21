@@ -385,9 +385,10 @@ macros.create = (options) => new Promise((resolve, reject) => {
         });
 });
 
-macros.read = (id) => new Promise((resolve, reject) => {
+macros.read = (id, options) => new Promise((resolve, reject) => {
     authrequest
         .get('/api/macros/' + id)
+        .query(options)
         .end((err, res) => {
             if (err) {
                 reject(res);
@@ -583,9 +584,85 @@ commands.run = (id) => new Promise((resolve, reject) => {
         });
 });
 
-//
-// Machines
-//
+const makeApi = (path, hasCreate = true, hasDelete = true) => {
+    let result = {};
+
+    result.fetch = (options) => new Promise((resolve, reject) => {
+        authrequest
+            .get(path)
+            .query(options)
+            .end((err, res) => {
+                if (err) {
+                    reject(res);
+                } else {
+                    resolve(res);
+                }
+            });
+    });
+
+    if (hasCreate) {
+        result.create = (port, record) => new Promise((resolve, reject) => {
+            authrequest
+                .post(path)
+                .send({ port, record })
+                .end((err, res) => {
+                    if (err) {
+                        reject(res);
+                    } else {
+                        resolve(res);
+                    }
+                });
+        });
+    }
+
+    result.read = (port, id) => new Promise((resolve, reject) => {
+        authrequest
+            .get(path + '/' + id)
+            .query({ port })
+            .end((err, res) => {
+                if (err) {
+                    reject(res);
+                } else {
+                    resolve(res);
+                }
+            });
+    });
+
+    result.update = (port, id, record) => new Promise((resolve, reject) => {
+        authrequest
+            .put(path + '/' + id)
+            .send({ port, record })
+            .end((err, res) => {
+                if (err) {
+                    reject(res);
+                } else {
+                    resolve(res);
+                }
+            });
+    });
+
+    if (hasDelete) {
+        result.delete = (port, id) => new Promise((resolve, reject) => {
+            authrequest
+                .delete(path + '/' + id)
+                .query({ port })
+                .end((err, res) => {
+                    if (err) {
+                        reject(res);
+                    } else {
+                        resolve(res);
+                    }
+                });
+        });
+    }
+
+    return result;
+};
+
+const wcs = makeApi('api/wcs', false, false);
+const tools = makeApi('/api/tools');
+const pockets = makeApi('/api/pockets');
+
 const machines = {};
 
 machines.fetch = (options) => new Promise((resolve, reject) => {
@@ -688,6 +765,9 @@ export default {
     // Settings
     commands,
     events,
+    wcs,
+    tools,
+    pockets,
     machines,
     macros,
     mdi,

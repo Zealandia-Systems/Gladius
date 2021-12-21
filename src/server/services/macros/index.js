@@ -56,10 +56,13 @@ const createToolChangeMacro = () => {
             '; Raise the Z axis',
             'G53 G0 Z0',
         ].join('\n'),
+        requires: (controller) => {
+            return !controller.settings.firmware.smartM6;
+        }
     };
 };
 
-export const getMacros = () => {
+export const getMacros = (controller) => {
     const records = castArray(config.get(CONFIG_KEY, []));
 
     let toolChangeFound = false;
@@ -94,7 +97,13 @@ export const getMacros = () => {
         config.set(CONFIG_KEY, records, { silent: true });
     }
 
-    return records;
+    return records.filter(record => {
+        if (record.requires) {
+            return record.requires(controller);
+        } else {
+            return true;
+        }
+    });
 };
 
 export const setMacros = (records) => {

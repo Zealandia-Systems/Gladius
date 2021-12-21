@@ -22,7 +22,7 @@ class About extends PureComponent {
         const { version } = state;
 
         return (
-            <div>
+            <div style={{ padding: '15px' }}>
                 <AboutContainer version={version} />
                 <HelpContainer />
                 <UpdateStatusContainer

@@ -103,6 +103,13 @@ class Header extends PureComponent {
         'config:change': () => {
             this.actions.fetchCommands();
         },
+        'serialport:open': (options) => {
+            const { port } = options;
+            this.setState({ port: port });
+        },
+        'serialport:close': () => {
+            this.setState({ port: '' });
+        },
         'task:start': (taskId) => {
             this.setState({
                 runningTasks: this.state.runningTasks.concat(taskId)
@@ -285,7 +292,7 @@ class Header extends PureComponent {
                                                 right: 4
                                             }}
                                         >
-                                        N
+                                            N
                                         </span>
                                     )}
                                 </div>
@@ -347,7 +354,7 @@ class Header extends PureComponent {
                                 );
                             })}
                             {showCommands &&
-                            <MenuItem divider />
+                                <MenuItem divider />
                             }
                             <MenuItem
                                 href="https://github.com/Zealandia-Systems/Gladius/wiki"
@@ -364,7 +371,7 @@ class Header extends PureComponent {
                         </NavDropdown>
                     </Nav>
                     <QuickAccessToolbar state={this.state} actions={this.actions} />
-                    <ConnectionWidget widgetId="connection"/>
+                    <ConnectionWidget widgetId="connection" />
                 </Navbar.Collapse>
             </Navbar>
         );

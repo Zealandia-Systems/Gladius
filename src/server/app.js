@@ -287,6 +287,24 @@ const appMain = () => {
         app.put(urljoin(settings.route, 'api/events/:id'), api.events.update);
         app.delete(urljoin(settings.route, 'api/events/:id'), api.events.__delete);
 
+        // Tools
+        app.get(urljoin(settings.route, 'api/wcs'), api.wcs.fetch);
+        app.put(urljoin(settings.route, 'api/wcs/:id'), api.wcs.update);
+
+        // Tools
+        app.get(urljoin(settings.route, 'api/tools'), api.tools.fetch);
+        app.post(urljoin(settings.route, 'api/tools'), api.tools.create);
+        app.get(urljoin(settings.route, 'api/tools/:id'), api.tools.read);
+        app.put(urljoin(settings.route, 'api/tools/:id'), api.tools.update);
+        app.delete(urljoin(settings.route, 'api/tools/:id'), api.tools.__delete);
+
+        // Pockets
+        app.get(urljoin(settings.route, 'api/pockets'), api.pockets.fetch);
+        app.post(urljoin(settings.route, 'api/pockets'), api.pockets.create);
+        app.get(urljoin(settings.route, 'api/pockets/:id'), api.pockets.read);
+        app.put(urljoin(settings.route, 'api/pockets/:id'), api.pockets.update);
+        app.delete(urljoin(settings.route, 'api/pockets/:id'), api.pockets.__delete);
+
         // Machines
         app.get(urljoin(settings.route, 'api/machines'), api.machines.fetch);
         app.post(urljoin(settings.route, 'api/machines'), api.machines.create);

@@ -1,5 +1,4 @@
 import ensureArray from 'ensure-array';
-import { parseLine } from 'gcode-parser';
 
 const fromPairs = (pairs) => {
     let index = -1;
@@ -34,6 +33,72 @@ const partitionWordsByGroup = (words = []) => {
     }
 
     return groups;
+};
+
+const re1 = new RegExp(/\s*\([^\)]*\)/g); // Remove anything inside the parentheses
+
+const re2 = new RegExp(/\s*;.*/g); // Remove anything after a semi-colon to the end of the line, including preceding spaces
+
+const re3 = new RegExp(/\s+/g);
+
+const stripComments = (line) => {
+    return line.replace(re1, '').replace(re2, '').replace(re3, ' ');
+};
+
+const re = /([a-zA-Z#\?\>][0-9\+\-]+(\.[0-9]*)?)|([\?\>][^\s]+)/igm;
+
+export const parseLine = (line, options) => {
+    options = options || {};
+    options.flatten = !!options.flatten;
+    options.noParseLine = !!options.noParseLine;
+
+    let result = {
+        line: line,
+        ln: null,
+        cmds: [],
+        words: []
+    };
+
+    if (options.noParseLine) {
+        return result;
+    }
+
+    let ln; // Line number
+
+    let words = stripComments(line).match(re) || [];
+
+    for (let i = 0; i < words.length; ++i) {
+        let word = words[i];
+        let letter = word[0].toUpperCase();
+        let argument = word.slice(1);
+
+        if (letter === '%') {
+            result.cmds = (result.cmds || []).concat(line.trim());
+            continue;
+        }
+
+        if (letter === 'N' && typeof ln === 'undefined') {
+            ln = Number(argument);
+
+            continue;
+        }
+
+        let value = Number(argument);
+
+        if (Number.isNaN(value)) {
+            value = argument;
+        }
+
+        if (options.flatten) {
+            result.words.push(letter + value);
+        } else {
+            result.words.push([letter, value]);
+        }
+    }
+
+    typeof ln !== 'undefined' && (result.ln = ln);
+
+    return result;
 };
 
 const interpret = (() => {

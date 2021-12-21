@@ -106,10 +106,12 @@ class MacroWidget extends PureComponent {
             });
         },
         addMacro: async ({ name, content }) => {
+            const { port } = this.state;
+
             try {
                 let res;
-                res = await api.macros.create({ name, content });
-                res = await api.macros.fetch();
+                res = await api.macros.create({ name, content, port });
+                res = await api.macros.fetch({ port });
                 const { records: macros } = res.body;
                 this.setState({ macros: macros });
             } catch (err) {
@@ -117,10 +119,12 @@ class MacroWidget extends PureComponent {
             }
         },
         deleteMacro: async (id) => {
+            const { port } = this.state;
+
             try {
                 let res;
-                res = await api.macros.delete(id);
-                res = await api.macros.fetch();
+                res = await api.macros.delete(id, { port });
+                res = await api.macros.fetch({ port });
                 const { records: macros } = res.body;
                 this.setState({ macros: macros });
             } catch (err) {
@@ -128,10 +132,12 @@ class MacroWidget extends PureComponent {
             }
         },
         updateMacro: async (id, { name, content }) => {
+            const { port } = this.state;
+
             try {
                 let res;
-                res = await api.macros.update(id, { name, content });
-                res = await api.macros.fetch();
+                res = await api.macros.update(id, { name, content, port });
+                res = await api.macros.fetch({ port });
                 const { records: macros } = res.body;
                 this.setState({ macros: macros });
             } catch (err) {
@@ -147,9 +153,11 @@ class MacroWidget extends PureComponent {
             });
         },
         loadMacro: async (id, { name }) => {
+            const { port } = this.state;
+
             try {
                 let res;
-                res = await api.macros.read(id);
+                res = await api.macros.read(id, { port });
                 const { name } = res.body;
                 controller.command('macro:load', id, controller.context, (err, data) => {
                     if (err) {
@@ -167,14 +175,18 @@ class MacroWidget extends PureComponent {
             this.actions.openModal(MODAL_ADD_MACRO);
         },
         openRunMacroModal: (id) => {
-            api.macros.read(id)
+            const { port } = this.state;
+
+            api.macros.read(id, { port })
                 .then((res) => {
                     const { id, name, content } = res.body;
                     this.actions.openModal(MODAL_RUN_MACRO, { id, name, content });
                 });
         },
         openEditMacroModal: (id) => {
-            api.macros.read(id)
+            const { port } = this.state;
+
+            api.macros.read(id, { port })
                 .then((res) => {
                     const { id, name, content } = res.body;
                     this.actions.openModal(MODAL_EDIT_MACRO, { id, name, content });
@@ -189,6 +201,8 @@ class MacroWidget extends PureComponent {
         'serialport:open': (options) => {
             const { port } = options;
             this.setState({ port: port });
+
+            this.fetchMacros();
         },
         'serialport:close': (options) => {
             const initialState = this.getInitialState();
@@ -216,9 +230,15 @@ class MacroWidget extends PureComponent {
     };
 
     fetchMacros = async () => {
+        const { port } = this.state;
+
+        if (!port) {
+            return;
+        }
+
         try {
             let res;
-            res = await api.macros.fetch();
+            res = await api.macros.fetch({ port });
             const { records: macros } = res.body;
             this.setState({ macros: macros });
         } catch (err) {

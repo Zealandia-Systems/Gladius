@@ -34,7 +34,7 @@ class QuickAccessToolbar extends PureComponent {
         return (
             <div className={styles.quickAccessToolbar}>
                 <ul className="nav navbar-nav">
-                    <li className="btn-group btn-group-lg" role="group">
+                    {/*<li className="btn-group btn-group-lg" role="group">
                         <button
                             type="button"
                             className="btn"
@@ -55,7 +55,7 @@ class QuickAccessToolbar extends PureComponent {
                             <Space width="8" />
                             {i18n._('Feedhold')}
                         </button>
-                    </li>
+                    </li>*/}
                     <li className="btn-group btn-group-lg" role="group">
                         <button
                             type="button"
@@ -77,7 +77,7 @@ class QuickAccessToolbar extends PureComponent {
                             <Space width="8" />
                             {i18n._('Tool Change')}
                         </button>
-                        <button
+                        {/*<button
                             type="button"
                             className="btn"
                             onClick={this.command.reset}
@@ -86,11 +86,11 @@ class QuickAccessToolbar extends PureComponent {
                             <i className="fa fa-undo" />
                             <Space width="8" />
                             {i18n._('Reset')}
-                        </button>
+                        </button>*/}
                         <button
                             type="button"
                             className="btn"
-                            onClick={() => settings.show()}
+                            onClick={() => settings.show(this.props.state.port)}
                             title={i18n._('Settings')}
                         >
                             <i className="fa fa-cogs" />

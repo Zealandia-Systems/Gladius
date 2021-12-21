@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import map from 'lodash/map';
@@ -115,11 +116,11 @@ class ProbeWidget extends PureComponent {
             };
 
             switch (id) {
-            case 1: state = { ...state, plate1IsHover: true }; break;
-            case 2: state = { ...state, plate2IsHover: true }; break;
-            case 3: state = { ...state, plate3IsHover: true }; break;
-            case 4: state = { ...state, plate4IsHover: true }; break;
-            default: break;
+                case 1: state = { ...state, plate1IsHover: true }; break;
+                case 2: state = { ...state, plate2IsHover: true }; break;
+                case 3: state = { ...state, plate3IsHover: true }; break;
+                case 4: state = { ...state, plate4IsHover: true }; break;
+                default: break;
             }
 
             this.setState(state);
@@ -152,31 +153,31 @@ class ProbeWidget extends PureComponent {
             };
 
             switch (id) {
-            case 1: state = {
-                ...state,
-                plate1IsSelected: !plate1IsSelected,
-                dirX: -1,
-                dirY: +1
-            }; break;
-            case 2: state = {
-                ...state,
-                plate2IsSelected: !plate2IsSelected,
-                dirX: 1,
-                dirY: 1
-            }; break;
-            case 3: state = {
-                ...state,
-                plate3IsSelected: !plate3IsSelected,
-                dirX: +1,
-                dirY: -1
-            }; break;
-            case 4: state = {
-                ...state,
-                plate4IsSelected: !plate4IsSelected,
-                dirX: -1,
-                dirY: -1
-            }; break;
-            default: break;
+                case 1: state = {
+                    ...state,
+                    plate1IsSelected: !plate1IsSelected,
+                    dirX: -1,
+                    dirY: +1
+                }; break;
+                case 2: state = {
+                    ...state,
+                    plate2IsSelected: !plate2IsSelected,
+                    dirX: 1,
+                    dirY: 1
+                }; break;
+                case 3: state = {
+                    ...state,
+                    plate3IsSelected: !plate3IsSelected,
+                    dirX: +1,
+                    dirY: -1
+                }; break;
+                case 4: state = {
+                    ...state,
+                    plate4IsSelected: !plate4IsSelected,
+                    dirX: -1,
+                    dirY: -1
+                }; break;
+                default: break;
             }
 
             this.setState(state);
@@ -199,6 +200,20 @@ class ProbeWidget extends PureComponent {
             const retractionDistance = event.target.value;
             this.setState({ retractionDistance });
         },
+        splitWCS: (wcs) => {
+            const regex = new RegExp('G(\\d\\d)\\.(\\d)');
+            const result = regex.exec(wcs);
+            if (result === undefined || result === null) {
+                return wcs;
+            }
+            const code = Number(result[1]);
+            const subcode = Number(result[2]);
+            return { code, subcode };
+        },
+        wcsToP: (wcs) => {
+            const { code, subcode } = this.actions.splitWCS(wcs);
+            return ((code - 54) * 10) + subcode + 1;
+        },
         populateProbeCommands: (doXY) => {
             const {
                 dirX,
@@ -208,14 +223,6 @@ class ProbeWidget extends PureComponent {
                 toolDiameter
             } = this.state;
             const wcs = this.getWorkCoordinateSystem();
-            const mapWCSToP = (wcs) => ({
-                'G54': 1,
-                'G55': 2,
-                'G56': 3,
-                'G57': 4,
-                'G58': 5,
-                'G59': 6
-            }[wcs] || 0);
 
             const MAX_PROBE_DIST_X = probeDepth;
             const MAX_PROBE_DIST_Y = probeDepth;
@@ -242,18 +249,18 @@ class ProbeWidget extends PureComponent {
                 '; Set the active WCS Z0',
                 gcode('G90 G10', {
                     L: 20,
-                    P: mapWCSToP(wcs),
+                    P: this.actions.wcsToP(wcs),
                     Z: CORNER_POSITION_Z
-                }),
-                '',
-                '; Retract Z',
-                gcode('G91 G0', {
-                    Z: RETRACT_DISTANCE_Z
                 })
             ];
 
             if (doXY) {
                 wcsProbeCommands = wcsProbeCommands.concat([
+                    '',
+                    '; Retract Z',
+                    gcode('G91 G0', {
+                        Z: RETRACT_DISTANCE_Z
+                    }),
                     '; Probe X',
                     gcode('G91 G38.2', {
                         X: -dirX * MAX_PROBE_DIST_X,
@@ -264,7 +271,7 @@ class ProbeWidget extends PureComponent {
                     '; Set the active WCS X0',
                     gcode('G90 G10', {
                         L: 20,
-                        P: mapWCSToP(wcs),
+                        P: this.actions.wcsToP(wcs),
                         X: -dirX * CORNER_POSITION_X,
                     }),
                     '',
@@ -283,22 +290,18 @@ class ProbeWidget extends PureComponent {
                     '; Set the active WCS Y0',
                     gcode('G90 G10', {
                         L: 20,
-                        P: mapWCSToP(wcs),
+                        P: this.actions.wcsToP(wcs),
                         Y: -dirY * CORNER_POSITION_Y
                     }),
                     '',
                     '; Retract Y',
                     gcode('G91 G0', {
                         Y: dirY * RETRACT_DISTANCE_Y
-                    }),
-                    '',
-                    '; Retract Z',
-                    gcode('G91 G0', {
-                        Z: RETRACT_DISTANCE_Z + probeDepth
                     })
                 ]);
             }
 
+            wcsProbeCommands.push('', '; Retract Z', 'G53 G90 G0 Z0');
             wcsProbeCommands.push('', 'M121');
 
             return wcsProbeCommands;
@@ -584,9 +587,9 @@ class ProbeWidget extends PureComponent {
                 params: {}
             },
             toolDiameter: Number(this.config.get('toolDiameter') || 0).toFixed(3) * 1,
-            probeDepth: Number(this.config.get('probeDepth') || 0).toFixed(3) * 1,
-            probeFeedrate: Number(this.config.get('probeFeedrate') || 0).toFixed(3) * 1,
-            retractionDistance: Number(this.config.get('retractionDistance') || 0).toFixed(3) * 1
+            probeDepth: Number(this.config.get('probeDepth') || 50).toFixed(3) * 1,
+            probeFeedrate: Number(this.config.get('probeFeedrate') || 500).toFixed(3) * 1,
+            retractionDistance: Number(this.config.get('retractionDistance') || 50).toFixed(3) * 1
         };
     }
 
@@ -715,7 +718,7 @@ class ProbeWidget extends PureComponent {
                             <Space width="8" />
                         </Widget.Sortable>
                         {isForkedWidget &&
-                        <i className="fa fa-code-fork" style={{ marginRight: 5 }} />
+                            <i className="fa fa-code-fork" style={{ marginRight: 5 }} />
                         }
                         {i18n._('Probe')}
                     </Widget.Title>
@@ -778,7 +781,7 @@ class ProbeWidget extends PureComponent {
                     )}
                 >
                     {state.modal.name === MODAL_PREVIEW &&
-                    <RunProbe state={state} actions={actions}/>
+                        <RunProbe state={state} actions={actions} />
                     }
                     <Probe
                         state={state}

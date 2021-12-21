@@ -26,9 +26,10 @@ import {
     WRITE_SOURCE_SENDER,
 } from '../constants';
 import SwordfishRunner from './SwordfishRunner';
-import interpret from './interpret';
+import interpret, { parseLine } from './interpret';
 import { SWORDFISH } from './constants';
 import { getMacros, toolChangeMacroId } from '../../services/macros';
+import { SWORDFISH_ACTIVE_STATE_ESTOP } from '../../../app/constants';
 
 // % commands
 const WAIT = '%wait';
@@ -44,6 +45,10 @@ class SwordfishController {
 
     // Sockets
     sockets = {};
+
+    callbacks = {};
+
+    nextId = 0;
 
     // Connection
     connection = null;
@@ -196,14 +201,11 @@ class SwordfishController {
                     }
 
                     // wcs
-                    if (
-                        _.includes(
-                            ['G54', 'G55', 'G56', 'G57', 'G58', 'G59'],
-                            cmd
-                        )
-                    ) {
+                    /*if (new RegExp('G5[3456789]\\.\\d').test(cmd)) {
                         nextState.modal.wcs = cmd;
-                    }
+                    } else if (new RegExp('G5[3456789]').test(cmd)) {
+                        nextState.modal.wcs = cmd + '.0';
+                    }*/
 
                     // plane
                     if (_.includes(['G17', 'G18', 'G19'], cmd)) {
@@ -586,6 +588,16 @@ class SwordfishController {
                     this.emit('serialport:read', res.raw);
                     log.error('"history.writeSource" should not be empty');
                 }
+
+                const { id, result } = res;
+
+                if (id && this.callbacks[res.id]) {
+                    const callback = this.callbacks[id];
+
+                    delete this.callbacks[id];
+
+                    callback.resolve(result);
+                }
             }
 
             this.history.writeSource = null;
@@ -634,6 +646,20 @@ class SwordfishController {
             }
         });
 
+        this.runner.on('state', (res) => {
+            if (res.activeState === SWORDFISH_ACTIVE_STATE_ESTOP && this.workflow.state === WORKFLOW_STATE_RUNNING) {
+                this.workflow.pause();
+
+                this.sender.ack();
+            }
+
+            // Swordfish state
+            if (this.state !== res) {
+                this.state = res;
+                this.emit('controller:state', SWORDFISH, this.state);
+            }
+        });
+
         this.runner.on('error', (res) => {
             // Sender
             if (this.workflow.state === WORKFLOW_STATE_RUNNING) {
@@ -660,10 +686,28 @@ class SwordfishController {
                 return;
             }
 
+            const { id, result } = res;
+
+            if (id && this.callbacks[id]) {
+                const callback = this.callbacks[id];
+
+                delete this.callbacks[id];
+
+                callback.reject(new Error(result.message, result.type));
+            }
+
             this.emit('serialport:read', res.raw);
 
             // Feeder
             this.feeder.next();
+        });
+
+        this.runner.on('record', (res) => {
+            this.emit('record', res);
+        });
+
+        this.runner.on('table', (res) => {
+            this.emit('table', res);
         });
 
         this.runner.on('others', (res) => {
@@ -674,6 +718,18 @@ class SwordfishController {
             if (this.isClose()) {
                 // Serial port is closed
                 return;
+            }
+
+            for (const id in this.callbacks) {
+                if (Object.prototype.hasOwnProperty.call(this.callbacks, id)) {
+                    const callback = this.callbacks[id];
+
+                    if (callback.timeout < Date.now()) {
+                        callback.reject(new Error('Timed out'));
+
+                        delete this.callbacks[id];
+                    }
+                }
             }
 
             // Feeder
@@ -762,6 +818,9 @@ class SwordfishController {
         // Tool
         const tool = this.runner.getTool();
 
+        const pockets = this.runner.getPockets();
+        const tools = this.runner.getTools();
+
         return Object.assign(context || {}, {
             // User-defined global variables
             global: this.sharedContext,
@@ -811,6 +870,9 @@ class SwordfishController {
             tool: Number(tool) || 0,
             toolChangeX: 50,
             toolChangeY: 50,
+
+            tools: tools,
+            pockets: pockets,
 
             // Global objects
             ...globalObjects,
@@ -1166,7 +1228,11 @@ class SwordfishController {
                 // Unsupported
             },
             toolChange: () => {
-                this.command('macro:run', toolChangeMacroId);
+                if (this.settings.firmware.smartM6) {
+                    this.command('gcode', 'M6');
+                } else {
+                    this.command('macro:run', toolChangeMacroId);
+                }
             },
             reset: () => {
                 this.workflow.stop();
@@ -1192,7 +1258,7 @@ class SwordfishController {
                     feedOverride += value;
                 }
                 // M220: Set speed factor override percentage
-                this.command('gcode', 'M220S' + feedOverride);
+                this.command('gcode', 'M220 S' + feedOverride);
 
                 // enforce state change
                 this.runner.state = {
@@ -1216,7 +1282,7 @@ class SwordfishController {
                     spindleOverride += value;
                 }
                 // M221: Set extruder factor override percentage
-                this.command('gcode', 'M221S' + spindleOverride);
+                this.command('gcode', 'M221 S' + spindleOverride);
 
                 // enforce state change
                 this.runner.state = {
@@ -1238,7 +1304,7 @@ class SwordfishController {
                     rapidOverride += value;
                 }
                 // M220: Set speed factor override percentage
-                this.command('gcode', 'M222S' + rapidOverride);
+                this.command('gcode', 'M222 S' + rapidOverride);
 
                 // enforce state change
                 this.runner.state = {
@@ -1396,11 +1462,51 @@ class SwordfishController {
         this.connection.write(data, {
             source: WRITE_SOURCE_CLIENT,
         });
-        log.silly(`> ${data}`);
+    }
+
+    request(data, context) {
+        return new Promise((resolve, reject) => {
+            if (this.isClose()) {
+                reject(new Error('Closed'));
+            }
+
+            const { words } = parseLine('' + data);
+            const id = this.nextId++;
+
+            let added = false;
+            let words2 = [];
+
+            for (let i = 0; i < words.length; i++) {
+                words2.push(words[i].join(''));
+
+                if (!added && _.includes(['G', 'M', 'T', 'N'], words[i][0])) {
+                    added = true;
+
+                    words2.push('#' + id);
+                }
+            }
+
+            this.callbacks[id] = { timeout: Date.now() + 5000, resolve, reject };
+            this.write(`${words2.join(' ')}\r\n`, {
+                source: WRITE_SOURCE_CLIENT,
+            });
+        });
     }
 
     writeln(data, context) {
         this.write(data + '\n', context);
+    }
+
+    getWorkCoordinateSystems() {
+        return this.runner.getWorkCoordinateSystems();
+    }
+
+    getTools() {
+        return this.runner.getTools();
+    }
+
+    getPockets() {
+        return this.runner.getPockets();
     }
 }
 

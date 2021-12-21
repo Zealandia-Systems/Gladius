@@ -1,12 +1,25 @@
+import { noop } from 'lodash';
+
 class SwordfishLineParserResultOk {
     // ok
     static parse(line) {
-        const r = line.match(/^ok$/);
+        const r = line.match(/^ok(#(\d+))?(:(.*))?$/i);
         if (!r) {
             return null;
         }
 
-        const payload = {};
+        let result = {};
+
+        try {
+            result = JSON.parse(r[4]);
+        } catch {
+            noop();
+        }
+
+        const payload = {
+            id: r[2],
+            result
+        };
 
         return {
             type: SwordfishLineParserResultOk,

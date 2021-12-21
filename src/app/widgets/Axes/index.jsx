@@ -169,16 +169,24 @@ class AxesWidget extends PureComponent {
 
             return defaultWCS;
         },
+        splitWCS: (wcs) => {
+            const regex = new RegExp('G(\\d\\d)\\.(\\d)');
+            const result = regex.exec(wcs);
+            if (result === undefined || result === null) {
+                return wcs;
+            }
+            const code = Number(result[1]);
+            const subcode = Number(result[2]);
+            return { code, subcode };
+        },
+        wcsToP: (wcs) => {
+            const { code, subcode } = this.actions.splitWCS(wcs);
+            return ((code - 54) * 10) + subcode + 1;
+        },
         setWorkOffsets: (axis, value) => {
             const wcs = this.actions.getWorkCoordinateSystem();
-            const p = {
-                'G54': 1,
-                'G55': 2,
-                'G56': 3,
-                'G57': 4,
-                'G58': 5,
-                'G59': 6
-            }[wcs] || 0;
+            const p = this.actions.wcsToP(wcs);
+
             axis = (axis || '').toUpperCase();
             value = Number(value) || 0;
 

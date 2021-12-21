@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import _ from 'lodash';
 import classNames from 'classnames';
 import colornames from 'colornames';
@@ -66,6 +67,7 @@ import {
     WORKFLOW_STATE_IDLE
 } from 'app/constants';
 import styles from './index.styl';
+import './wcsMenu.styl';
 
 class PrimaryToolbar extends PureComponent {
     static propTypes = {
@@ -255,7 +257,7 @@ class PrimaryToolbar extends PureComponent {
         const { state } = this.props;
         const controllerType = state.controller.type;
         const controllerState = state.controller.state;
-        const defaultWCS = 'G54';
+        const defaultWCS = 'G54.0';
 
         if (controllerType === GRBL) {
             return _.get(controllerState, 'parserstate.modal.wcs') || defaultWCS;
@@ -280,83 +282,122 @@ class PrimaryToolbar extends PureComponent {
         return defaultWCS;
     }
 
+    splitWCS(wcs) {
+        const regex = new RegExp('G(\\d\\d)\\.(\\d)');
+        const result = regex.exec(wcs);
+        if (result === undefined || result === null) {
+            return wcs;
+        }
+        const code = Number(result[1]);
+        const subcode = Number(result[2]);
+        return { code, subcode };
+    }
+
+    wcsToP(wcs) {
+        const { code, subcode } = this.splitWCS(wcs);
+        return ((code - 54) * 10) + subcode + 1;
+    }
+
+    getTitle(wcs) {
+        return `${wcs} (P${this.wcsToP(wcs)})`;
+    }
+
+    renderWCSSubItems(wcs, code) {
+        return [...Array(10).keys()].map(subcode => {
+            const cmd = `G${code}.${subcode}`;
+            const p = this.wcsToP(cmd);
+            /*return (
+                <MenuItem
+                    key={p}
+                    active={wcs === cmd}
+                    onSelect={() => controller.command('gcode', cmd)}
+                >
+                    {cmd} (P{p})
+                </MenuItem>
+            );*/
+            return (
+                <li
+                    role="presentation"
+                    key={p}
+                    className={
+                        classNames({
+                            'menu-item': true,
+                            active: wcs === cmd
+                        })
+                    }
+                >
+                    <a
+                        role="menuitem"
+                        tabIndex="-1"
+                        href="#"
+                        onClick={(event) => {
+                            controller.command('gcode', cmd);
+                            //this.dropdownButton.onClick(event);
+                        }}
+                    >
+                        {cmd} (P{p})
+                    </a>
+                </li>
+            );
+        });
+    }
+
+    renderWCSItems(wcs, activeCode) {
+        return [54, 55, 56, 57, 58, 59].map(code => {
+            const cmd = `G${code}`;
+            const active = activeCode === code;
+            return (
+                <li
+                    role="presentation"
+                    key={code}
+                    className={
+                        classNames({
+                            'dropdown-submenu': true,
+                            active: active
+                        })
+                    }
+                >
+                    <a
+                        role="menuitem"
+                        tabIndex="-1"
+                        href="#"
+                    >
+                        {cmd}
+                    </a>
+                    <ul className="dropdown-menu">
+                        {this.renderWCSSubItems(wcs, code)}
+                    </ul>
+                </li>
+            );
+        });
+    }
+
     render() {
         const { state, actions } = this.props;
         const { disabled, gcode, projection, objects } = state;
         const canSendCommand = this.canSendCommand();
         const canToggleOptions = WebGL.isWebGLAvailable() && !disabled;
         const wcs = this.getWorkCoordinateSystem();
+        const { code } = this.splitWCS(wcs);
 
         return (
             <div className={styles.primaryToolbar}>
                 {this.renderControllerState()}
                 <div className="pull-right">
                     <Dropdown
-                        style={{ marginRight: 5 }}
-                        disabled={!canSendCommand}
                         pullRight
+                        disabled={!canSendCommand}
+                        rootCloseEvent="mousedown"
                     >
                         <Dropdown.Toggle
                             btnSize="sm"
                             title={i18n._('Work Coordinate System')}
                         >
-                            {wcs === 'G54' && `${wcs} (P1)`}
-                            {wcs === 'G55' && `${wcs} (P2)`}
-                            {wcs === 'G56' && `${wcs} (P3)`}
-                            {wcs === 'G57' && `${wcs} (P4)`}
-                            {wcs === 'G58' && `${wcs} (P5)`}
-                            {wcs === 'G59' && `${wcs} (P6)`}
+                            {this.getTitle(wcs)}
                         </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            <MenuItem header>{i18n._('Work Coordinate System')}</MenuItem>
-                            <MenuItem
-                                active={wcs === 'G54'}
-                                onSelect={() => {
-                                    controller.command('gcode', 'G54');
-                                }}
-                            >
-                                G54 (P1)
-                            </MenuItem>
-                            <MenuItem
-                                active={wcs === 'G55'}
-                                onSelect={() => {
-                                    controller.command('gcode', 'G55');
-                                }}
-                            >
-                                G55 (P2)
-                            </MenuItem>
-                            <MenuItem
-                                active={wcs === 'G56'}
-                                onSelect={() => {
-                                    controller.command('gcode', 'G56');
-                                }}
-                            >
-                                G56 (P3)
-                            </MenuItem>
-                            <MenuItem
-                                active={wcs === 'G57'}
-                                onSelect={() => {
-                                    controller.command('gcode', 'G57');
-                                }}
-                            >
-                                G57 (P4)
-                            </MenuItem>
-                            <MenuItem
-                                active={wcs === 'G58'}
-                                onSelect={() => {
-                                    controller.command('gcode', 'G58');
-                                }}
-                            >
-                                G58 (P5)
-                            </MenuItem>
-                            <MenuItem
-                                active={wcs === 'G59'}
-                                onSelect={() => {
-                                    controller.command('gcode', 'G59');
-                                }}
-                            >
-                                G59 (P6)
-                            </MenuItem>
+                        <Dropdown.Menu className="dropdown-menu">
+                            <MenuItem header className="dropdown-header">{i18n._('Work Coordinate System')}</MenuItem>
+                            {this.renderWCSItems(wcs, code)}
                         </Dropdown.Menu>
                     </Dropdown>
                     <Dropdown
@@ -387,7 +428,7 @@ class PrimaryToolbar extends PureComponent {
                                     <I18n>
                                         {'WebGL: '}
                                         <span style={{ color: colornames('royalblue') }}>
-                                        Enabled
+                                            Enabled
                                         </span>
                                     </I18n>
                                 )}
@@ -395,7 +436,7 @@ class PrimaryToolbar extends PureComponent {
                                     <I18n>
                                         {'WebGL: '}
                                         <span style={{ color: colornames('crimson') }}>
-                                        Disabled
+                                            Disabled
                                         </span>
                                     </I18n>
                                 )}

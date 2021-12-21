@@ -1,5 +1,6 @@
 import find from 'lodash/find';
 import uuid from 'uuid';
+import store from '../store';
 import settings from '../config/settings';
 import { getPagingRange } from './paging';
 import {
@@ -9,8 +10,38 @@ import {
 } from '../constants';
 import { getMacros, setMacros } from '../services/macros';
 
+const getController = (req, res) => {
+    const port = req.query.port ? req.query.port : req.body.port;
+
+    if (!port) {
+        res.status(ERR_BAD_REQUEST).send({
+            msg: 'No port specified'
+        });
+
+        return null;
+    }
+
+    const controller = store.get('controllers["' + port + '"]');
+
+    if (!controller) {
+        res.status(ERR_BAD_REQUEST).send({
+            msg: 'Controller not found'
+        });
+
+        return null;
+    }
+
+    return controller;
+};
+
 export const fetch = (req, res) => {
-    const records = getMacros();
+    const controller = getController(req, res);
+
+    if (!controller) {
+        return;
+    }
+
+    const records = getMacros(controller);
     const paging = !!req.query.paging;
 
     if (paging) {
@@ -58,7 +89,13 @@ export const create = (req, res) => {
     }
 
     try {
-        const records = getMacros();
+        const controller = getController(req, res);
+
+        if (!controller) {
+            return;
+        }
+
+        const records = getMacros(controller);
         const record = {
             id: uuid.v4(),
             mtime: new Date().getTime(),
@@ -79,7 +116,13 @@ export const create = (req, res) => {
 
 export const read = (req, res) => {
     const id = req.params.id;
-    const records = getMacros();
+    const controller = getController(req, res);
+
+    if (!controller) {
+        return;
+    }
+
+    const records = getMacros(controller);
     const record = find(records, { id: id });
 
     if (!record) {
@@ -95,7 +138,13 @@ export const read = (req, res) => {
 
 export const update = (req, res) => {
     const id = req.params.id;
-    const records = getMacros();
+    const controller = getController(req, res);
+
+    if (!controller) {
+        return;
+    }
+
+    const records = getMacros(controller);
     const record = find(records, { id: id });
 
     if (!record) {
@@ -140,7 +189,13 @@ export const update = (req, res) => {
 
 export const __delete = (req, res) => {
     const id = req.params.id;
-    const records = getMacros();
+    const controller = getController(req, res);
+
+    if (!controller) {
+        return;
+    }
+
+    const records = getMacros(controller);
 
     try {
         let found = false;

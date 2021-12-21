@@ -18,21 +18,20 @@ class SwordfishLineParserResultPosition {
             return null;
         }
 
+        const wcs = Number(line.wcs);
+
+        const wcsCmd =
+            wcs === 0 ? 'G53' : `G5${Math.trunc((wcs - 1) / 10) + 4}.${((wcs - 1) % 10)}`;
+
         const payload = {
             activeState: _.get(line, 'state'),
             mpos: mpos,
             wpos: _.get(line, 'wpos'),
+            ovF: _.get(line, 'ovF'),
+            ovR: _.get(line, 'ovR'),
+            ovS: _.get(line, 'ovS'),
             modal: {
-                wcs:
-                    {
-                        0: 'G53', // Machine coordinate system
-                        1: 'G54', // Coordinate system 1
-                        2: 'G55', // Coordinate system 2
-                        3: 'G56', // Coordinate system 3
-                        4: 'G57', // Coordinate system 4
-                        5: 'G58', // Coordinate system 5
-                        6: 'G59', // Coordinate system 6
-                    }[line.wcs] || '',
+                wcs: wcsCmd
             },
             spindle: _.get(line, 'spindle'),
         };

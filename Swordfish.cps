@@ -84,6 +84,10 @@ propertyDefinitions = {
     title: "Job: Reset on start (G92)", description: "Set origin when gcode start (G92)", group: 1,
     type: "boolean", default_mm: false, default_in: false
   },
+  jobGoOriginOnFinish: {
+    title: "Job: Goto 0 at end", description: "Go X0 Y0 at gcode end", group: 1,
+    type: "boolean", default_mm: true, default_in: true
+  },
 /*
   jobSequenceNumbers: {
     title: "Job: Line numbers", description: "Show sequence numbers", group: 1,
@@ -103,7 +107,7 @@ propertyDefinitions = {
     type: "boolean", default_mm: true, default_in: true
   },
   toolChangeEnabled: {
-    title: "Tool Change: Enabled", description: "Enable tool change code (bultin tool change requires LCD display)", group: 2,
+    title: "Tool Change: Enabled", description: "Enable tool change code", group: 2,
     type: "boolean", default_mm: false, default_in: false
   },
   toolChangeZProbe: {
@@ -185,10 +189,12 @@ propertyDefinitions = {
 
 };
 
+const WARNING_WORK_OFFSET = 0;
+
 let sequenceNumber;
 
 // Formats
-let G = createFormat({ prefix: "G", decimals: 1 });
+let G = createFormat({ prefix: "G", decimals: 2 });
 let M = createFormat({ prefix: "M", decimals: 0 });
 
 let XYZ = createFormat({ decimals: (unit == MM ? 3 : 4) });
@@ -234,7 +240,7 @@ minimumCircularRadius = spatial(0.01, MM);
 maximumCircularRadius = spatial(1000, MM);
 minimumCircularSweep = toRad(0.01);
 maximumCircularSweep = toRad(180);
-allowHelicalMoves = false;
+allowHelicalMoves = true;
 allowedCircularPlanes = undefined;
 
 /**
@@ -266,6 +272,19 @@ function onClose() {
     onCommand(COMMAND_COOLANT_OFF);
     onCommand(COMMAND_STOP_SPINDLE);
 
+    if (properties.jobGoOriginOnFinish) {
+      let z = zOutput.format(0);
+      let f = fOutput.format(propertyMmToUnit(properties.jobTravelSpeedZ));
+
+      writeBlock(G.format(53), G.format(0), z, f);
+
+      let x = xOutput.format(0);
+      let y = yOutput.format(0);
+
+      f = fOutput.format(propertyMmToUnit(properties.jobTravelSpeedXY));
+      writeBlock(G.format(0), x, y, f);
+    }
+
     displayText("Job end");
     writeActivityComment(" *** STOP end ***");
   } else {
@@ -283,8 +302,8 @@ function onSection() {
   writeActivityComment(" *** SECTION begin ***");
 
   // Tool change
-  if (properties.toolChangeEnabled && !isFirstSection() && tool.number != getPreviousSection().getTool().number) {
-    if (properties.gcodeToolFile == "") {
+  if (properties.toolChangeEnabled && (isFirstSection() || tool.number != getPreviousSection().getTool().number)) {
+    if (properties.gcodeToolFile == "") {                            
       // Builtin tool change gcode
       writeActivityComment(" --- CHANGE TOOL begin ---");
       toolChange();
@@ -326,6 +345,28 @@ function onSection() {
     writeComment(" X Min: " + XYZ.format(currentSection.getGlobalRange(vectorX).getMinimum()) + " - X Max: " + XYZ.format(currentSection.getGlobalRange(vectorX).getMaximum()));
     writeComment(" Y Min: " + XYZ.format(currentSection.getGlobalRange(vectorY).getMinimum()) + " - Y Max: " + XYZ.format(currentSection.getGlobalRange(vectorY).getMaximum()));
     writeComment(" Z Min: " + XYZ.format(currentSection.getGlobalZRange().getMinimum()) + " - Z Max: " + XYZ.format(currentSection.getGlobalZRange().getMaximum()));
+  }
+
+  var workOffset = currentSection.workOffset;
+  
+  if (workOffset == 0) { // change work offset of 0 to 1
+    warningOnce(localize("Work offset has not been specified. Using G54 as WCS."), WARNING_WORK_OFFSET);
+    workOffset = 1;
+  }
+
+  if (workOffset > 0) {
+    //forceWorkPlane();
+    const primary = Math.floor(workOffset / 10) + 4;
+    const secondary = (workOffset % 10) - 1;
+
+    writeBlock(G.format(50 + primary) + "." + secondary); // G59.n
+    
+    const z = zOutput.format(0);
+    const f = fOutput.format(propertyMmToUnit(properties.jobTravelSpeedZ));
+
+    writeBlock(G.format(53), G.format(0), z, f);
+
+    writeBlock(G.format(0), X.format(0), Y.format(0));
   }
 
   onCommand(COMMAND_START_SPINDLE);
@@ -421,7 +462,7 @@ function onCircular(clockwise, cx, cy, cz, x, y, z, feed) {
     return;
   }
 
-  if (!properties.jobUseArcs || isHelical()) {
+  if (!properties.jobUseArcs /*|| isHelical()*/) {
     linearize(tolerance);
 
     return;
@@ -431,47 +472,38 @@ function onCircular(clockwise, cx, cy, cz, x, y, z, feed) {
 
   if((cx - start.x) == 0 && (cy - start.y) == 0) {
     linearize(tolerance);
-  } else if (isFullCircle()) {
-    switch (getCircularPlane()) {
-      case PLANE_XY: {
-        writeBlock(G.format(17), G.format(clockwise ? 2 : 3), xOutput.format(x), iOutput.format(cx - start.x, 0), jOutput.format(cy - start.y, 0), fOutput.format(feed));
-        
-        break;
-      }
-
-      case PLANE_ZX: {
-        writeBlock(G.format(18), G.format(clockwise ? 2 : 3), xOutput.format(x), kOutput.format(cx - start.x, 0), iOutput.format(cy - start.y, 0), fOutput.format(feed));
-
-        break;
-      }
-
-      case PLANE_YZ: {
-        writeBlock(G.format(19), G.format(clockwise ? 2 : 3), xOutput.format(x), jOutput.format(cx - start.x, 0), kOutput.format(cy - start.y, 0), fOutput.format(feed));
-        
-        break;
-      }
-
-      default: {
-        linearize(tolerance);
-      }
-    }
   } else {
     switch (getCircularPlane()) {
       case PLANE_XY: {
-        writeBlock(G.format(17), G.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zOutput.format(z), iOutput.format(cx - start.x, 0), jOutput.format(cy - start.y, 0), fOutput.format(feed));
-
+        writeBlock(
+          G.format(17), G.format(clockwise ? 2 : 3),
+          xOutput.format(x), yOutput.format(y), zOutput.format(z),
+          iOutput.format(cx - start.x, 0), jOutput.format(cy - start.y, 0),
+          fOutput.format(feed)
+        );
+        
         break;
       }
 
       case PLANE_ZX: {
-        writeBlock(G.format(18), G.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zOutput.format(z), kOutput.format(cx - start.x, 0), iOutput.format(cy - start.y, 0), fOutput.format(feed));
+        writeBlock(
+          G.format(18), G.format(clockwise ? 2 : 3),
+          xOutput.format(x), yOutput.format(y), zOutput.format(z),
+          iOutput.format(cx - start.x, 0), kOutput.format(cz - start.z, 0),
+          fOutput.format(feed)
+        );
 
         break;
       }
 
       case PLANE_YZ: {
-        writeBlock(G.format(19), G.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zOutput.format(z), jOutput.format(cx - start.x, 0), kOutput.format(cy - start.y, 0), fOutput.format(feed));
-
+        writeBlock(
+          G.format(19), G.format(clockwise ? 2 : 3),
+          xOutput.format(x), yOutput.format(y), zOutput.format(z),
+          jOutput.format(cy - start.y, 0), kOutput.format(cz - start.z, 0),
+          fOutput.format(feed)
+        );
+        
         break;
       }
 
@@ -601,7 +633,7 @@ let currentSpindleSpeed = 0;
 let currentSpindleClockwise = 0;
 
 function setSpindleSpeed(_spindleSpeed, _clockwise) {
-  if (currentSpindleSpeed != _spindleSpeed) {
+  if (currentSpindleSpeed != _spindleSpeed || currentSpindleClockwise != _clockwise) {
     if (_spindleSpeed > 0) {
       if(currentSpindleClockwise != _clockwise && currentSpindleSpeed > 0) {
         writeComment('Stop the spindle before changing direction.');
@@ -616,6 +648,7 @@ function setSpindleSpeed(_spindleSpeed, _clockwise) {
     }
 
     currentSpindleSpeed = _spindleSpeed;
+    currentSpindleClockwise = _clockwise;
   }
 }
 
@@ -865,7 +898,7 @@ function toolChange() {
   writeBlock(M.format(6));
 
   // Run Z probe gcode
-  if (properties.toolChangeZProbe && tool.number != 0) {
+  if (!properties.toolChangeHasATC && properties.toolChangeZProbe && tool.number != 0) {
     onCommand(COMMAND_TOOL_MEASURE);
   }
 }

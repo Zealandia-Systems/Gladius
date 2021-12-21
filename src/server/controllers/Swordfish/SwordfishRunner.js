@@ -8,6 +8,8 @@ import SwordfishLineParserResultPosition from './SwordfishLineParserResultPositi
 import SwordfishLineParserResultOk from './SwordfishLineParserResultOk';
 import SwordfishLineParserResultAction from './SwordfishLineParserResultAction';
 import SwordfishLineParserResultEcho from './SwordfishLineParserResultEcho';
+import SwordfishLineParserResultRecord from './SwordfishLineParserResultRecord';
+import SwordfishLineParserResultTable from './SwordfishLineParserResultTable';
 import SwordfishLineParserResultState from './SwordfishLineParserResultState';
 import SwordfishLineParserResultError from './SwordfishLineParserResultError';
 import {
@@ -32,7 +34,7 @@ class SwordfishRunner extends events.EventEmitter {
         },
         modal: {
             motion: 'G0', // G0, G1, G2, G3, G38.2, G38.3, G38.4, G38.5, G80
-            wcs: 'G54', // G54, G55, G56, G57, G58, G59
+            wcs: 'G54.0', // G54, G55, G56, G57, G58, G59
             plane: 'G17', // G17: xy-plane, G18: xz-plane, G19: yz-plane
             units: 'G21', // G20: Inches, G21: Millimeters
             distance: 'G90', // G90: Absolute, G91: Relative
@@ -55,6 +57,17 @@ class SwordfishRunner extends events.EventEmitter {
         },
         tool: 1,
         ntool: 1,
+        tables: {
+            wcs: [
+
+            ],
+            tool: [
+
+            ],
+            pocket: [
+
+            ]
+        }
     };
 
     settings = {};
@@ -110,6 +123,7 @@ class SwordfishRunner extends events.EventEmitter {
                     ...this.state.spindle,
                     ...payload.spindle,
                 },
+                ...payload
             };
 
             if (!_.isEqual(this.state, nextState)) {
@@ -117,6 +131,34 @@ class SwordfishRunner extends events.EventEmitter {
             }
             this.emit('pos', payload);
             this.emit('state', payload);
+            return;
+        }
+        if (type === SwordfishLineParserResultRecord) {
+            const nextState = {
+                ...this.state
+            };
+
+            const record = [payload].map(({ table, ...rest }) => rest)[0];
+
+            nextState.tables[payload.table][payload.index - 1] = record;
+
+            this.state = nextState;
+            this.emit('record', payload);
+            return;
+        }
+        if (type === SwordfishLineParserResultTable) {
+            const nextState = {
+                ...this.state
+            };
+
+            if (payload.record !== undefined) {
+                nextState.tables[payload.name][payload.record.index] = payload.record;
+            } else if (payload.records !== undefined) {
+                nextState.tables[payload.name] = payload.records;
+            }
+
+            this.state = nextState;
+            this.emit('table', payload);
             return;
         }
         if (type === SwordfishLineParserResultState) {
@@ -133,10 +175,12 @@ class SwordfishRunner extends events.EventEmitter {
         }
         if (type === SwordfishLineParserResultOk) {
             this.emit('ok', payload);
+
             return;
         }
         if (type === SwordfishLineParserResultError) {
             this.emit('error', payload);
+
             return;
         }
         if (type === SwordfishLineParserResultAction) {
@@ -176,6 +220,18 @@ class SwordfishRunner extends events.EventEmitter {
 
     getTool(state = this.state) {
         return _.get(state, 'tool', 1);
+    }
+
+    getWorkCoordinateSystems(state = this.state) {
+        return _.get(state, 'tables.wcs', []);
+    }
+
+    getPockets(state = this.state) {
+        return _.get(state, 'tables.pocket', []);
+    }
+
+    getTools(state = this.state) {
+        return _.get(state, 'tables.tool', []);
     }
 
     isAlarm() {
