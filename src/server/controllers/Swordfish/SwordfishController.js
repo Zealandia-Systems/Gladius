@@ -661,6 +661,17 @@ class SwordfishController {
         });
 
         this.runner.on('error', (res) => {
+            log.silly(
+                `controller.on('error'): source=${
+                    this.history.writeSource
+                }, line=${JSON.stringify(
+                    this.history.writeLine
+                )}, res=${JSON.stringify(res)}`
+            );
+
+            this.history.writeSource = null;
+            this.history.writeLine = '';
+
             // Sender
             if (this.workflow.state === WORKFLOW_STATE_RUNNING) {
                 const ignoreErrors = config.get(
@@ -1365,6 +1376,8 @@ class SwordfishController {
                     const senderIdle =
                         this.sender.state.sent === this.sender.state.received;
                     const feederIdle = !this.feeder.isPending();
+
+                    log.silly(`gcode: notBusy=${notBusy} senderIdle=${senderIdle}, feederIdle=${feederIdle}`);
 
                     if (notBusy && senderIdle && feederIdle) {
                         this.feeder.next();
