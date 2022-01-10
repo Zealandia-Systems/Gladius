@@ -27,6 +27,7 @@
   },
   "preferGlobal": true,
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "prepare": "yarn run clean && yarn run eslint && yarn run stylint && yarn run test && yarn run build",
     "prebuild-latest": "yarn run package-sync && bash -c \"cd src; yarn version ${yarn_package_version}-${COMMIT_COUNT:-latest}\" && bash scripts/prebuild-prod.sh",
     "prebuild-dev": "yarn run package-sync && bash scripts/prebuild-dev.sh",
@@ -351,5 +352,8 @@
   },
   "pre-push": [
     "eslint:debug"
-  ]
+  ],
+  "resolutions": {
+    "colors": "1.0.x"
+  }
 }
