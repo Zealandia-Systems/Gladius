@@ -30,17 +30,17 @@ properties = {
   jobSeparateWordsWithSpace: true,     // specifies that the words should be separated with a white space  
 
   toolChangeEnabled: false,          // Enable tool change code (bultin tool change requires LCD display)
-  toolChangeX: 0,                   // X position for builtin tool change
-  toolChangeY: 0,                   // Y position for builtin tool change
-  toolChangeZ: 0,                  // Z position for builtin tool change
-  toolChangeZProbe: true,           // Z probe after tool change
+  //toolChangeX: 0,                   // X position for builtin tool change
+  //toolChangeY: 0,                   // Y position for builtin tool change
+  //toolChangeZ: 0,                  // Z position for builtin tool change
+  //toolChangeZProbe: true,           // Z probe after tool change
   toolChangeHasATC: false,
 
-  probeOnStart: false,               // Execute probe gcode to align tool
-  probeThickness: 0.8,              // plate thickness
-  probeUseHomeZ: true,              // use G28 or G38 for probing 
-  probeG38Target: -10,              // probing up to pos 
-  probeG38Speed: 30,                // probing with speed 
+  //probeOnStart: false,               // Execute probe gcode to align tool
+  //probeThickness: 0.8,              // plate thickness
+  //probeUseHomeZ: true,              // use G28 or G38 for probing 
+  //probeG38Target: -10,              // probing up to pos 
+  //probeG38Speed: 30,                // probing with speed 
 
   gcodeStartFile: "",               // File with custom Gcode for header/start (in nc folder)
   gcodeStopFile: "",                // File with custom Gcode for footer/end (in nc folder)
@@ -110,15 +110,15 @@ propertyDefinitions = {
     title: "Tool Change: Enabled", description: "Enable tool change code", group: 2,
     type: "boolean", default_mm: false, default_in: false
   },
-  toolChangeZProbe: {
+  /*toolChangeZProbe: {
     title: "Tool Change: Make Z Probe", description: "Z probe after tool change", group: 2,
     type: "boolean", default_mm: true, default_in: true
-  },
+  },*/
   toolChangeHasATC: {
     title: "Tool Change: Machine has ATC", description: "Let the machine perform the tool change", group: 2,
     type: "boolean", default_mm: false, default_in: false
   },
-  toolChangeX: {
+  /*toolChangeX: {
     title: "Tool Change: X", description: "X position for builtin tool change", group: 2,
     type: "spatial", default_mm: 0, default_in: 0
   },
@@ -129,8 +129,8 @@ propertyDefinitions = {
   toolChangeZ: {
     title: "Tool Change: Z ", description: "Z position for builtin tool change", group: 2,
     type: "spatial", default_mm: 40, default_in: 1.6
-  },
-  probeOnStart: {
+  },*/
+  /*probeOnStart: {
     title: "Probe: On job start", description: "Execute probe gcode on job start", group: 3,
     type: "boolean", default_mm: false, default_in: false
   },
@@ -149,7 +149,7 @@ propertyDefinitions = {
   probeG38Speed: {
     title: "Probe: G38 speed", description: "Probing with speed (mm/min; in/min)", group: 3,
     type: "spatial", default_mm: 30, default_in: 1.2
-  },
+  },*/
   gcodeStartFile: {
     title: "Extern: Start File", description: "File with custom Gcode for header/start (in nc folder)", group: 5,
     type: "file", default_mm: "", default_in: ""
@@ -162,10 +162,10 @@ propertyDefinitions = {
     title: "Extern: Tool File", description: "File with custom Gcode for tool change (in nc folder)", group: 5,
     type: "file", default_mm: "", default_in: ""
   },
-  gcodeProbeFile: {
+  /*gcodeProbeFile: {
     title: "Extern: Probe File", description: "File with custom Gcode for tool probe (in nc folder)", group: 5,
     type: "file", default_mm: "", default_in: ""
-  },
+  },*/
   commentWriteTools: {
     title: "Comment: Write Tools", description: "Write table of used tools in job header", group: 7,
     type: "boolean", default_mm: true, default_in: true
@@ -802,9 +802,9 @@ function writeFirstSection() {
     if (properties.jobSetOriginOnStart) {
       writeBlock(G.format(92), X.format(0), Y.format(0), Z.format(0)); // Set origin to initial position
     }
-    if (properties.probeOnStart && tool.number != 0 && !tool.jetTool) {
+    /*if (properties.probeOnStart && tool.number != 0 && !tool.jetTool) {
       onCommand(COMMAND_TOOL_MEASURE);
-    }
+    }*/
   } else {
     loadFile(properties.gcodeStartFile);
   }
@@ -887,18 +887,18 @@ function toolChange() {
   onCommand(COMMAND_COOLANT_OFF);
   onCommand(COMMAND_STOP_SPINDLE);
 
-  if(!properties.toolChangeHasATC) {
+  /*if(!properties.toolChangeHasATC) {
     writeComment('Move to specified tool change location.');
     writeBlock(G.format(53), G.format(0), Z.format(properties.toolChangeZ));
     writeBlock(G.format(53), G.format(0), X.format(properties.toolChangeX), Y.format(properties.toolChangeY));
     flushMotions();
-  }
+  }*/
 
   writeBlock(T.format(tool.number));
   writeBlock(M.format(6));
 
   // Run Z probe gcode
-  if (!properties.toolChangeHasATC && properties.toolChangeZProbe && tool.number != 0) {
+  /*if (!properties.toolChangeHasATC && properties.toolChangeZProbe && tool.number != 0) {
     onCommand(COMMAND_TOOL_MEASURE);
-  }
+  }*/
 }
