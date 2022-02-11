@@ -117,14 +117,14 @@ export default class PostProcessors extends PureComponent {
                                     <div>
                                         {canInstall && (
                                             <Button
-                                                title={i18n._('Install')}
+                                                title={`${i18n._('Install')} ${settings.version}`}
                                                 size="m"
                                                 style={{ width: '100%' }}
                                                 onClick={() => {
                                                     actions.install({ application, applicationVersion });
                                                 }}
                                             >
-                                                {i18n._('Install')}
+                                                {`${i18n._('Install')} ${settings.version}`}
                                             </Button>
                                         )}
                                         {!canInstall && (
