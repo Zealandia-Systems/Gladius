@@ -205,7 +205,9 @@ export const install = async (req, res) => {
         for await (const install of getSupportedInstalls()) {
             if (install.application === application && install.applicationVersion === applicationVersion) {
                 const source = path.join(process.cwd(), install.postProcessor);
+                const postProcessorFolder = path.dirname(install.postProcessorPath);
 
+                await fs.mkdir(postProcessorFolder, { recursive: true });
                 await fs.copyFile(source, install.postProcessorPath);
 
                 await get(req, res);

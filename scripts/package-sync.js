@@ -37,14 +37,14 @@ fs.writeFileSync(target, content + '\n', 'utf8');
 
 rimraf.sync('dist');
 
-fs.mkdirSync('dist/gladius/server', { recursive: true} );
+fs.mkdirSync('dist/gladius/server', { recursive: true });
 
 variableReplacer({
     source: ['Swordfish.cps', 'Swordfish.pp'],
     dest: 'dist/gladius/server/',
     inlineData: {
-        version : pkg.version,
-        homepage : pkg.homepage
+        version: pkg.version,
+        homepage: pkg.homepage
     }
 });
 
@@ -56,7 +56,7 @@ variableReplacer({
     source: ['Swordfish.cps', 'Swordfish.pp'],
     dest: 'output/server/',
     inlineData: {
-        version : pkg.version,
-        homepage : pkg.homepage
+        version: pkg.version,
+        homepage: pkg.homepage
     }
 });

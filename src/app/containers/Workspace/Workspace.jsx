@@ -99,6 +99,12 @@ class Workspace extends PureComponent {
                 const { body: posts } = (await api.posts.fetch());
 
                 const outdated = posts.map(post => {
+                    const { postProcessorVersion } = post;
+
+                    if (postProcessorVersion === 'unknown') {
+                        return post;
+                    }
+
                     return semver.lt(post.postProcessorVersion ?? '0.0.0', settings.version)
                         ? post
                         : null;
