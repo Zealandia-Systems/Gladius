@@ -1,6 +1,6 @@
 import chainedFunction from 'chained-function';
 import classNames from 'classnames';
-import ExpressionEvaluator from 'expr-eval';
+//import ExpressionEvaluator from 'expr-eval';
 import includes from 'lodash/includes';
 import get from 'lodash/get';
 import mapValues from 'lodash/mapValues';
@@ -65,7 +65,7 @@ import {
 } from './constants';
 import styles from './index.styl';
 
-const translateExpression = (function () {
+/*const translateExpression = (function () {
     const { Parser } = ExpressionEvaluator;
     const reExpressionContext = new RegExp(/\[[^\]]+\]/g);
 
@@ -96,7 +96,7 @@ const translateExpression = (function () {
             return line;
         }).join('\n');
     };
-}());
+}());*/
 
 const displayWebGLErrorMessage = () => {
     portal(({ onClose }) => (
@@ -265,18 +265,20 @@ class VisualizerWidget extends PureComponent {
                 log.debug(data); // TODO
             });
         },
-        loadGCode: (name, gcode) => {
+        loadGCode: (name, gcode, context) => {
             const capable = {
                 view3D: !!this.visualizer
             };
 
             const updater = (state) => ({
                 gcode: {
+                    name,
                     ...state.gcode,
                     loading: false,
                     rendering: capable.view3D,
                     ready: !capable.view3D,
                     content: gcode,
+                    context,
                     bbox: {
                         min: {
                             x: 0,
@@ -606,8 +608,8 @@ class VisualizerWidget extends PureComponent {
             this.setState((state) => ({ ...initialState }));
         },
         'gcode:load': (name, gcode, context) => {
-            gcode = translateExpression(gcode, context); // e.g. xmin,xmax,ymin,ymax,zmin,zmax
-            this.actions.loadGCode(name, gcode);
+            //gcode = translateExpression(gcode, context); // e.g. xmin,xmax,ymin,ymax,zmin,zmax
+            this.actions.loadGCode(name, gcode, context);
         },
         'gcode:unload': () => {
             this.actions.unloadGCode();
@@ -1127,14 +1129,16 @@ class VisualizerWidget extends PureComponent {
                         />
                     )}
                 </Widget.Content>
-                <Widget.Footer className={styles.widgetFooter}>
-                    <SecondaryToolbar
-                        is3DView={capable.view3D}
-                        cameraMode={state.cameraMode}
-                        cameraPosition={state.cameraPosition}
-                        camera={actions.camera}
-                    />
-                </Widget.Footer>
+                {showVisualizer && (
+                    <Widget.Footer className={styles.widgetFooter}>
+                        <SecondaryToolbar
+                            is3DView={capable.view3D}
+                            cameraMode={state.cameraMode}
+                            cameraPosition={state.cameraPosition}
+                            camera={actions.camera}
+                        />
+                    </Widget.Footer>
+                )}
             </Widget>
         );
     }

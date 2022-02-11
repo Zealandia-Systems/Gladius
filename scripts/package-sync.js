@@ -5,6 +5,8 @@ const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const findImports = require('find-imports');
+const variableReplacer = require('variable-replacer');
+const rimraf = require('rimraf');
 
 // Copy necessary properties from 'package.json' to 'src/package.json'
 const pkg = require('../package.json');
@@ -32,3 +34,29 @@ pkgApp.dependencies = _.pick(pkg.dependencies, deps);
 const target = path.resolve(__dirname, '../src/package.json');
 const content = JSON.stringify(pkgApp, null, 2);
 fs.writeFileSync(target, content + '\n', 'utf8');
+
+rimraf.sync('dist');
+
+fs.mkdirSync('dist/gladius/server', { recursive: true} );
+
+variableReplacer({
+    source: ['Swordfish.cps', 'Swordfish.pp'],
+    dest: 'dist/gladius/server/',
+    inlineData: {
+        version : pkg.version,
+        homepage : pkg.homepage
+    }
+});
+
+rimraf.sync('output');
+
+fs.mkdirSync('output/server', { recursive: true });
+
+variableReplacer({
+    source: ['Swordfish.cps', 'Swordfish.pp'],
+    dest: 'output/server/',
+    inlineData: {
+        version : pkg.version,
+        homepage : pkg.homepage
+    }
+});

@@ -542,5 +542,18 @@
     "Z Minimum": "Z Minimum",
     "Z Maximum": "Z Maximum",
     "Machine": "Machine",
-    "Dimensions": "Dimensions"
+    "Dimensions": "Dimensions",
+    "Back": "Back",
+    "Generate": "Generate",
+    "Ignore": "Ignore",
+    "Go to Settings": "Go to Settings",
+    "Application": "Application",
+    "Application Version": "Application Version",
+    "Post Processor Version": "Post Processor Version",
+    "Not Installed": "Not Installed",
+    "Posts": "Posts",
+    "Some post processors are out of date.": "Some post processors are out of date.",
+    "A post processor is out of date.": "A post processor is out of date.",
+    "One or more of your post processors is out of date and requires updating. Outdated post processors will not be supported unless explicitly recommended.": "One or more of your post processors is out of date and requires updating. Outdated post processors will not be supported unless explicitly recommended.",
+    "Install": "Install"
 }

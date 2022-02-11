@@ -1,8 +1,5 @@
 #!/bin/bash
 
-mkdir -p dist
-rm -rf dist/*
-
 pushd src
 mkdir -p ../dist/gladius/
 cp -af package.json ../dist/gladius/

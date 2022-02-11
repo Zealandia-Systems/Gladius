@@ -7,10 +7,12 @@ export const {
     MODAL_FEEDER_WAIT,
     MODAL_PROMPT,
     MODAL_SERVER_DISCONNECTED,
+    MODAL_OUTDATED_POSTS,
 } = constants('containers/Workspace', [
     'MODAL_NONE',
     'MODAL_FEEDER_PAUSED',
     'MODAL_FEEDER_WAIT',
     'MODAL_PROMPT',
     'MODAL_SERVER_DISCONNECTED',
+    'MODAL_OUTDATED_POSTS'
 ]);

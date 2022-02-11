@@ -1,0 +1,8 @@
+{
+    "title": "Outside Corner",
+    "fields": [
+        { "id": "x", "title": "X", "unit": "mm", "default": 0 },
+        { "id": "y", "title": "Y", "unit": "mm", "default": 0 },
+        { "id": "z", "title": "Z", "unit": "mm", "default": 0 }
+    ]
+}

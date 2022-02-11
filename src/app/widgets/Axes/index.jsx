@@ -887,7 +887,7 @@ class AxesWidget extends PureComponent {
                                 inverted={state.jog.keypad}
                                 disabled={!state.canClick}
                             >
-                                <i className="fa fa-keyboard-o" />
+                                <i className="fa fa-keyboard" />
                             </Widget.Button>
                         </KeypadOverlay>
                         <Widget.Button

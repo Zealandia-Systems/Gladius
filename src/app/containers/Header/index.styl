@@ -10,6 +10,9 @@
 }
 
 .navbar-brand {
+    padding: 0px !important;
+    margin: 0px !important;
+    height: 70px !important;
     img {
         opacity: 0.8;
     }
@@ -65,4 +68,41 @@
             outline: 0;
         }
     }
+}
+
+.pulse {
+    animation: pulse 1s ease infinite alternate both;
+}
+
+@keyframes pulse {
+    100% {
+        text-shadow: 0 0 0 rgba(0, 0, 0, 0);
+        color: silver;
+    }
+    0% {
+        text-shadow: 0 0 30px red;
+        color: red;
+    }
+}
+
+.logo-title {
+    display: inline;
+    height: 70px;
+    line-height: 65px;
+    font-size: 36px;
+    text-align: center;
+    vertical-align: middle;
+    float: right;
+    font-family: 'Pacifico-Regular';
+    color: silver;
+}
+
+.logo-version {
+    display: inline;
+    height: 70px;
+    font-size: 80%;
+    line-height: 65px;
+    text-align: center;
+    float: right;
+    color: silver;
 }

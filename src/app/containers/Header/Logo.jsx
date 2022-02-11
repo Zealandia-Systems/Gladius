@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import React from 'react';
 import Anchor from 'app/components/Anchor';
 import styles from './index.styl';
@@ -18,12 +19,12 @@ export default ({
 }) => {
     return (
         <Anchor
-            className={`navbar-brand ${styles['navbar-brand']}`}
             style={{
-                padding: '0px 5px 0px 5px',
-                position: 'relative',
-                height: 64,
-                width: 64
+                //padding: '5px 5px 5px 5px',
+                //float: 'left',
+                display: 'block',
+                padding: '0px',
+                margin: '0px'
             }}
             href={releases}
             target="_blank"
@@ -31,33 +32,27 @@ export default ({
         >
             <img
                 style={{
-                    margin: '4px auto 0 auto'
+                    margin: '3px'
                 }}
                 src="images/gladius-logo-64x64.png"
                 alt=""
             />
-            {/*<div
-                style={{
-                    fontSize: '50%',
-                    lineHeight: '14px',
-                    textAlign: 'center'
-                }}
+            <div
+                className={classNames({
+                    [styles.logoVersion]: true,
+                    [styles.pulse]: newUpdateAvailable
+                })}
             >
                 {settings.version}
-            </div>*/}
-            {newUpdateAvailable && (
-                <span
-                    className="label label-primary"
-                    style={{
-                        fontSize: '50%',
-                        position: 'absolute',
-                        top: 2,
-                        right: 2
-                    }}
-                >
-                N
-                </span>
-            )}
+            </div>
+            <div
+                className={classNames({
+                    [styles.logoTitle]: true,
+                    [styles.pulse]: newUpdateAvailable
+                })}
+            >
+                {settings.productName}
+            </div>
         </Anchor>
     );
 };

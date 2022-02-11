@@ -137,12 +137,12 @@ class SwordfishController {
         }
         this.engine = engine;
 
-        const { port, baudrate, rtscts } = { ...options };
+        const { port, baudrate, rtscts, } = { ...options };
         this.options = {
             ...this.options,
             port: port,
             baudrate: baudrate,
-            rtscts: rtscts,
+            rtscts: rtscts
         };
 
         // Connection
@@ -1059,7 +1059,7 @@ class SwordfishController {
                 port: this.options.port,
                 baudrate: this.options.baudrate,
                 controllerType: this.type,
-                inuse: true,
+                inuse: true
             });
         }
         if (!_.isEmpty(this.settings)) {

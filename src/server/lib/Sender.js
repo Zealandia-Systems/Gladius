@@ -274,8 +274,7 @@ class Sender extends events.EventEmitter {
             return false;
         }
 
-        const lines = gcode.split('\n')
-            .filter(line => (line.trim().length > 0));
+        const lines = gcode.split('\n');
 
         if (this.sp) {
             this.sp.clear();

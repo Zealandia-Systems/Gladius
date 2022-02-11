@@ -196,7 +196,8 @@ class Header extends PureComponent {
             commands: [],
             runningTasks: [],
             currentVersion: settings.version,
-            latestVersion: settings.version
+            latestVersion: settings.version,
+            outdatedPosts: []
         };
     }
 
@@ -249,7 +250,7 @@ class Header extends PureComponent {
     }
 
     render() {
-        const { pushPermission, commands, runningTasks, currentVersion, latestVersion } = this.state;
+        const { pushPermission, commands, runningTasks, currentVersion, latestVersion, port } = this.state;
         const newUpdateAvailable = semver.lt(currentVersion, latestVersion);
         const tooltip = newUpdateAvailable ? newUpdateAvailableTooltip() : <div />;
         const showCommands = commands.length > 0;
@@ -264,7 +265,9 @@ class Header extends PureComponent {
                     margin: 0
                 }}
             >
-                <Navbar.Header>
+                <Navbar.Header
+                    style={{ height: '70px' }}
+                >
                     <OverlayTrigger
                         overlay={tooltip}
                         placement="right"
@@ -370,7 +373,7 @@ class Header extends PureComponent {
                             </MenuItem>
                         </NavDropdown>
                     </Nav>
-                    <QuickAccessToolbar state={this.state} actions={this.actions} />
+                    <QuickAccessToolbar port={port} state={this.state} actions={this.actions} />
                     <ConnectionWidget widgetId="connection" />
                 </Navbar.Collapse>
             </Navbar>

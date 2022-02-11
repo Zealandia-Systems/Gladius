@@ -159,5 +159,8 @@ export default {
             // jsonIndent to use when storing json files
             jsonIndent: 4
         }
+    },
+    probeCycles: {
+        path: path.resolve(__dirname, '..', 'probe-cycles')
     }
 };

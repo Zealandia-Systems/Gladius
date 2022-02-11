@@ -1,8 +1,5 @@
 #!/bin/bash
 
-mkdir -p output
-rm -rf output/*
-
 pushd src
 cp -af package.json ../output/
 cross-env NODE_ENV=development babel "*.js" \

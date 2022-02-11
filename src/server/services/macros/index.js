@@ -57,7 +57,7 @@ const createToolChangeMacro = () => {
             'G53 G0 Z0',
         ].join('\n'),
         requires: (controller) => {
-            return !controller.settings.firmware.smartM6;
+            return !controller.settings.firmware?.smartM6;
         }
     };
 };

@@ -258,6 +258,10 @@ const appMain = () => {
         // Version
         app.get(urljoin(settings.route, 'api/version/latest'), api.version.getLatestVersion);
 
+        // Posts
+        app.get(urljoin(settings.route, 'api/posts'), api.posts.get);
+        app.post(urljoin(settings.route, 'api/posts'), api.posts.install);
+
         // State
         app.get(urljoin(settings.route, 'api/state'), api.state.get);
         app.post(urljoin(settings.route, 'api/state'), api.state.set);
@@ -339,6 +343,9 @@ const appMain = () => {
         app.post(urljoin(settings.route, 'api/watch/files'), api.watch.getFiles);
         app.get(urljoin(settings.route, 'api/watch/file'), api.watch.readFile);
         app.post(urljoin(settings.route, 'api/watch/file'), api.watch.readFile);
+
+        // Probe Cycles
+        app.get(urljoin(settings.route, 'api/probe-cycles'), api.probeCycles.fetch);
     }
 
     // page

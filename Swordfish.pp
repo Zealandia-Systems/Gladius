@@ -9,8 +9,8 @@
 + Who      When       What                         
 + ======== ========== ===========================
 + LiamB    5/11/2021  Written from Swordfish.pp
-
-
++ ScottM   21/12/2021 Added Arc Support
++ version = "%version%";
 
 POST_NAME = "Swordfish (*.nc)"
  

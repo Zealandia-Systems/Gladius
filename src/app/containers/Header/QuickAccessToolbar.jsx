@@ -5,9 +5,11 @@ import controller from 'app/lib/controller';
 import i18n from 'app/lib/i18n';
 import styles from './index.styl';
 import * as settings from '../Settings';
+//import Probe from '../Probe';
 
 class QuickAccessToolbar extends PureComponent {
     static propTypes = {
+        port: PropTypes.string,
         state: PropTypes.object,
         actions: PropTypes.object
     };
@@ -31,6 +33,9 @@ class QuickAccessToolbar extends PureComponent {
     };
 
     render() {
+        const { port } = this.props;
+        const connected = port !== undefined && port !== '';
+
         return (
             <div className={styles.quickAccessToolbar}>
                 <ul className="nav navbar-nav">
@@ -62,6 +67,7 @@ class QuickAccessToolbar extends PureComponent {
                             className="btn"
                             onClick={this.command.homing}
                             title={i18n._('Homing')}
+                            disabled={!connected}
                         >
                             <i className="fa fa-home" />
                             <Space width="8" />
@@ -72,11 +78,24 @@ class QuickAccessToolbar extends PureComponent {
                             className="btn"
                             onClick={this.command.toolChange}
                             title={i18n._('Tool Change')}
+                            disabled={!connected}
                         >
                             <i className="fa fa-wrench" />
                             <Space width="8" />
                             {i18n._('Tool Change')}
                         </button>
+                        {/*<button
+                            type="button"
+                            className="btn"
+                            onClick={() => Probe.show(port)}
+                            title={i18n._('Probe')}
+                            disabled={!connected}
+                        >
+                            <i className="fa fa-compress" />
+                            <Space width="8" />
+                            {i18n._('Probe')}
+
+                        </button>*/}
                         {/*<button
                             type="button"
                             className="btn"

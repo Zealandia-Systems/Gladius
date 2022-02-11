@@ -1,6 +1,6 @@
 {
   "name": "gladius",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A web-based interface for CNC milling controller running Swordfish",
   "homepage": "https://github.com/Zealandia-Systems/Gladius",
   "author": {
@@ -9,8 +9,7 @@
   },
   "main": "./dist/gladius/server-cli.js",
   "bin": {
-    "gladius": "./bin/gladius",
-    "cnc": "./bin/cnc"
+    "gladius": "./bin/gladius"
   },
   "files": [
     "bin",
@@ -28,7 +27,7 @@
   "preferGlobal": true,
   "scripts": {
     "preinstall": "npx npm-force-resolutions",
-    "prepare": "yarn run clean && yarn run eslint && yarn run stylint && yarn run test && yarn run build",
+    "prepare.back": "yarn run clean && yarn run eslint && yarn run stylint && yarn run test && yarn run build",
     "prebuild-latest": "yarn run package-sync && bash -c \"cd src; yarn version ${yarn_package_version}-${COMMIT_COUNT:-latest}\" && bash scripts/prebuild-prod.sh",
     "prebuild-dev": "yarn run package-sync && bash scripts/prebuild-dev.sh",
     "prebuild-prod": "yarn run package-sync && bash scripts/prebuild-prod.sh",
@@ -43,9 +42,9 @@
     "build-prod": "concurrently --kill-others-on-fail --names \"build-prod-server,build-prod-app\" \"yarn run build-prod-server\" \"yarn run build-prod-app\"",
     "build-prod-server": "cross-env NODE_ENV=production webpack-cli --config webpack.config.server.production.js && yarn run build-i18n-server",
     "build-prod-app": "cross-env NODE_ENV=production webpack-cli --config webpack.config.app.production.js && yarn run build-i18n-app",
-    "postbuild-dev-server": "bash -c 'mkdir -p output/server; cp -af src/server/{i18n,views} output/server/'",
+    "postbuild-dev-server": "bash -c 'mkdir -p output/server; cp -af src/server/{i18n,views,probe-cycles} output/server/'",
     "postbuild-dev-app": "bash -c 'mkdir -p output/app; cp -af src/app/{favicon.ico,i18n,images,assets} output/app/'",
-    "postbuild-prod-server": "bash -c 'mkdir -p dist/gladius/server; cp -af src/server/{i18n,views} dist/gladius/server/'",
+    "postbuild-prod-server": "bash -c 'mkdir -p dist/gladius/server; cp -af src/server/{i18n,views,probe-cycles} dist/gladius/server/'",
     "postbuild-prod-app": "bash -c 'mkdir -p dist/gladius/app; cp -af src/app/{favicon.ico,i18n,images,assets} dist/gladius/app/'",
     "clean": "bash -c 'rm -rf ./dist ./output'",
     "electron": "electron",
@@ -166,7 +165,7 @@
     "@trendmicro/react-toggle-switch": "~0.5.7",
     "@trendmicro/react-tooltip": "~0.6.0",
     "@trendmicro/react-validation": "~0.1.0",
-    "@zealandia-systems/gladius-controller": "~1.0.2",
+    "@zealandia-systems/gladius-controller": "~1.0.3",
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "~1.18.3",
     "bootstrap": "~3.3.7",
@@ -219,6 +218,7 @@
     "lodash": "~4.17.11",
     "memoize-one": "~5.0.4",
     "method-override": "~3.0.0",
+    "mime-types": "^2.1.34",
     "minimatch": "~3.0.4",
     "mkdirp": "~0.5.1",
     "moment": "~2.24.0",
@@ -256,6 +256,7 @@
     "react-tooltip": "^4.2.21",
     "recompose": "~0.30.0",
     "redux": "~4.0.1",
+    "regedit": "^5.0.0",
     "registry-auth-token": "~3.4.0",
     "registry-url": "~5.1.0",
     "rimraf": "~2.6.3",
@@ -278,9 +279,11 @@
     "universal-logger": "~1.0.1",
     "universal-logger-browser": "~1.0.2",
     "uuid": "~3.3.2",
+    "variable-replacer": "^1.6.0",
     "watch": "~1.0.2",
     "webappengine": "~1.2.0",
     "winston": "~3.2.1",
+    "wmic": "^1.0.1",
     "xterm": "~3.0.2"
   },
   "devDependencies": {

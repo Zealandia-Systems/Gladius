@@ -1,4 +1,5 @@
 import * as version from './api.version';
+import * as posts from './api.posts';
 import * as state from './api.state';
 import * as gcode from './api.gcode';
 import * as controllers from './api.controllers';
@@ -12,9 +13,11 @@ import * as machines from './api.machines';
 import * as macros from './api.macros';
 import * as mdi from './api.mdi';
 import * as users from './api.users';
+import * as probeCycles from './api.probe-cycles';
 
 export {
     version,
+    posts,
     state,
     gcode,
     controllers,
@@ -28,4 +31,5 @@ export {
     macros,
     mdi,
     users,
+    probeCycles
 };

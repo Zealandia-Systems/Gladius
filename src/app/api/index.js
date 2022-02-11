@@ -665,6 +665,33 @@ const pockets = makeApi('/api/pockets');
 
 const machines = {};
 
+const posts = {
+    fetch: (options) => new Promise((resolve, reject) => {
+        authrequest
+            .get('api/posts')
+            .query(options)
+            .end((err, res) => {
+                if (err) {
+                    reject(res);
+                } else {
+                    resolve(res);
+                }
+            });
+    }),
+    install: (options) => new Promise((resolve, reject) => {
+        authrequest
+            .post('api/posts')
+            .send(options)
+            .end((err, res) => {
+                if (err) {
+                    reject(res);
+                } else {
+                    resolve(res);
+                }
+            });
+    })
+};
+
 machines.fetch = (options) => new Promise((resolve, reject) => {
     authrequest
         .get('/api/machines')
@@ -740,8 +767,24 @@ machines.run = (id) => new Promise((resolve, reject) => {
         });
 });
 
+const probeCycles = {
+    fetch: (options) => new Promise((resolve, reject) => {
+        authrequest
+            .get('/api/probe-cycles')
+            .query(options)
+            .end((err, res) => {
+                if (err) {
+                    reject(res);
+                } else {
+                    resolve(res);
+                }
+            });
+    })
+};
+
 export default {
     getLatestVersion,
+    posts,
 
     // State
     getState,
@@ -772,4 +815,5 @@ export default {
     macros,
     mdi,
     users,
+    probeCycles
 };

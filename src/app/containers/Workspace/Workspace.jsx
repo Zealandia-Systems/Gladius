@@ -4,6 +4,7 @@ import Dropzone from 'react-dropzone';
 import pubsub from 'pubsub-js';
 import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
+import semver from 'semver';
 import { Button, ButtonGroup, ButtonToolbar } from 'app/components/Buttons';
 import api from 'app/api';
 import {
@@ -13,6 +14,7 @@ import controller from 'app/lib/controller';
 import i18n from 'app/lib/i18n';
 import log from 'app/lib/log';
 import store from 'app/store';
+import settings from 'app/config/settings';
 import * as widgetManager from './WidgetManager';
 import DefaultWidgets from './DefaultWidgets';
 import PrimaryWidgets from './PrimaryWidgets';
@@ -21,13 +23,15 @@ import FeederPaused from './modals/FeederPaused';
 import FeederWait from './modals/FeederWait';
 import Prompt from './modals/Prompt';
 import ServerDisconnected from './modals/ServerDisconnected';
+import OutdatedPosts from './modals/OutdatedPosts';
 import styles from './index.styl';
 import {
     MODAL_NONE,
     MODAL_FEEDER_PAUSED,
     MODAL_FEEDER_WAIT,
     MODAL_PROMPT,
-    MODAL_SERVER_DISCONNECTED
+    MODAL_SERVER_DISCONNECTED,
+    MODAL_OUTDATED_POSTS
 } from './constants';
 
 const WAIT = '%wait';
@@ -89,6 +93,32 @@ class Workspace extends PureComponent {
                     }
                 }
             }));
+        },
+        checkForOutdatedPosts: async () => {
+            try {
+                const { body: posts } = (await api.posts.fetch());
+
+                const outdated = posts.map(post => {
+                    return semver.lt(post.postProcessorVersion ?? '0.0.0', settings.version)
+                        ? post
+                        : null;
+                }).filter(post => post != null);
+
+                const ignore = store.get('containers.settings.posts.ignore') ?? {};
+
+                const ignoreAll = posts.reduce((prev, curr) => {
+                    const { application, applicationVersion } = curr;
+                    const id = `${application}:${applicationVersion}`;
+
+                    return prev || (ignore[id] ?? false);
+                }, false);
+
+                if (outdated.length > 0 && !ignoreAll) {
+                    this.action.openModal(MODAL_OUTDATED_POSTS, { posts, outdated });
+                }
+            } catch (res) {
+                //console.log(res);
+            }
         }
     };
 
@@ -388,6 +418,8 @@ class Workspace extends PureComponent {
         this.addControllerEvents();
         this.addResizeEventListener();
 
+        this.action.checkForOutdatedPosts();
+
         setTimeout(() => {
             // A workaround solution to trigger componentDidUpdate on initial render
             this.setState({ mounted: true });
@@ -469,6 +501,14 @@ class Workspace extends PureComponent {
                 {modal.name === MODAL_SERVER_DISCONNECTED &&
                     <ServerDisconnected />
                 }
+                {modal.name === MODAL_OUTDATED_POSTS && (
+                    <OutdatedPosts
+                        port={port}
+                        posts={modal.params.posts}
+                        outdated={modal.params.outdated}
+                        onClose={this.action.closeModal}
+                    />
+                )}
                 <div
                     className={classNames(
                         styles.dropzoneOverlay,

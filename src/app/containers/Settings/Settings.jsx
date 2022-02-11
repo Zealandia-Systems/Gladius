@@ -32,13 +32,15 @@ import store from 'app/store';
 import CoordinateSystems from './CoordinateSystems';
 import Tools from './Tools';
 import Pockets from './Pockets';
+import Posts from './PostProcessors';
 import Events from './Events';
 import About from './About';
 //import styles from './index.styl';
 
 class Settings extends PureComponent {
     static propTypes = {
-        port: PropTypes.string
+        port: PropTypes.string.isRequired,
+        section: PropTypes.string
     };
 
     handleClose = () => {
@@ -98,6 +100,13 @@ class Settings extends PureComponent {
                 return controllerSettings?.firmware?.hasATC ?? false;
             },
             component: (props) => <Pockets {...props} />
+        },
+        {
+            id: 'posts',
+            path: 'posts',
+            title: i18n._('Posts'),
+            available: (controllerSettings) => true,
+            component: (props) => <Posts {...props} />
         },
         /*{
             id: 'commands',
@@ -1273,7 +1282,85 @@ class Settings extends PureComponent {
         },
         wcs: this.createActions('wcs', false, false),
         tools: this.createActions('tools'),
-        pockets: this.createActions('pockets')
+        pockets: this.createActions('pockets'),
+        posts: {
+            fetchRecords: (options) => {
+                //const state = this.state.posts;
+
+                this.setState({
+                    posts: {
+                        ...this.state.posts,
+                        api: {
+                            ...this.state.posts.api,
+                            err: false,
+                            fetching: true
+                        },
+                        alertMessage: null
+                    }
+                });
+
+                api.posts.fetch()
+                    .then((res) => {
+                        const records = res.body;
+
+                        this.setState({
+                            posts: {
+                                ...this.state.posts,
+                                api: {
+                                    ...this.state.posts.api,
+                                    err: false,
+                                    fetching: false
+                                },
+                                records: records
+                            }
+                        });
+                    })
+                    .catch((res) => {
+                        this.setState({
+                            posts: {
+                                ...this.state.posts,
+                                api: {
+                                    ...this.state.posts.api,
+                                    err: true,
+                                    fetching: false
+                                },
+                                records: []
+                            }
+                        });
+                    });
+            },
+            install: (options) => {
+                api.posts.install(options)
+                    .then((res) => {
+                        const records = res.body;
+
+                        this.setState({
+                            posts: {
+                                ...this.state.posts,
+                                api: {
+                                    ...this.state.posts.api,
+                                    err: false,
+                                    fetching: false
+                                },
+                                records: records
+                            }
+                        });
+                    })
+                    .catch((res) => {
+                        this.setState({
+                            posts: {
+                                ...this.state.posts,
+                                api: {
+                                    ...this.state.posts.api,
+                                    err: true,
+                                    fetching: false
+                                },
+                                records: []
+                            }
+                        });
+                    });
+            }
+        }
     };
 
     controllerEvents = {
@@ -1325,7 +1412,7 @@ class Settings extends PureComponent {
         return {
             show: true,
             port: null,
-            activeSection: this.sections[0].id,
+            activeSection: this.props.section ?? this.sections[0].id,
 
             controllerSettings: controller.settings,
 
@@ -1441,6 +1528,14 @@ class Settings extends PureComponent {
                     params: {
                     }
                 }
+            },
+            posts: {
+                name: 'Posts',
+                api: {
+                    err: false,
+                    fetching: false
+                },
+                records: []
             },
             // Commands
             commands: {

@@ -89,7 +89,7 @@ class Dashboard extends PureComponent {
         const style = {
             display: show ? 'block' : 'none'
         };
-        const filename = state.gcode.name || 'noname.nc';
+        const filename = state.gcode.name || 'unnamed.gcode';
         const filesize = state.gcode.ready ? formatBytes(state.gcode.size, 0) : '';
         const { sent = 0, total = 0 } = state.gcode;
         const { virtualList } = this.state;

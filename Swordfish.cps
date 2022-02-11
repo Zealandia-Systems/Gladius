@@ -7,12 +7,14 @@ https://github.com/zealandia-systems/swordfish_posts_processor
 description = "Swordfish CNC Controller 1.0"
 vendor = "Zealandia Systems";
 vendorUrl = "https://github.com/zealandia-systems/swordfish_posts_processor";
+version = "%version%";
 certificationLevel = 2;
 extension = "gcode";
 setCodePage("ascii");
 capabilities = CAPABILITY_MILLING | CAPABILITY_JET;
 keywords = "MODEL_IMAGE PREVIEW_IMAGE";
 minimumRevision = 45702;
+programNameIsInteger = false;
 
 // user-defined properties
 properties = {
@@ -713,6 +715,7 @@ function onCommand(command) {
 }
 
 function writeFirstSection() {
+  writeComment("Post Processor Version: " + version);
   // dump tool information
   let toolZRanges = {};
   let vectorX = new Vector(1, 0, 0);
@@ -758,6 +761,17 @@ function writeFirstSection() {
   writeComment(" Y: Min=" + XYZ.format(ranges.y.min) + " Max=" + XYZ.format(ranges.y.max) + " Size=" + XYZ.format(ranges.y.max - ranges.y.min));
   writeComment(" Z: Min=" + XYZ.format(ranges.z.min) + " Max=" + XYZ.format(ranges.z.max) + " Size=" + XYZ.format(ranges.z.max - ranges.z.min));
 
+  let toolRenderer = createToolRenderer();
+
+  if (toolRenderer) {
+    toolRenderer.setBackgroundColor(new Color(1, 1, 1));
+    toolRenderer.setFluteColor(new Color(40.0 / 255, 40.0 / 255, 40.0 / 255));
+    toolRenderer.setShoulderColor(new Color(80.0 / 255, 80.0 / 255, 80.0 / 255));
+    toolRenderer.setShaftColor(new Color(80.0 / 255, 80.0 / 255, 80.0 / 255));
+    toolRenderer.setHolderColor(new Color(40.0 / 255, 40.0 / 255, 40.0 / 255));
+    toolRenderer.setBackgroundColor(new Color(240 / 255.0, 240 / 255.0, 240 / 255.0));
+  }
+
   if (properties.commentWriteTools) {
     writeComment(" ");
     writeComment(" Tools table:");
@@ -774,22 +788,13 @@ function writeFirstSection() {
         }
         comment += " - " + getToolTypeName(tool.type) + " " + tool.comment;
         writeComment(comment);
+
+        if (toolRenderer) {
+          let path = "tool" + tool.number + ".png";
+          toolRenderer.exportAs(path, "image/png", tool, 400, 532);
+        }
       }
     }
-  }
-
-  let toolRenderer = createToolRenderer();
-  if (toolRenderer) {
-    toolRenderer.setBackgroundColor(new Color(1, 1, 1));
-    toolRenderer.setFluteColor(new Color(40.0 / 255, 40.0 / 255, 40.0 / 255));
-    toolRenderer.setShoulderColor(new Color(80.0 / 255, 80.0 / 255, 80.0 / 255));
-    toolRenderer.setShaftColor(new Color(80.0 / 255, 80.0 / 255, 80.0 / 255));
-    toolRenderer.setHolderColor(new Color(40.0 / 255, 40.0 / 255, 40.0 / 255));
-    toolRenderer.setBackgroundColor(new Color(240 / 255.0, 240 / 255.0, 240 / 255.0));
-    let path = "tool" + tool.number + ".png";
-    let width = 400;
-    let height = 532;
-    toolRenderer.exportAs(path, "image/png", tool, width, height);
   }
 
   writeln("");
