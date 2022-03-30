@@ -358,5 +358,8 @@
   ],
   "resolutions": {
     "colors": "1.0.x"
+  },
+  "volta": {
+    "node": "10.24.1"
   }
 }

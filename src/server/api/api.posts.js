@@ -207,7 +207,13 @@ export const install = async (req, res) => {
                 const source = path.join(process.cwd(), install.postProcessor);
                 const postProcessorFolder = path.dirname(install.postProcessorPath);
 
-                await fs.mkdir(postProcessorFolder, { recursive: true });
+                try {
+                    await fs.mkdir(postProcessorFolder, { recursive: true });
+                // eslint-disable-next-line no-empty
+                } catch {
+
+                }
+
                 await fs.copyFile(source, install.postProcessorPath);
 
                 await get(req, res);
