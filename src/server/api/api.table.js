@@ -76,8 +76,9 @@ export default (path) => {
                     return;
                 }
 
-                const paging = !!req.query.paging;
-                const sorting = !!req.query.sorting;
+                const paging = req.query.paging === 'true';
+                const sorting = req.query.sorting === 'true';
+
                 let response = {};
 
                 if (sorting) {
