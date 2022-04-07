@@ -1,0 +1,36 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch App",
+            "trace": true,
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:8000",
+            "disableNetworkCache": true,
+            "webRoot": "${workspaceFolder}/src/app",
+            "preLaunchTask": "npm: build-dev-app",
+            "sourceMaps": true,
+        },
+        {
+            "name": "Launch Server",
+            "type": "node",
+            "request": "launch",
+            "program": "bin/gladius",
+            "args": [
+                "-vv"
+            ],
+            "preLaunchTask": "npm: build-dev-server",
+            "sourceMaps": true,
+            "env": {
+                "NODE_ENV": "development"
+            } /*,
+            "outFiles": [
+                "${workspaceFolder}/output/server/*.js"
+            ]*/
+        }
+    ]
+}

@@ -24,7 +24,7 @@ module.exports = {
     cache: true,
     target: 'web',
     context: path.resolve(__dirname, 'src/app'),
-    devtool: 'cheap-module-eval-source-map',
+    devtool: 'source-map',
     entry: {
         polyfill: [
             path.resolve(__dirname, 'src/app/polyfill/index.js'),
