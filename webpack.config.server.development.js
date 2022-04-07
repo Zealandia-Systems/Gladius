@@ -17,7 +17,7 @@ const buildVersion = pkg.version;
 
 module.exports = {
     mode: 'development',
-    devtool: 'cheap-module-eval-source-map',
+    devtool: 'source-map',
     target: 'node', // ignore built-in modules like path, fs, etc.
     context: path.resolve(__dirname, 'src/server'),
     entry: {
@@ -28,7 +28,8 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'output/server'),
         filename: '[name].js',
-        libraryTarget: 'commonjs2'
+        libraryTarget: 'commonjs2',
+        devtoolModuleFilenameTemplate: 'file:///[absolute-resource-path]'
     },
     plugins: [
         new webpack.DefinePlugin({

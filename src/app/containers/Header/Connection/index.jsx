@@ -99,6 +99,9 @@ class ConnectionWidget extends PureComponent {
     };
 
     controllerEvents = {
+        'connect': () => {
+            controller.listPorts();
+        },
         'serialport:list': (ports) => {
             log.debug('Received a list of serial ports:', ports);
 
@@ -113,14 +116,11 @@ class ConnectionWidget extends PureComponent {
                     ports: ports
                 }));
 
-                const { autoReconnect, hasReconnected } = this.state;
+                const { autoReconnect } = this.state;
 
-                if (autoReconnect && !hasReconnected) {
+                if (autoReconnect) {
                     const { baudrate } = this.state;
 
-                    this.setState(state => ({
-                        hasReconnected: true
-                    }));
                     this.openPort(port, {
                         baudrate: baudrate
                     });
@@ -263,7 +263,6 @@ class ConnectionWidget extends PureComponent {
                 }
             },
             autoReconnect: this.config.get('autoReconnect'),
-            hasReconnected: false,
             alertMessage: ''
         };
     }
