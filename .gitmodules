@@ -1,0 +1,9 @@
+[submodule "posts/Fusion360"]
+	path = posts/Fusion360
+	url = https://github.com/Zealandia-Systems/Swordfish-Post-Fusion360.git
+[submodule "posts/Vectric"]
+	path = posts/Vectric
+	url = https://github.com/Zealandia-Systems/Swordfish-Post-Vectric.git
+[submodule "posts/VectricLaser"]
+	path = posts/VectricLaser
+	url = https://github.com/Zealandia-Systems/Swordfish-Post-Vectric-Laser.git
