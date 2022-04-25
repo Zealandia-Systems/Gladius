@@ -6,7 +6,6 @@ import Toggle from 'react-toggle';
 import SortableTable from 'app/components/SortableTable';
 import i18n from 'app/lib/i18n';
 import Space from 'app/components/Space';
-import settings from 'app/config/settings';
 import store from 'app/store';
 
 export default class PostProcessors extends PureComponent {
@@ -95,6 +94,15 @@ export default class PostProcessors extends PureComponent {
                             }
                         },
                         {
+                            title: i18n._('Post Processor'),
+                            key: 'postProcessor',
+                            render: (_value, record, _index) => {
+                                const { postProcessor } = record;
+
+                                return postProcessor;
+                            }
+                        },
+                        {
                             title: i18n._('Post Processor Version'),
                             key: 'postProcessorVersion',
                             render: (_value, record, _index) => {
@@ -104,31 +112,44 @@ export default class PostProcessors extends PureComponent {
                             }
                         },
                         {
+                            title: i18n._('Post Version'),
+                            key: 'installedPostVersion',
+                            render: (_value, record, _index) => {
+                                const { installedPostVersion } = record;
+
+                                return installedPostVersion ?? i18n._('Not Installed');
+                            }
+                        },
+                        {
                             title: i18n._('Install'),
                             className: 'text-nowrap',
                             key: 'action',
                             width: 200,
                             render: (_value, record, _index) => {
-                                const { application, applicationVersion, postProcessorVersion } = record;
+                                const { application, applicationVersion, postProcessorVersion, minimumPostProcessorVersion, installedPostVersion, postVersion } = record;
 
-                                const canInstall = !postProcessorVersion || postProcessorVersion === 'unknown' || semver.lt(postProcessorVersion, settings.version);
+                                const supported = !postProcessorVersion || postProcessorVersion === 'unknown' || Number(postProcessorVersion) >= Number(minimumPostProcessorVersion);
+                                const newer = !installedPostVersion || installedPostVersion === 'unknown' || semver.gt(postVersion, installedPostVersion);
 
                                 return (
                                     <div>
-                                        {canInstall && (
+                                        {supported && newer && (
                                             <Button
-                                                title={`${i18n._('Install')} ${settings.version}`}
+                                                title={`${i18n._('Install')} ${postVersion}`}
                                                 size="m"
                                                 style={{ width: '100%' }}
                                                 onClick={() => {
                                                     actions.install({ application, applicationVersion });
                                                 }}
                                             >
-                                                {`${i18n._('Install')} ${settings.version}`}
+                                                {`${i18n._('Install')} ${postVersion}`}
                                             </Button>
                                         )}
-                                        {!canInstall && (
+                                        {supported && !newer && (
                                             <div>Already latest</div>
+                                        )}
+                                        {!supported && (
+                                            <div>Not supported</div>
                                         )}
                                     </div>
                                 );

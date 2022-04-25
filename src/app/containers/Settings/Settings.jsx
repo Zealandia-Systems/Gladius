@@ -1316,6 +1316,7 @@ class Settings extends PureComponent {
                         });
                     })
                     .catch((res) => {
+                        console.log(res);
                         this.setState({
                             posts: {
                                 ...this.state.posts,

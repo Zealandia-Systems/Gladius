@@ -14,7 +14,6 @@ import controller from 'app/lib/controller';
 import i18n from 'app/lib/i18n';
 import log from 'app/lib/log';
 import store from 'app/store';
-import settings from 'app/config/settings';
 import * as widgetManager from './WidgetManager';
 import DefaultWidgets from './DefaultWidgets';
 import PrimaryWidgets from './PrimaryWidgets';
@@ -99,13 +98,13 @@ class Workspace extends PureComponent {
                 const { body: posts } = (await api.posts.fetch());
 
                 const outdated = posts.map(post => {
-                    const { postProcessorVersion } = post;
+                    const { postVersion, installedPostVersion } = post;
 
-                    if (postProcessorVersion === 'unknown') {
+                    if (installedPostVersion === 'unknown') {
                         return post;
                     }
 
-                    return semver.lt(post.postProcessorVersion ?? '0.0.0', settings.version)
+                    return semver.lt(installedPostVersion ?? '0.0.0', postVersion)
                         ? post
                         : null;
                 }).filter(post => post != null);

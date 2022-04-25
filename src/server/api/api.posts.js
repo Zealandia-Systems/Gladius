@@ -1,52 +1,118 @@
 /* eslint-disable no-await-in-loop */
 import { promises as fs } from 'fs';
 import path from 'path';
-import util from 'util';
+import { promisify } from 'util';
+import { exec as execSync } from 'child_process';
 import regeditSync from 'regedit';
 import wmicSync from 'wmic';
 import logger from '../lib/logger';
+import Installer from '../lib/installer';
 
 import {
     ERR_BAD_REQUEST,
     ERR_INTERNAL_SERVER_ERROR
 } from '../constants';
 
-//const fs = promises;
-
 const regedit = {
-    list: util.promisify(regeditSync.list)
+    list: promisify(regeditSync.list)
 };
 
 const wmic = {
-    get_value: util.promisify(wmicSync.get_value)
+    get_value: promisify(wmicSync.get_value)
 };
+
+const execAsync = promisify(execSync);
+
+function exec(command, args = []) {
+    return new Promise((resolve, reject) => {
+        execAsync(
+            `"${command}" ${args.join(' ')}`,
+            {
+                encoding: 'utf-8',
+                windowsHide: true
+            },
+            (error, stdout, stderr) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve({ error, stdout, stderr });
+                }
+            }
+        );
+    });
+}
 
 const log = logger('api:posts');
 
-const getPostProcessorVersion = async (application, postProcessorPath) => {
+const getInstalledPostVersion = async (application, postPath) => {
     try {
-        log.info(`Checking for existance of ${application} post processors at '${postProcessorPath}'.`);
+        log.info(`Checking for existance of ${application} post at '${postPath}'.`);
 
-        const stat = await fs.stat(postProcessorPath);
+        const stat = await fs.stat(postPath);
 
         if (!stat.isFile()) {
-            log.info(`Swordfish post processor for ${application} not found.`);
+            log.info(`Swordfish post for ${application} not found.`);
 
             return null;
         }
 
-        const re = new RegExp('version = \"([0-9\.]+)\";');
+        const data = await fs.readFile(postPath, { encoding: 'utf8' });
 
-        const data = await fs.readFile(postProcessorPath, { encoding: 'utf8' });
-        const match = data.match(re);
+        const versionRe = new RegExp('version = \"([0-9\.]+)\";');
+        const versionMatch = data.match(versionRe);
 
-        return match ? match[1] : 'unknown';
+
+        return versionMatch ? versionMatch[1] : 'unknown';
     } catch (err) {
         log.warn(err);
     }
 
-    return null;
+    return 'unknown';
 };
+
+const getPostVersion = async (application, post) => {
+    try {
+        const postPath = path.join(process.cwd(), post);
+
+        log.info(`Getting version of latest post for ${application} at ${postPath}`);
+
+        const stat = await fs.stat(postPath);
+
+        if (!stat.isFile()) {
+            log.info(`Latest post for ${application} not found.`);
+
+            return null;
+        }
+
+        const data = await fs.readFile(postPath, { encoding: 'utf8' });
+
+        const versionRe = new RegExp('version = \"([0-9\.]+)\";');
+        const versionMatch = data.match(versionRe);
+
+        return versionMatch ? versionMatch[1] : 'unknown';
+    } catch (err) {
+        log.warn(err);
+    }
+
+    return 'unknown';
+};
+
+async function getMinimumPostProcessorVersion(post) {
+    const postPath = path.join(process.cwd(), post);
+
+    const stat = await fs.stat(postPath);
+
+    if (!stat.isFile()) {
+        return null;
+    }
+
+    const data = await fs.readFile(postPath, { encoding: 'utf8' });
+
+    const mininumRevisionRe = new RegExp('minimumRevision = ([0-9]+);');
+    const minimumRevisionMatch = data.match(mininumRevisionRe);
+
+    return minimumRevisionMatch ? minimumRevisionMatch[1] : 'unknown';
+}
 
 async function getFusion360Version(rootPath, folder) {
     try {
@@ -69,7 +135,27 @@ async function getFusion360Version(rootPath, folder) {
     return null;
 }
 
-async function* getFusion360Installs() {
+async function getAutodeskCAM360Version(postProcessorPath) {
+    const { error, stdout } = await exec(postProcessorPath, ['--version']);
+
+    if (error) {
+        throw error;
+    }
+
+    const re = new RegExp('^([A-Za-z0-9]+(?: +[A-Za-z0-9]+)*) ([1-9]\.[0-9]+)');
+
+    const match = stdout.match(re);
+
+    if (!match) {
+        throw new Error('Couldn\'t determine post processor version.');
+    }
+
+    return [match[1], match[2].replace(/\./g, '')];
+}
+
+async function* getFusion360Installs(minimumPostProcessorVersion) {
+    const post = 'Swordfish.cps';
+
     try {
         let rootPath = path.join(process.env.LOCALAPPDATA, 'Autodesk', 'webdeploy', 'production');
 
@@ -93,16 +179,24 @@ async function* getFusion360Installs() {
 
         for (const [index, version] of versions.entries()) {
             if (version) {
-                const postProcessorPath = path.join(process.env.APPDATA, 'Autodesk', 'Fusion 360 CAM', 'Posts', 'Swordfish.cps');
+                const postPath = path.join(process.env.APPDATA, 'Autodesk', 'Fusion 360 CAM', 'Posts', 'Swordfish.cps');
+                const postProcessorPath = path.join(process.env.LOCALAPPDATA, 'Autodesk', 'webdeploy', 'production', folders[index].name, 'Applications', 'CAM360', 'post.exe');
+
+                const [postProcessor, postProcessorVersion] = await getAutodeskCAM360Version(postProcessorPath);
 
                 yield {
                     company: 'Autodesk',
                     application,
                     applicationVersion: version,
                     applicationPath: path.join(rootPath, folders[index].name),
-                    postProcessor: 'Swordfish.cps',
+                    postProcessor,
                     postProcessorPath,
-                    postProcessorVersion: await getPostProcessorVersion(application, postProcessorPath),
+                    postProcessorVersion,
+                    post,
+                    postPath,
+                    postVersion: await getPostVersion(application, post),
+                    installedPostVersion: await getInstalledPostVersion(application, postPath),
+                    minimumPostProcessorVersion: await getMinimumPostProcessorVersion(post)
                 };
             }
         }
@@ -111,10 +205,10 @@ async function* getFusion360Installs() {
     }
 }
 
-async function getFusion360Install() {
+async function getFusion360Install(minimumPostProcessorVersion) {
     const installs = [];
 
-    for await (const install of getFusion360Installs()) {
+    for await (const install of getFusion360Installs(minimumPostProcessorVersion)) {
         installs.push(install);
     }
 
@@ -125,6 +219,7 @@ async function getFusion360Install() {
 
 async function* getVectricInstalls() {
     const { 'HKCU\\SOFTWARE\\Vectric': { exists, keys } } = await regedit.list('HKCU\\SOFTWARE\\Vectric');
+    const post = 'Swordfish.pp';
 
     if (!exists) {
         return;
@@ -147,20 +242,76 @@ async function* getVectricInstalls() {
             return;
         }
 
-        if (appValues.PostProcessorPath) {
-            const postProcessorPath = path.join(appValues.PostProcessorPath.value, 'Swordfish.pp');
+        if (appValues.postPath) {
+            const postPath = path.join(appValues.postPath.value, post);
 
             yield {
                 company: 'Vectric',
                 application: key,
                 applicationVersion: appKeys[0],
                 applicationPath: appValues.InstallDir.value,
-                postProcessor: 'Swordfish.pp',
-                postProcessorPath,
-                postProcessorVersion: await getPostProcessorVersion(key, postProcessorPath)
+                post,
+                postPath,
+                postVersion: await getPostVersion(key, post),
+                installedPostVersion: await getInstalledPostVersion(key, postPath)
             };
         }
     }
+}
+
+async function getHSMWorksVersion(installFolder) {
+    try {
+        const candidatePath = path.join(installFolder, 'HSMWorks.exe');
+        const stat = await fs.stat(candidatePath);
+
+        if (!stat.isFile()) {
+            return null;
+        }
+
+        const version = await wmic.get_value('datafile', 'version', `name='${candidatePath.replace(/\\/g, '\\\\')}'`);
+
+        return version;
+    } catch (err) {
+        log.warn(err);
+    }
+
+    return null;
+}
+
+async function getHSMWorksInstall() {
+    const post = 'Swordfish.cps';
+
+    const { 'HKCU\\SOFTWARE\\HSMWorks\\HSMWorks': { exists, values } } = await regedit.list('HKCU\\SOFTWARE\\HSMWorks\\HSMWorks');
+
+    if (!exists) {
+        return null;
+    }
+
+    if (values['installation folder']) {
+        const installFolder = values['installation folder'].value;
+        const postPath = path.join(installFolder, 'posts', 'Swordfish.cps');
+
+        const postProcessorPath = path.join(installFolder, 'post.exe');
+
+        const [postProcessor, postProcessorVersion] = await getAutodeskCAM360Version(postProcessorPath);
+
+        return {
+            company: 'Autodesk',
+            application: 'HSMWorks',
+            applicationVersion: await getHSMWorksVersion(installFolder),
+            applicationPath: installFolder,
+            postProcessor,
+            postProcessorPath,
+            postProcessorVersion,
+            post,
+            postPath,
+            postVersion: await getPostVersion('HSMWorks', post),
+            installedPostVersion: await getInstalledPostVersion('HSMWorks', postPath),
+            minimumPostProcessorVersion: await getMinimumPostProcessorVersion(post)
+        };
+    }
+
+    return null;
 }
 
 async function* getSupportedInstalls() {
@@ -173,14 +324,18 @@ async function* getSupportedInstalls() {
     if (fusion360Install) {
         yield fusion360Install;
     }
+
+    const hsmWorksInstall = await getHSMWorksInstall();
+
+    if (hsmWorksInstall) {
+        yield hsmWorksInstall;
+    }
 }
 
 export const get = async (req, res) => {
     const installs = [];
 
     for await (const install of getSupportedInstalls()) {
-        log.silly(install);
-
         installs.push(install);
     }
 
@@ -192,6 +347,7 @@ export const get = async (req, res) => {
         return a.application > b.application ? 1 : -1;
     });
 
+    console.log(JSON.stringify(installs));
     res.send(
         installs
     );
@@ -204,17 +360,13 @@ export const install = async (req, res) => {
 
         for await (const install of getSupportedInstalls()) {
             if (install.application === application && install.applicationVersion === applicationVersion) {
-                const source = path.join(process.cwd(), install.postProcessor);
-                const postProcessorFolder = path.dirname(install.postProcessorPath);
+                const sourcePath = path.join(process.cwd(), install.post);
+                const postFolder = path.dirname(install.postPath);
 
-                try {
-                    await fs.mkdir(postProcessorFolder, { recursive: true });
-                // eslint-disable-next-line no-empty
-                } catch {
-
-                }
-
-                await fs.copyFile(source, install.postProcessorPath);
+                await new Installer()
+                    .mkdir(postFolder)
+                    .copy(sourcePath, install.postPath)
+                    .run();
 
                 await get(req, res);
 

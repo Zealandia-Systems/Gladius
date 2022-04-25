@@ -21,10 +21,11 @@
             "request": "launch",
             "program": "bin/gladius",
             "args": [
-                "-vv"
+                "-vvv"
             ],
             "preLaunchTask": "npm: build-dev-server",
             "sourceMaps": true,
+            "outputCapture": "std",
             "env": {
                 "NODE_ENV": "development"
             } /*,

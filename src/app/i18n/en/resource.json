@@ -555,5 +555,7 @@
     "Some post processors are out of date.": "Some post processors are out of date.",
     "A post processor is out of date.": "A post processor is out of date.",
     "One or more of your post processors is out of date and requires updating. Outdated post processors will not be supported unless explicitly recommended.": "One or more of your post processors is out of date and requires updating. Outdated post processors will not be supported unless explicitly recommended.",
-    "Install": "Install"
+    "Install": "Install",
+    "Post Processor": "Post Processor",
+    "Post Version": "Post Version"
 }
