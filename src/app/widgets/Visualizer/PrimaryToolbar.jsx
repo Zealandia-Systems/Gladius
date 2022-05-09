@@ -63,6 +63,7 @@ import {
     SWORDFISH_ACTIVE_STATE_ALARM,
     SWORDFISH_ACTIVE_STATE_ESTOP,
     SWORDFISH_ACTIVE_STATE_CHECK,
+    SWORDFISH_ACTIVE_STATE_SPINDLE_RAMPING,
     // Workflow
     WORKFLOW_STATE_IDLE
 } from 'app/constants';
@@ -218,7 +219,8 @@ class PrimaryToolbar extends PureComponent {
                 [SWORDFISH_ACTIVE_STATE_PROBING]: 'controller-state-primary',
                 [SWORDFISH_ACTIVE_STATE_ALARM]: 'controller-state-danger',
                 [SWORDFISH_ACTIVE_STATE_ESTOP]: 'controller-state-danger',
-                [SWORDFISH_ACTIVE_STATE_CHECK]: 'controller-state-info'
+                [SWORDFISH_ACTIVE_STATE_CHECK]: 'controller-state-info',
+                [SWORDFISH_ACTIVE_STATE_SPINDLE_RAMPING]: 'controller-state-warning'
             }[activeState];
 
             stateText = {
@@ -233,7 +235,8 @@ class PrimaryToolbar extends PureComponent {
                 [SWORDFISH_ACTIVE_STATE_PROBING]: i18n.t('controller:Swordfish.activeState.probing'),
                 [SWORDFISH_ACTIVE_STATE_ALARM]: i18n.t('controller:Swordfish.activeState.alarm'),
                 [SWORDFISH_ACTIVE_STATE_ESTOP]: i18n.t('controller:Swordfish.activeState.estop'),
-                [SWORDFISH_ACTIVE_STATE_CHECK]: i18n.t('controller:Swordfish.activeState.check')
+                [SWORDFISH_ACTIVE_STATE_CHECK]: i18n.t('controller:Swordfish.activeState.check'),
+                [SWORDFISH_ACTIVE_STATE_SPINDLE_RAMPING]: i18n.t('controller:Swordfish.activeState.spindleRamping')
             }[activeState];
 
             if (state.statusMessage) {

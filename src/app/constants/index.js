@@ -107,6 +107,7 @@ export const SWORDFISH_ACTIVE_STATE_PROBING = 'probing';
 export const SWORDFISH_ACTIVE_STATE_ALARM = 'alarm';
 export const SWORDFISH_ACTIVE_STATE_ESTOP = 'estop';
 export const SWORDFISH_ACTIVE_STATE_CHECK = 'check';
+export const SWORDFISH_ACTIVE_STATE_SPINDLE_RAMPING = 'spindle:ramping';
 
 // TinyG Machine State
 // https://github.com/synthetos/g2/wiki/Status-Reports#stat-values
