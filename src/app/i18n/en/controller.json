@@ -54,7 +54,8 @@
             "probing": "Probing",
             "alarm": "Alarm",
             "estop": "Emergency Stop",
-            "check": "Check"
+            "check": "Check",
+            "spindleRamping": "Spindle Ramping"
         }
     }
 }
