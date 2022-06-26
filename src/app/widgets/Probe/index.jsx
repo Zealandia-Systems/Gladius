@@ -196,6 +196,11 @@ class ProbeWidget extends PureComponent {
             const probeFeedrate = event.target.value;
             this.setState({ probeFeedrate });
         },
+        handleProbeThicknessChange: (event) => {
+            const probeThickness = event.target.value;
+
+            this.setState({ probeThickness });
+        },
         handleRetractionDistanceChange: (event) => {
             const retractionDistance = event.target.value;
             this.setState({ retractionDistance });
@@ -518,6 +523,7 @@ class ProbeWidget extends PureComponent {
                 toolDiameter: mapValueToUnits(this.config.get('toolDiameter'), units),
                 probeDepth: mapValueToUnits(this.config.get('probeDepth'), units),
                 probeFeedrate: mapValueToUnits(this.config.get('probeFeedrate'), units),
+                probeThickness: mapValueToUnits(this.config.get('probeThickness'), units),
                 retractionDistance: mapValueToUnits(this.config.get('retractionDistance'), units)
             });
         }
@@ -552,6 +558,7 @@ class ProbeWidget extends PureComponent {
             toolDiameter,
             probeDepth,
             probeFeedrate,
+            probeThickness,
             retractionDistance
         } = this.state;
 
@@ -560,11 +567,13 @@ class ProbeWidget extends PureComponent {
             toolDiameter = in2mm(toolDiameter);
             probeDepth = in2mm(probeDepth);
             probeFeedrate = in2mm(probeFeedrate);
+            probeThickness = in2mm(probeThickness);
             retractionDistance = in2mm(retractionDistance);
         }
         this.config.set('toolDiameter', Number(toolDiameter));
         this.config.set('probeDepth', Number(probeDepth));
         this.config.set('probeFeedrate', Number(probeFeedrate));
+        this.config.set('probeThickness', Number(probeThickness));
         this.config.set('retractionDistance', Number(retractionDistance));
     }
 
@@ -589,6 +598,7 @@ class ProbeWidget extends PureComponent {
             toolDiameter: Number(this.config.get('toolDiameter') || 0).toFixed(3) * 1,
             probeDepth: Number(this.config.get('probeDepth') || 50).toFixed(3) * 1,
             probeFeedrate: Number(this.config.get('probeFeedrate') || 500).toFixed(3) * 1,
+            probeThickness: Number(this.config.get('probeThickness') || 9).toFixed(3) * 1,
             retractionDistance: Number(this.config.get('retractionDistance') || 50).toFixed(3) * 1
         };
     }

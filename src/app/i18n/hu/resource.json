@@ -557,5 +557,6 @@
     "One or more of your post processors is out of date and requires updating. Outdated post processors will not be supported unless explicitly recommended.": "",
     "Install": "",
     "Post Processor": "",
-    "Post Version": ""
+    "Post Version": "",
+    "Probe Thickness": ""
 }
