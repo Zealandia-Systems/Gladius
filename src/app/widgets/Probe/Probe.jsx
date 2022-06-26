@@ -33,6 +33,7 @@ class Probe extends PureComponent {
             probeDepth,
             probeFeedrate,
             toolDiameter,
+            probeThickness,
             plate1IsHover,
             plate2IsHover,
             plate3IsHover,
@@ -52,10 +53,53 @@ class Probe extends PureComponent {
                 <div className={styles['probe-selector']}>
                     <img src={stock} className={styles['probe-selector-background']} alt="stock" />
                     <map name="corner-map" id="corner-map">
-                        <area id="probe-corner-map-1" shape="poly" coords="0,103,25,118,47,102,47,89,25,74,0,90" href="#" alt="1" onMouseOver={e => actions.mouseOverPlate(e, 1)} onMouseOut={e => actions.mouseOutOfPlate(e, 1)} onClick={e => actions.changeProbeAxis(e, 1)} />
-                        <area id="probe-corner-map-2" shape="poly" coords="133,13,133,25,154,36,164,36,184,25,184,12,161,0,154,0,133,13" href="#" alt="2" onMouseOver={e => actions.mouseOverPlate(e, 2)} onMouseOut={e => actions.mouseOutOfPlate(e, 2)} onClick={e => actions.changeProbeAxis(e, 2)} />
-                        <area id="probe-corner-map-3" shape="poly" coords="316,88,292,74,269,91,269,101,291,117,293,117,316,103,316,102" href="#" alt="3" onMouseOver={e => actions.mouseOverPlate(e, 3)} onMouseOut={e => actions.mouseOutOfPlate(e, 3)} onClick={e => actions.changeProbeAxis(e, 3)} />
-                        <area id="probe-corner-map-4" shape="poly" coords="132,166,132,179,158,195,186,178,186,166,164,156,152,156" href="#" alt="4" onMouseOver={e => actions.mouseOverPlate(e, 4)} onMouseOut={e => actions.mouseOutOfPlate(e, 4)} onClick={e => actions.changeProbeAxis(e, 4)} />
+                        <area
+                            id="probe-corner-map-1"
+                            shape="poly"
+                            coords="0,103,25,118,47,102,47,89,25,74,0,90"
+                            href="#" alt="1"
+                            onMouseOver={e => actions.mouseOverPlate(e, 1)}
+                            onMouseOut={e => actions.mouseOutOfPlate(e, 1)}
+                            onClick={e => actions.changeProbeAxis(e, 1)}
+                            onFocus={e => { }}
+                            onBlur={e => { }}
+                        />
+                        <area
+                            id="probe-corner-map-2"
+                            shape="poly"
+                            coords="133,13,133,25,154,36,164,36,184,25,184,12,161,0,154,0,133,13"
+                            href="#"
+                            alt="2"
+                            onMouseOver={e => actions.mouseOverPlate(e, 2)}
+                            onMouseOut={e => actions.mouseOutOfPlate(e, 2)}
+                            onClick={e => actions.changeProbeAxis(e, 2)}
+                            onFocus={e => { }}
+                            onBlur={e => { }}
+                        />
+                        <area
+                            id="probe-corner-map-3"
+                            shape="poly"
+                            coords="316,88,292,74,269,91,269,101,291,117,293,117,316,103,316,102"
+                            href="#"
+                            alt="3"
+                            onMouseOver={e => actions.mouseOverPlate(e, 3)}
+                            onMouseOut={e => actions.mouseOutOfPlate(e, 3)}
+                            onClick={e => actions.changeProbeAxis(e, 3)}
+                            onFocus={e => { }}
+                            onBlur={e => { }}
+                        />
+                        <area
+                            id="probe-corner-map-4"
+                            shape="poly"
+                            coords="132,166,132,179,158,195,186,178,186,166,164,156,152,156"
+                            href="#"
+                            alt="4"
+                            onMouseOver={e => actions.mouseOverPlate(e, 4)}
+                            onMouseOut={e => actions.mouseOutOfPlate(e, 4)}
+                            onClick={e => actions.changeProbeAxis(e, 4)}
+                            onFocus={e => { }}
+                            onBlur={e => { }}
+                        />
                     </map>
                     <img
                         ref={element => this.plate1 = element}
@@ -97,7 +141,12 @@ class Probe extends PureComponent {
                         )}
                         alt="touch-plate4"
                     />
-                    <img src={stock} className={styles['probe-selector-map']} alt="stock" useMap="#corner-map" />
+                    <img
+                        src={stock}
+                        className={styles['probe-selector-map']}
+                        alt="stock"
+                        useMap="#corner-map"
+                    />
                 </div>
                 <div className="row no-gutters">
                     <div className="col-xs-6" style={{ paddingRight: 5 }}>
@@ -146,6 +195,23 @@ class Probe extends PureComponent {
                                     min={0}
                                     step={step}
                                     onChange={actions.handleToolDiameterChange}
+                                />
+                                <div className="input-group-addon">{displayUnits}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-xs-6" style={{ paddingRight: 5 }}>
+                        <div className="form-group" data-tip="Enter the thickness of your work probe.">
+                            <label className="control-label">{i18n._('Probe Thickness')}</label>
+                            <div className="input-group input-group-sm">
+                                <input
+                                    type="number"
+                                    className="form-control"
+                                    value={probeThickness}
+                                    placeholder="9.00"
+                                    min={0}
+                                    step={step}
+                                    onChange={actions.handleProbeThicknessChange}
                                 />
                                 <div className="input-group-addon">{displayUnits}</div>
                             </div>
