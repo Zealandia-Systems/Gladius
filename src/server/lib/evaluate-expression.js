@@ -278,6 +278,9 @@ const evaluateExpression = (src, vars) => {
         log.error(e);
     }
 
+    log.debug(`src="${JSON.stringify(src)}", vars=${JSON.stringify(vars)}`);
+    log.debug(result);
+
     return (result === UNRESOLVED) ? undefined : result;
 };
 

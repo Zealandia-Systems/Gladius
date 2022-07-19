@@ -1,8 +1,33 @@
 {
     "title": "Boss",
     "fields": [
-        { "id": "x", "title": "X", "unit": "mm", "default": 0, "mutexGroup": "axis", "defaultChecked": "true" },
-        { "id": "y", "title": "Y", "unit": "mm", "default": 0, "mutexGroup": "axis" },
-        { "id": "z", "title": "Z", "unit": "mm", "default": 0, "mutexGroup": "axis" }
+        {
+            "id": "dia",
+            "label": "Diameter",
+            "unit": "mm",
+            "default": 0,
+            "help": {
+                "title": "Diameter",
+                "body": {
+                    "div": {
+                        "p": "The estimated diameter of the boss."
+                    }
+                }
+            }
+        },
+        {
+            "id": "clearance",
+            "label": "Clearance",
+            "unit": "mm",
+            "default": 5,
+            "help": {
+                "title": "Clearance",
+                "body": {
+                    "div": {
+                        "p": "How much clearance to use in each dimension."
+                    }
+                }
+            }
+        }
     ]
 }

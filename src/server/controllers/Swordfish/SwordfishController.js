@@ -397,6 +397,7 @@ class SwordfishController {
                 // line="G0 X[posx - 8] Y[ymax]"
                 // > "G0 X2 Y50"
                 line = translateExpression(line, context);
+                console.log(line);
                 const data = parser.parseLine(line, { flatten: true });
                 const words = ensureArray(data.words);
 
