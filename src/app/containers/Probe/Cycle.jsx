@@ -42,6 +42,17 @@ const feedrateHelp = {
     )
 };
 
+const ballDiameterHelp = {
+    title: 'Ball Diameter',
+    bodyJsx: (
+        <div>
+            <p>
+                The diameter of the ball at the end of the probe.
+            </p>
+        </div>
+    )
+};
+
 const adjustXHelp = {
     title: 'X Adjustment',
     bodyJsx: (
@@ -89,9 +100,10 @@ export default class extends PureComponent {
             adjustY: 0,
             adjustZ: 0,
             probeDistance: store.get('probe.probeDistance') ?? 10,
-            probeFeedrate: store.get('probe.probeFeedrate') ?? 500
+            probeFeedrate: store.get('probe.probeFeedrate') ?? 500,
+            ballDiameter: store.get('probe.ballDiameter') ?? 2
         },
-        checked: {
+        groups: {
 
         }
     };
@@ -124,27 +136,31 @@ export default class extends PureComponent {
 
     handleSelected = (mutexGroup, id) => {
         // eslint-disable-next-line no-unused-vars
-        const { fields: { [mutexGroup]: checked, ...otherFields } } = this.state;
+        const { groups: { [mutexGroup]: _, ...otherGroups } } = this.state;
 
         this.setState({
-            fields: {
+            groups: {
                 [mutexGroup]: id,
-                ...otherFields
+                ...otherGroups
             }
         });
     };
 
     handleGenerate = () => {
         const { cycle, port } = this.props;
-        const { wcs, adjustX, adjustY, adjustZ, probeDistance, probeFeedrate, ...otherFields } = this.state.fields;
+        const { fields: { wcs, adjustX, adjustY, adjustZ, probeDistance, probeFeedrate, ballDiameter, ...otherFields }, groups } = this.state;
 
         const context = cycle.fields.reduce((fields, field) => {
             if (field.mutexGroup !== undefined) {
-                return { ...fields, [field.id]: Number(otherFields.hasOwnProperty(field.id) ? otherFields[field.id] : field.default), [field.mutexGroup]: otherFields[field.mutexGroup] };
+                if (groups[field.mutexGroup] === field.id || Boolean(field.defaultChecked)) {
+                    return { ...fields, [`${field.mutexGroup}_value`]: Number(otherFields.hasOwnProperty(field.id) ? otherFields[field.id] : field.default), [field.mutexGroup]: `"${field.id}"` };
+                } else {
+                    return fields;
+                }
             } else {
                 return { ...fields, [field.id]: Number(otherFields.hasOwnProperty(field.id) ? otherFields[field.id] : field.default) };
             }
-        }, { wcs: Number(wcs), adjustX: Number(adjustX), adjustY: Number(adjustY), adjustZ: Number(adjustZ), probeDistance: Number(probeDistance), probeFeedrate: Number(probeFeedrate) });
+        }, { wcs: Number(wcs), adjustX: Number(adjustX), adjustY: Number(adjustY), adjustZ: Number(adjustZ), probeDistance: Number(probeDistance), probeFeedrate: Number(probeFeedrate), ballDiameter: Number(ballDiameter) });
 
         const gcode = keys(context).map((key) => `%${key} = ${context[key]}`).join('\n') + '\n' + cycle.gcode;
 
@@ -153,7 +169,8 @@ export default class extends PureComponent {
 
     renderField = (field) => {
         const {
-            fields: { [field.id]: value = field.default, [field.mutexGroup]: checkedId }
+            fields: { [field.id]: value = field.default },
+            groups: { [field.mutexGroup]: checkedId }
         } = this.state;
 
         const showMutex = field.mutexGroup !== undefined;
@@ -188,7 +205,7 @@ export default class extends PureComponent {
 
     render() {
         const { cycle } = this.props;
-        const { fields: { probeDistance, probeFeedrate, wcs, adjustX, adjustY, adjustZ } } = this.state;
+        const { fields: { probeDistance, probeFeedrate, ballDiameter, wcs, adjustX, adjustY, adjustZ } } = this.state;
 
         const renderWCSValue = (wcs) => {
             return `G5${Math.trunc((wcs.value - 1) / 10) + 4}.${((wcs.value - 1) % 10)} (P${wcs.value})`;
@@ -236,6 +253,20 @@ export default class extends PureComponent {
                                                 id="probeFeedrate"
                                                 value={probeFeedrate}
                                                 onChange={(event) => this.handleFieldChange(event, 'probeFeedrate')}
+                                            />
+                                            <InputGroup.Addon><sup>mm</sup>/<sub>min</sub></InputGroup.Addon>
+                                        </InputGroup>
+                                    </Col>
+                                </Setting>
+                                <Setting controlId="ballDiameter" help={ballDiameterHelp}>
+                                    <Col sm={3} componentClass={ControlLabel} style={{ whiteSpace: 'pre' }}>Ball Diameter</Col>
+                                    <Col sm={9}>
+                                        <InputGroup>
+                                            <FormControl
+                                                type="number"
+                                                id="ballDiameter"
+                                                value={ballDiameter}
+                                                onChange={(event) => this.handleFieldChange(event, 'ballDiameter')}
                                             />
                                             <InputGroup.Addon><sup>mm</sup>/<sub>min</sub></InputGroup.Addon>
                                         </InputGroup>

@@ -171,7 +171,7 @@ const evaluateExpression = (src, vars) => {
                 return UNRESOLVED;
             }
             if (node.property.type === 'Identifier') {
-                return obj[node.property.name];
+                return obj[node.computed ? walk(node.property) : node.property.name];
             }
             const prop = walk(node.property);
             if (prop === UNRESOLVED) {

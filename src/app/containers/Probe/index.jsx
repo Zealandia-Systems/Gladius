@@ -48,11 +48,11 @@ class Probe extends PureComponent {
         if (this.props.onClose) {
             this.props.onClose.call();
         }
-    }
+    };
 
     handleBack = (e) => {
         this.setState({ activeCycle: null });
-    }
+    };
 
     handleGenerate = (e) => {
         this.cycle.handleGenerate();
@@ -67,7 +67,7 @@ class Probe extends PureComponent {
 
     handleClick = (e, cycle) => {
         this.setState({ activeCycle: cycle });
-    }
+    };
 
     renderCycle(cols, cycle) {
         return (
@@ -158,7 +158,7 @@ class Probe extends PureComponent {
             <Modal
                 size="lg"
                 style={{
-                    //width: '1000px'
+                    width: '1000px'
                 }}
                 onClose={this.handleClose}
                 show={show}
@@ -178,13 +178,13 @@ class Probe extends PureComponent {
                         >
                             Cycles
                         </NavItem>
-                        <NavItem
+                        {/*<NavItem
                             key="calibrate"
                             eventKey="calibrate"
                             onClick={(event) => this.handleTabClick(event, 'calibrate')}
                         >
                             Calibrate
-                        </NavItem>
+                        </NavItem>*/}
                     </Nav>
                 </Modal.Header>
                 <Modal.Body>

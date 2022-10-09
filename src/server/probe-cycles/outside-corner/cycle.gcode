@@ -1,28 +1,26 @@
 %clearance = 10
-G91 G0 X[x / 2 + clearance]                                  ; move to positive X + clearance
-G91 G0 Z[z]                                                  ; move to Z height
-G91 G38.2 X[-probeDistance] F[probeFeedrate]                 ; probe positive X
-%x1 = posx                                                   ; store position
-G91 G0 X[clearance]                                          ; backoff from block
-G91 G0 Z[-z]                                                 ; move to Z clearance height
-G91 G0 X[-(x + 2 * clearance)]                               ; move to negative X + clearance
-G91 G0 Z[z]                                                  ; move to Z height
-G91 G38.2 X[probeDistance] F[probeFeedrate]                  ; probe negative X
-%x2 = posx                                                   ; store position
-G91 G0 X[-clearance]                                         ; back off from block
-G91 G0 Z[z]                                                  ; move to Z clearance height
-G90 G0 X[x1 - x2]                                            ; move to center of probed X
-G91 G0 Y[y / 2 + clearance]                                  ; move to positive Y + clearance
-G91 G0 Z[z]                                                  ; move to Z height
-G91 G38.2 Y[-probeDistance] F[probeFeedrate]                 ; probe positive Y
-%y1 = posy                                                   ; store position
-G91 G0 Y[clearance]                                          ; backoff from block
-G91 G0 Z[-z]                                                 ; move to Z clearance height
-G91 G0 Y[-y + 2 * -clearance]                                ; move to negative Y + clearance
-G91 G0 Z[z]                                                  ; move to Z height
-G91 G38.2 Y[probeDistance] F[probeFeedrate]                  ; probe negative Y
-%y2 = posy                                                   ; store position
-G91 G0 Y[-clearance]                                         ; back off from block
-G91 G0 Z[-z]                                                 ; move to Z clearance height
-G90 G0 Y[y1 - y2]                                            ; move to center of probed Y
-G90 G10 L20 P[wcs] X[x1 - x2 + adjustX] Y[y1 - y2 + adjustY] ; apply offset
+%dirx = -1*Math.sign(x)
+%diry = -1*Math.sign(y)
+%tx = 0.5*dirx*ballDiameter
+%ty = 0.5*diry*ballDiameter
+
+G91 G1 X[-0.5*x] Y[y] F[5*probeFeedrate] ; move to postion in X(y distance from edge)
+G91 G38.3 Z[-z] F200  ; move down in Z (probe safety)
+G91 G38.2 X[x] F[probeFeedrate] ; probe in X
+%wait
+%x1 = posx  ; store x position
+%wait
+;------
+G91 G1 Z[z+2] F[5*probeFeedrate]
+G91 G1 X[x] Y[-1.5*y] F[5*probeFeedrate]  ; move to y position (distance X from edge)
+G91 G38.3 Z[-z-2] F200 ;move down in Z (probe safety)
+G91 G38.2 Y[y] F[probeFeedrate]   ; probe in Y
+%wait
+%x2 = posx ; store x
+%y1 = posy ; store y
+%wait
+;-----
+G91 G1 Z[z] F[5*probeFeedrate]   ; Lift up Z
+G90 G10 L20 P[wcs] X[x2-x1 + tx + adjustX] Y[ty + adjustY] ; set x, y coordinates
+;-----
+G90 G1 X0 Y0 F[5*probeFeedrate]  ; return to new found corner

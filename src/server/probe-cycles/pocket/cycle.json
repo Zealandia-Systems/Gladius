@@ -1,8 +1,48 @@
 {
     "title": "Pocket",
     "fields": [
-        { "id": "x", "title": "X", "unit": "mm", "default": 0 },
-        { "id": "y", "title": "Y", "unit": "mm", "default": 0 },
-        { "id": "z", "title": "Z", "unit": "mm", "default": 0 }
+        {
+            "id": "x",
+            "label": "X",
+            "unit": "mm",
+            "default": 0,
+            "help": {
+                "title": "X Length",
+                "body": {
+                    "div": {
+                        "p": "The estimated length of the block along the X axis."
+                    }
+                }
+            }
+        },
+        {
+            "id": "y",
+            "label": "Y",
+            "unit": "mm",
+            "default": 0,
+            "help": {
+                "title": "Y Length",
+                "body": {
+                    "div": {
+                        "p": "The estimated length of the block along the Y axis."
+                    }
+                }
+            }
+        },
+        
+        {
+            "id": "clearance",
+            "label": "Clearance",
+            "unit": "mm",
+            "default": 5,
+            "help": {
+                "title": "Clearance",
+                "body": {
+                    "div": {
+                        "p": "How much clearance to use in each dimension."
+                    }
+                }
+            }
+        }
     ]
 }

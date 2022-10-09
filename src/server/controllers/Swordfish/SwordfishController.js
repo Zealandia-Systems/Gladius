@@ -202,9 +202,9 @@ class SwordfishController {
 
                     // wcs
                     /*if (new RegExp('G5[3456789]\\.\\d').test(cmd)) {
-                        nextState.modal.wcs = cmd;
+                            nextState.modal.wcs = cmd;
                     } else if (new RegExp('G5[3456789]').test(cmd)) {
-                        nextState.modal.wcs = cmd + '.0';
+                            nextState.modal.wcs = cmd + '.0';
                     }*/
 
                     // plane
@@ -242,9 +242,9 @@ class SwordfishController {
                         nextState.modal.spindle = cmd;
 
                         /*if (cmd === 'M3' || cmd === 'M4') {
-                            if (params.S !== undefined) {
-                                nextState.spindle.rpm = params.S;
-                            }
+                                if (params.S !== undefined) {
+                                        nextState.spindle.rpm = params.S;
+                                }
                         }*/
                     }
 
@@ -328,8 +328,8 @@ class SwordfishController {
 
                 // M6 Tool Change
                 /*if (_.includes(words, 'M6')) {
-                    log.debug('M6 Tool Change');
-                    this.feeder.hold({ data: 'M6' }); // Hold reason
+                        log.debug('M6 Tool Change');
+                        this.feeder.hold({ data: 'M6' }); // Hold reason
                 }*/
 
                 return line;
@@ -379,8 +379,7 @@ class SwordfishController {
                     // %wait
                     if (line === WAIT) {
                         log.debug(
-                            `Wait for the planner to empty: line=${
-                                sent + 1
+                            `Wait for the planner to empty: line=${sent + 1
                             }, sent=${sent}, received=${received}`
                         );
                         this.sender.hold({ data: WAIT }); // Hold reason
@@ -397,7 +396,7 @@ class SwordfishController {
                 // line="G0 X[posx - 8] Y[ymax]"
                 // > "G0 X2 Y50"
                 line = translateExpression(line, context);
-                console.log(line);
+
                 const data = parser.parseLine(line, { flatten: true });
                 const words = ensureArray(data.words);
 
@@ -406,15 +405,13 @@ class SwordfishController {
                     const programMode = _.intersection(words, ['M0', 'M1'])[0];
                     if (programMode === 'M0') {
                         log.debug(
-                            `M0 Program Pause: line=${
-                                sent + 1
+                            `M0 Program Pause: line=${sent + 1
                             }, sent=${sent}, received=${received}`
                         );
                         this.workflow.pause({ data: 'M0' });
                     } else if (programMode === 'M1') {
                         log.debug(
-                            `M1 Program Pause: line=${
-                                sent + 1
+                            `M1 Program Pause: line=${sent + 1
                             }, sent=${sent}, received=${received}`
                         );
                         this.workflow.pause({ data: 'M1' });
@@ -423,12 +420,12 @@ class SwordfishController {
 
                 // M6 Tool Change
                 /*if (_.includes(words, 'M6')) {
-                    log.debug(
-                        `M6 Tool Change: line=${
-                            sent + 1
-                        }, sent=${sent}, received=${received}`
-                    );
-                    this.workflow.pause({ data: 'M6' });
+                        log.debug(
+                                `M6 Tool Change: line=${
+                                        sent + 1
+                                }, sent=${sent}, received=${received}`
+                        );
+                        this.workflow.pause({ data: 'M6' });
                 }*/
 
                 return line;
@@ -467,6 +464,9 @@ class SwordfishController {
         });
         this.sender.on('end', (finishTime) => {
             this.senderFinishTime = finishTime;
+        });
+        this.sender.on('export', ({ keys, data }) => {
+            this.emit('export', { keys, data });
         });
 
         // Workflow
@@ -559,19 +559,18 @@ class SwordfishController {
 
         this.runner.on('pos', (res) => {
             /*if (
-                _.includes(
-                    [WRITE_SOURCE_CLIENT, WRITE_SOURCE_FEEDER],
-                    this.history.writeSource
-                )
+                    _.includes(
+                            [WRITE_SOURCE_CLIENT, WRITE_SOURCE_FEEDER],
+                            this.history.writeSource
+                    )
             ) {
-                this.emit('serialport:read', res.raw);
+                    this.emit('serialport:read', res.raw);
             }*/
         });
 
         this.runner.on('ok', (res) => {
             log.silly(
-                `controller.on('ok'): source=${
-                    this.history.writeSource
+                `controller.on('ok'): source=${this.history.writeSource
                 }, line=${JSON.stringify(
                     this.history.writeLine
                 )}, res=${JSON.stringify(res)}`
@@ -609,8 +608,7 @@ class SwordfishController {
             if (this.workflow.state === WORKFLOW_STATE_RUNNING) {
                 if (hold && received + 1 >= sent) {
                     log.debug(
-                        `Continue sending G-code: hold=${hold}, sent=${sent}, received=${
-                            received + 1
+                        `Continue sending G-code: hold=${hold}, sent=${sent}, received=${received + 1
                         }`
                     );
                     this.sender.unhold();
@@ -631,8 +629,7 @@ class SwordfishController {
                 }
                 if (received + 1 >= sent) {
                     log.debug(
-                        `Stop sending G-code: hold=${hold}, sent=${sent}, received=${
-                            received + 1
+                        `Stop sending G-code: hold=${hold}, sent=${sent}, received=${received + 1
                         }`
                     );
                 }
@@ -663,8 +660,7 @@ class SwordfishController {
 
         this.runner.on('error', (res) => {
             log.silly(
-                `controller.on('error'): source=${
-                    this.history.writeSource
+                `controller.on('error'): source=${this.history.writeSource
                 }, line=${JSON.stringify(
                     this.history.writeLine
                 )}, res=${JSON.stringify(res)}`
