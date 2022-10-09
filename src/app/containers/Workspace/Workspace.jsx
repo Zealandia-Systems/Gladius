@@ -23,6 +23,7 @@ import FeederWait from './modals/FeederWait';
 import Prompt from './modals/Prompt';
 import ServerDisconnected from './modals/ServerDisconnected';
 import OutdatedPosts from './modals/OutdatedPosts';
+import Export from './modals/Export';
 import styles from './index.styl';
 import {
     MODAL_NONE,
@@ -30,7 +31,8 @@ import {
     MODAL_FEEDER_WAIT,
     MODAL_PROMPT,
     MODAL_SERVER_DISCONNECTED,
-    MODAL_OUTDATED_POSTS
+    MODAL_OUTDATED_POSTS,
+    MODAL_EXPORT
 } from './constants';
 
 const WAIT = '%wait';
@@ -232,6 +234,14 @@ class Workspace extends PureComponent {
                 title: message,
                 resume: prompt.resume || false,
                 buttons: buttons
+            });
+        },
+        'export': ({ keys, data }) => {
+            console.log(JSON.stringify(keys));
+            console.log(JSON.stringify(data));
+            this.action.openModal(MODAL_EXPORT, {
+                keys,
+                data
             });
         }
     };
@@ -512,6 +522,13 @@ class Workspace extends PureComponent {
                         posts={modal.params.posts}
                         outdated={modal.params.outdated}
                         onClose={this.action.closeModal}
+                    />
+                )}
+                {modal.name === MODAL_EXPORT && (
+                    <Export
+                        onClose={this.action.closeModal}
+                        keys={modal.params.keys}
+                        data={modal.params.data}
                     />
                 )}
                 <div

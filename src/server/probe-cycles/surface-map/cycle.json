@@ -1,0 +1,61 @@
+{
+	"title": "Surface Map",
+	"fields": [
+		{
+			"id": "xSize",
+			"label": "X Size",
+			"unit": "mm",
+			"default": 0,
+			"help": {
+				"title": "X Size",
+				"body": {
+					"div": {
+						"p": "The length of the area to probe in the X dimension."
+					}
+				}
+			}
+		},
+		{
+			"id": "ySize",
+			"label": "Y Size",
+			"unit": "mm",
+			"default": 0,
+			"help": {
+				"title": "Y Size",
+				"body": {
+					"div": {
+						"p": "The length of the area to probe in the Y dimension."
+					}
+				}
+			}
+		},
+		{
+			"id": "xStep",
+			"label": "X Step",
+			"unit": "mm",
+			"default": 0,
+			"help": {
+				"title": "X Step",
+				"body": {
+					"div": {
+						"p": "The distance to travel in the X dimension between probes."
+					}
+				}
+			}
+		},
+		{
+			"id": "yStep",
+			"label": "Y Step",
+			"unit": "mm",
+			"default": 0,
+			"help": {
+				"title": "Y Step",
+				"body": {
+					"div": {
+						"p": "The distance to travel in the Y dimension between probes."
+					}
+				}
+			}
+		}
+	]
+}

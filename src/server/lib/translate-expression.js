@@ -2,7 +2,7 @@ import evaluateExpression from './evaluate-expression';
 import logger from './logger';
 
 const log = logger('translate-expression');
-const re = new RegExp(/\[[^\]]+\]/g);
+const re = new RegExp(/(\$\[.+?(?=\]\$)\]\$)|(\[[^\]]+\])/g);
 
 const translateExpression = (data, vars = {}) => {
     if (!data) {
@@ -11,7 +11,7 @@ const translateExpression = (data, vars = {}) => {
 
     try {
         data = String(data).replace(re, (match) => {
-            const src = match.slice(1, -1);
+            const src = match.charAt(0) === '$' ? match.slice(2, -2) : match.slice(1, -1);
             const value = evaluateExpression(src, vars);
             return value !== undefined ? value : match;
         });

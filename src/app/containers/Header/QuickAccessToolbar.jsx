@@ -5,7 +5,7 @@ import controller from 'app/lib/controller';
 import i18n from 'app/lib/i18n';
 import styles from './index.styl';
 import * as settings from '../Settings';
-//import Probe from '../Probe';
+import Probe from '../Probe';
 
 class QuickAccessToolbar extends PureComponent {
     static propTypes = {
@@ -84,7 +84,7 @@ class QuickAccessToolbar extends PureComponent {
                             <Space width="8" />
                             {i18n._('Tool Change')}
                         </button>
-                        {/*<button
+                        <button
                             type="button"
                             className="btn"
                             onClick={() => Probe.show(port)}
@@ -95,7 +95,7 @@ class QuickAccessToolbar extends PureComponent {
                             <Space width="8" />
                             {i18n._('Probe')}
 
-                        </button>*/}
+                        </button>
                         {/*<button
                             type="button"
                             className="btn"

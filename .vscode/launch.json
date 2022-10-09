@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch App",
+            "name": "App",
             "trace": true,
             "request": "launch",
             "type": "chrome",
@@ -16,12 +16,24 @@
             "sourceMaps": true,
         },
         {
-            "name": "Launch Server",
+            "name": "Debug Main Process",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+            "windows": {
+                "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
+            },
+            "args" : ["./dist/gladius/"],
+            "outputCapture": "std"
+        },
+        {
+            "name": "Server",
             "type": "node",
             "request": "launch",
             "program": "bin/gladius",
             "args": [
-                "-vvv"
+                "-vv"
             ],
             "preLaunchTask": "npm: build-dev-server",
             "sourceMaps": true,

@@ -1,5 +1,6 @@
 /* eslint max-classes-per-file: 0 */
 import events from 'events';
+import evaluateExpression from './evaluate-expression';
 
 export const SP_TYPE_SEND_RESPONSE = 0;
 export const SP_TYPE_CHAR_COUNTING = 1;
@@ -131,6 +132,7 @@ class Sender extends events.EventEmitter {
         gcode: '',
         context: {},
         lines: [],
+        stack: [],
         total: 0,
         sent: 0,
         received: 0,
@@ -200,7 +202,76 @@ class Sender extends events.EventEmitter {
                     // Remove leading and trailing whitespace from both ends of a string
                     let line = this.state.lines[this.state.sent].trim();
 
-                    if (this.dataFilter) {
+                    if (line.startsWith('%while ')) {
+                        const value = evaluateExpression(line.slice(7), this.state.context);
+
+                        if (Boolean(value)) {
+                            this.state.stack.push({ type: 'while', line: this.state.sent - 1 });
+                            line = '';
+                        } else {
+                            // find the matching %end
+                            let count = 1;
+
+                            for (let i = this.state.sent + 1; i < this.state.lines.length; i++) {
+                                let skipped = this.state.lines[i].trim();
+
+                                if (skipped.startsWith('%while ')) {
+                                    count++;
+                                } else if (skipped.startsWith('%end')) {
+                                    count--;
+
+                                    if (count === 0) {
+                                        this.state.received += i - this.state.sent;
+                                        this.state.sent = i;
+
+                                        line = '';
+                                    }
+                                }
+                            }
+                        }
+                    } else if (line.startsWith('%end')) {
+                        let frame = this.state.stack.pop();
+
+                        switch (frame.type) {
+                        case 'while': {
+                            let i = this.state.sent;
+
+                            this.state.sent = frame.line;
+                            this.state.received -= i - frame.line;
+
+                            line = '';
+
+                            break;
+                        }
+
+                        default: {
+                            noop();
+
+                            break;
+                        }
+                        }
+                    } else if (line.startsWith('%export ')) {
+                        const data = evaluateExpression(line.slice(8), this.state.context);
+
+                        if (Array.isArray(data)) {
+                            let keys = [];
+
+                            for (let i = 0; i < data.length; i++) {
+                                const item = data[i];
+
+                                // eslint-disable-next-line no-unused-vars
+                                for (const [key, _] of Object.entries(item)) {
+                                    if (!keys.includes(key)) {
+                                        keys.push(key);
+                                    }
+                                }
+                            }
+
+                            this.emit('export', { keys, data });
+                        }
+
+                        line = '';
+                    } else if (this.dataFilter) {
                         line = this.dataFilter(line, this.state.context) || '';
                     }
 

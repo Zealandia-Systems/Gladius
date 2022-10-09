@@ -8,6 +8,7 @@ module.exports = {
         node: true
     },
     settings: {
+        "ignorePatterns": ["posts/**/*.cps"],
         'import/resolver': {
             webpack: {
                 config: {

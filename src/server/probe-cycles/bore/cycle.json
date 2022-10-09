@@ -1,8 +1,19 @@
 {
     "title": "Bore",
     "fields": [
-        { "id": "x", "title": "X", "unit": "mm", "default": 0, "mutexGroup": "axis", "defaultChecked": "true" },
-        { "id": "y", "title": "Y", "unit": "mm", "default": 0, "mutexGroup": "axis" },
-        { "id": "z", "title": "Z", "unit": "mm", "default": 0, "mutexGroup": "axis" }
+        {
+            "id": "diameter",
+            "label": "Diameter",
+            "unit": "mm",
+            "default": 0,
+            "help": {
+                "title": "Diameter",
+                "body": {
+                    "div": {
+                        "p": "The estimated diameter of the boss."
+                    }
+                }
+            }
+        }
     ]
 }

@@ -28,26 +28,35 @@
 
         .line {
             font-family: 'Hack', monospace;
-            white-space: break-spaces
+            white-space: break-spaces;
             overflow: hidden;
             text-overflow: ellipsis;
+            background-color: #ffffdd;
+        }
+
+        .current-line {
+            background-color: #e2e2c2;
         }
 
         .label {
             display: inline;
-            padding: .2em .6em .3em;
-            font-size: 75%;
+            padding-left: 1em;
+            padding-top: .4em;
+            padding-right: .4em;
+            padding-bottom: .4em;
+            font-size: 90%;
             font-weight: bold;
             line-height: 1;
-            color: #fff;
+            color: #b0b7af;
+            background-color: #e1ffdc;
             text-align: center;
             white-space: nowrap;
             vertical-align: baseline;
-            border-radius: .25em;
-            margin-right: 5px;
+            /*border-right: 2px solid #777;*/
+            margin-right: 8px;
         }
         .label-default {
-            background-color: #777;
+            /*background-color: #777;*/
         }
     }
 }

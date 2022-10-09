@@ -171,7 +171,7 @@ const evaluateExpression = (src, vars) => {
                 return UNRESOLVED;
             }
             if (node.property.type === 'Identifier') {
-                return obj[node.property.name];
+                return obj[node.computed ? walk(node.property) : node.property.name];
             }
             const prop = walk(node.property);
             if (prop === UNRESOLVED) {
@@ -277,6 +277,9 @@ const evaluateExpression = (src, vars) => {
         log.error(`src="${src}", vars=${JSON.stringify(vars)}`);
         log.error(e);
     }
+
+    log.debug(`src="${JSON.stringify(src)}", vars=${JSON.stringify(vars)}`);
+    log.debug(result);
 
     return (result === UNRESOLVED) ? undefined : result;
 };

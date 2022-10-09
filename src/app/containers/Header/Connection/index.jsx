@@ -337,7 +337,8 @@ class ConnectionWidget extends PureComponent {
     closePort(port = this.state.port) {
         this.setState(state => ({
             connecting: false,
-            connected: false
+            connected: false,
+            autoReconnect: false
         }));
         controller.closePort(port, (err) => {
             if (err) {

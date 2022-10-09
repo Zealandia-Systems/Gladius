@@ -1,5 +1,4 @@
 import cx from 'classnames';
-import escape from 'lodash/escape';
 import get from 'lodash/get';
 import throttle from 'lodash/throttle';
 import PropTypes from 'prop-types';
@@ -34,11 +33,11 @@ class Dashboard extends PureComponent {
 
     renderItem = ({ index, style }) => (
         <div key={index} style={style}>
-            <div className={styles.line}>
-                <span className={cx(styles.label, styles.labelDefault)}>
-                    {index + 1}
-                </span>
-                {escape(this.lines[index])}
+            <div className={cx(styles.line)}>
+                <div className={cx(styles.label, styles.labelDefault)}>
+                    {String(index + 1).padStart(this.lines.length.toString().length, '\u00A0')}
+                </div>
+                {this.lines[index]}
             </div>
         </div>
     );
@@ -73,8 +72,7 @@ class Dashboard extends PureComponent {
     componentWillReceiveProps(nextProps) {
         if (nextProps.state.gcode.content !== this.props.state.gcode.content) {
             this.lines = get(nextProps, 'state.gcode.content', '')
-                .split('\n')
-                .filter(line => line.trim().length > 0);
+                .split('\n');
         }
     }
 
@@ -94,6 +92,7 @@ class Dashboard extends PureComponent {
         const { sent = 0, total = 0 } = state.gcode;
         const { virtualList } = this.state;
         const rowHeight = 20;
+
 
         return (
             <Panel
@@ -150,9 +149,6 @@ class Dashboard extends PureComponent {
                             <VirtualList
                                 width="100%"
                                 height={virtualList.visibleHeight}
-                                style={{
-                                    padding: '0 5px'
-                                }}
                                 itemCount={this.lines.length}
                                 itemSize={rowHeight}
                                 renderItem={this.renderItem}
