@@ -259,6 +259,36 @@ async function* getVectricInstalls() {
     }
 }
 
+async function* getCamBamInstalls() {
+    const post = 'Swordfish.cbpp';
+    const rootPath = process.env.ProgramData;
+
+    const folders = await fs.readdir(rootPath, { encoding: 'utf8', withFileTypes: true });
+
+    const postVersion = await getPostVersion('CamBam+', post);
+
+    for (const folder of folders) {
+        if (folder.name.startsWith('CamBam plus ')) {
+            const folderPath = path.join(rootPath, folder.name);
+            const postPath = path.join(folderPath, 'post', post);
+            const version = folder.name.replace('CamBam plus ', '');
+
+            yield {
+                company: 'HexRay',
+                application: 'CamBam+',
+                applicationVersion: version,
+                applicationPath: folderPath,
+                postProcessor: 'CamBam+',
+                postProcessorVersion: version,
+                post,
+                postPath,
+                postVersion,
+                installedPostVersion: await getInstalledPostVersion('CamBam+', postPath)
+            };
+        }
+    }
+}
+
 async function getHSMWorksVersion(installFolder) {
     try {
         const candidatePath = path.join(installFolder, 'HSMWorks.exe');
@@ -329,6 +359,10 @@ async function* getSupportedInstalls() {
 
     if (hsmWorksInstall) {
         yield hsmWorksInstall;
+    }
+
+    for await (const install of getCamBamInstalls()) {
+        yield install;
     }
 }
 

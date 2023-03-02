@@ -7,3 +7,6 @@
 [submodule "posts/VectricLaser"]
 	path = posts/VectricLaser
 	url = https://github.com/Zealandia-Systems/Swordfish-Post-Vectric-Laser.git
+[submodule "posts/CamBam"]
+	path = posts/CamBam
+	url = https://github.com/Zealandia-Systems/Swordfish-Post-CamBam.git

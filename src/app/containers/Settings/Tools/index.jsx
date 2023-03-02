@@ -9,6 +9,16 @@ import isNumber from 'app/lib/isNumber';
 import isEmptyString from 'app/lib/isEmptyString';
 import SettingsTable from '../SettingsTable';
 
+const isValidIndex = (value) => {
+    if (!isNumber(value)) {
+        return false;
+    }
+
+    let number = parseFloat(value);
+
+    return (number > 0 && number <= Math.pow(2, 15));
+};
+
 class Tools extends PureComponent {
     static propTypes = {
         initialState: PropTypes.object,
@@ -20,7 +30,7 @@ class Tools extends PureComponent {
 
     handleIndexChanged = (component, event) => {
         const value = event.target.value;
-        const validationState = isNumber(value) ? 'success' : 'error';
+        const validationState = isValidIndex(value) ? 'success' : 'error';
         const valid = validationState === 'success';
 
         const { record, validation } = component.state;
@@ -333,42 +343,42 @@ class Tools extends PureComponent {
                         }
                     },
                     /*{
-                        title: i18n._('Fixed'),
-                        key: 'fixed',
-                        sortable: true,
-                        default: false,
-                        render: (_value, record, _index) => {
-                            const style = {
-                                background: 'inherit',
-                                border: 'none',
-                                margin: 0,
-                                padding: 0
-                            };
-                            const { fixed } = record;
+                            title: i18n._('Fixed'),
+                            key: 'fixed',
+                            sortable: true,
+                            default: false,
+                            render: (_value, record, _index) => {
+                                    const style = {
+                                            background: 'inherit',
+                                            border: 'none',
+                                            margin: 0,
+                                            padding: 0
+                                    };
+                                    const { fixed } = record;
 
-                            return (
-                                <pre style={style}>{Boolean(fixed) ? i18n._('Fixed') : i18n._('No')}</pre>
-                            );
-                        },
-                        renderForm: (component, record) => {
-                            const { fixed } = record;
+                                    return (
+                                            <pre style={style}>{Boolean(fixed) ? i18n._('Fixed') : i18n._('No')}</pre>
+                                    );
+                            },
+                            renderForm: (component, record) => {
+                                    const { fixed } = record;
 
-                            return (
-                                <FormGroup>
-                                    <Col componentClass={ControlLabel} sm={2}>
-                                        {i18n._('Fixed')}
-                                    </Col>
-                                    <Col sm={10}>
-                                        <Toggle
-                                            size="sm"
-                                            icons={false}
-                                            checked={fixed}
-                                            onChange={(event) => this.handleFixedChanged(component, event)}
-                                        />
-                                    </Col>
-                                </FormGroup>
-                            );
-                        }
+                                    return (
+                                            <FormGroup>
+                                                    <Col componentClass={ControlLabel} sm={2}>
+                                                            {i18n._('Fixed')}
+                                                    </Col>
+                                                    <Col sm={10}>
+                                                            <Toggle
+                                                                    size="sm"
+                                                                    icons={false}
+                                                                    checked={fixed}
+                                                                    onChange={(event) => this.handleFixedChanged(component, event)}
+                                                            />
+                                                    </Col>
+                                            </FormGroup>
+                                    );
+                            }
                     },*/
                     {
                         title: i18n._('Needs Probe'),
@@ -452,47 +462,47 @@ class Tools extends PureComponent {
                         }
                     },
                     /*{
-                        title: i18n._('Length'),
-                        key: 'geometry.length',
-                        default: 0,
-                        validationState: 'success',
-                        render: (_value, row, _index) => {
-                            const style = {
-                                background: 'inherit',
-                                border: 'none',
-                                margin: 0,
-                                padding: 0
-                            };
-                            const { geometry } = row;
+                            title: i18n._('Length'),
+                            key: 'geometry.length',
+                            default: 0,
+                            validationState: 'success',
+                            render: (_value, row, _index) => {
+                                    const style = {
+                                            background: 'inherit',
+                                            border: 'none',
+                                            margin: 0,
+                                            padding: 0
+                                    };
+                                    const { geometry } = row;
 
-                            return (
-                                <pre style={style}>
-                                    {geometry.length}
-                                </pre>
-                            );
-                        },
-                        renderForm: (component, record) => {
-                            const { validation } = component.state;
-                            const { geometry } = record;
+                                    return (
+                                            <pre style={style}>
+                                                    {geometry.length}
+                                            </pre>
+                                    );
+                            },
+                            renderForm: (component, record) => {
+                                    const { validation } = component.state;
+                                    const { geometry } = record;
 
-                            return (
-                                <FormGroup validationState={validation.geometry.length}>
-                                    <Col componentClass={ControlLabel} sm={2}>
-                                        {i18n._('Length')}
-                                    </Col>
-                                    <Col sm={10}>
-                                        <FormControl
-                                            id="geometry_length"
-                                            size="sm"
-                                            type="text"
-                                            value={geometry.length}
-                                            onChange={(event) => this.handleGeometryChanged(component, event, 'length')}
-                                        />
-                                        <FormControl.Feedback />
-                                    </Col>
-                                </FormGroup>
-                            );
-                        }
+                                    return (
+                                            <FormGroup validationState={validation.geometry.length}>
+                                                    <Col componentClass={ControlLabel} sm={2}>
+                                                            {i18n._('Length')}
+                                                    </Col>
+                                                    <Col sm={10}>
+                                                            <FormControl
+                                                                    id="geometry_length"
+                                                                    size="sm"
+                                                                    type="text"
+                                                                    value={geometry.length}
+                                                                    onChange={(event) => this.handleGeometryChanged(component, event, 'length')}
+                                                            />
+                                                            <FormControl.Feedback />
+                                                    </Col>
+                                            </FormGroup>
+                                    );
+                            }
                     },*/
                     {
                         title: i18n._('Offset X'),
