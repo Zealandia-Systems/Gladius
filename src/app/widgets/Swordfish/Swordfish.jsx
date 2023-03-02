@@ -7,7 +7,7 @@ import mapGCodeToText from 'app/lib/gcode-text';
 import i18n from 'app/lib/i18n';
 import Panel from 'app/components/Panel';
 import Toggler from 'app/components/Toggler';
-import Overrides from './Overrides';
+//import Overrides from './Overrides';
 import styles from './index.styl';
 
 class Swordfish extends PureComponent {
@@ -21,9 +21,9 @@ class Swordfish extends PureComponent {
         const none = '–';
         const panel = state.panel;
         const controllerState = state.controller.state || {};
-        const ovF = get(controllerState, 'ovF', 0);
-        const ovR = get(controllerState, 'ovR', 0);
-        const ovS = get(controllerState, 'ovS', 0);
+        //const ovF = get(controllerState, 'ovF', 0);
+        //const ovR = get(controllerState, 'ovR', 0);
+        //const ovS = get(controllerState, 'ovS', 0);
         const feedrate = get(controllerState, 'feedrate') || none;
         const spindle = get(controllerState, 'spindle') || none;
         const rapidFeedrate = get(controllerState, 'rapidFeedrate') || none;
@@ -31,7 +31,7 @@ class Swordfish extends PureComponent {
 
         return (
             <div>
-                <Overrides ovF={ovF} ovR={ovR} ovS={ovS} />
+                {/*<Overrides ovF={ovF} ovR={ovR} ovS={ovS} />*/}
                 <Panel className={styles.panel}>
                     <Panel.Heading className={styles.panelHeading}>
                         <Toggler
