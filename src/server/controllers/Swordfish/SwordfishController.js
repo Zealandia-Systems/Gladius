@@ -646,9 +646,8 @@ class SwordfishController {
 
         this.runner.on('state', (res) => {
             if (res.activeState === SWORDFISH_ACTIVE_STATE_ESTOP && this.workflow.state === WORKFLOW_STATE_RUNNING) {
-                this.workflow.pause();
-
-                this.sender.ack();
+                this.workflow.stop();
+                this.sender.rewind();
             }
 
             // Swordfish state
