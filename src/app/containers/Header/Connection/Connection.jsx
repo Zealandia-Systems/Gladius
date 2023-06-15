@@ -243,10 +243,10 @@ class Connection extends PureComponent {
                             onEntering={actions.handleRefreshPorts}
                         >
                             <Button
-                                className="btn btn-info"
+                                className={notConnected ? 'btn btn-danger' : 'btn btn-success'}
                             >
                                 {notConnected && (
-                                    <i className="fa fa-plug" />
+                                    <i className="fa fa-exclamation-triangle" />
                                 )}
                                 {connected && (
                                     <i className="fa fa-check" />

@@ -1,11 +1,13 @@
 /* eslint max-classes-per-file: 0 */
 import events from 'events';
 import evaluateExpression from './evaluate-expression';
+import logger from './logger';
 
 export const SP_TYPE_SEND_RESPONSE = 0;
 export const SP_TYPE_CHAR_COUNTING = 1;
 
 const noop = () => {};
+const log = logger('Sender');
 
 class SPSendResponse {
     callback = null;
@@ -470,7 +472,7 @@ class Sender extends events.EventEmitter {
         this.state.sent = 0;
         this.state.received = 0;
         this.emit('change');
-
+        log.info('Rewind Complete');
         return true;
     }
 

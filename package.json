@@ -24,7 +24,7 @@
 	},
 	"preferGlobal": true,
 	"scripts": {
-		"preinstall": "npx npm-force-resolutions",
+		"preinstall": "npm install --package-lock-only --ignore-scripts && npx npm-force-resolutions",
 		"prepare.back": "yarn run clean && yarn run eslint && yarn run stylint && yarn run test && yarn run build",
 		"prebuild-latest": "yarn run package-sync && bash -c \"cd src; yarn version ${yarn_package_version}-${COMMIT_COUNT:-latest}\" && bash scripts/prebuild-prod.sh",
 		"prebuild-dev": "yarn run package-sync && bash scripts/prebuild-dev.sh",
@@ -225,6 +225,7 @@
 		"namespace-constants": "~0.5.0",
 		"normalize.css": "~8.0.1",
 		"opencollective": "~1.0.3",
+		"package-lock-only": "0.0.4",
 		"perfect-scrollbar": "~1.4.0",
 		"prop-types": "~15.7.2",
 		"pubsub-js": "~1.7.0",
