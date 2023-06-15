@@ -360,7 +360,7 @@ class Header extends PureComponent {
                                 <MenuItem divider />
                             }
                             <MenuItem
-                                href="http://help.zealandia.systems/"
+                                href="https://help.zealandia.systems/"
                                 target="_blank"
                             >
                                 {i18n._('Help')}
