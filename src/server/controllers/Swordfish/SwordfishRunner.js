@@ -100,7 +100,18 @@ class SwordfishRunner extends events.EventEmitter {
                 this.settings = nextSettings; // enforce change
             }
 
+            const nextState = {
+                ...this.state,
+                firmware: firmware
+            };
+
+            if (!_.isEqual(this.state, nextState)) {
+                this.state = nextState; // enforce change
+            }
+            console.log(this.state);
+
             this.emit('firmware', payload);
+            this.emit('state', payload);
             return;
         }
         if (type === SwordfishLineParserResultPosition) {

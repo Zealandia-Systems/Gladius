@@ -32,8 +32,10 @@ import {
     MODAL_PROMPT,
     MODAL_SERVER_DISCONNECTED,
     MODAL_OUTDATED_POSTS,
-    MODAL_EXPORT
+    MODAL_EXPORT,
+    MODAL_SOFTWARE_UPDATES
 } from './constants';
+import SoftwareUpdates from './modals/SoftwareUpdates';
 
 const WAIT = '%wait';
 
@@ -148,7 +150,24 @@ class Workspace extends PureComponent {
 
     defaultContainer = null;
 
+    controllerState = null;
+
     controllerEvents = {
+        'controller:settings': async (controllerName, payload) => {
+            //payload contains firmware details
+            //controller state isn't updated or firmware is out of data
+            if (payload !== null && payload.firmware !== null && (this.controllerState === null || payload.firmware !== this.controllerState.firmware)) {
+                this.controllerState = payload;
+                const res = (await api.getLatestSwordFishVersion()).body;
+                if (this.controllerState.firmware !== null && this.controllerState.firmware.version !== res.version) {
+                    this.action.openModal(MODAL_SOFTWARE_UPDATES, {
+                        title: 'Updates Advised: ',
+                        checked: this.getInitialState().workspace.updateNotifications.showUpdates,
+                        versions: [{ name: res.name, current: this.controllerState.firmware.version, new: res.version, link: 'https://github.com/Zealandia-Systems/Swordfish' }]
+                    });
+                }
+            }
+        },
         'connect': () => {
             if (controller.connected) {
                 this.action.closeModal();
@@ -529,6 +548,13 @@ class Workspace extends PureComponent {
                         onClose={this.action.closeModal}
                         keys={modal.params.keys}
                         data={modal.params.data}
+                    />
+                )}
+                {modal.name === MODAL_SOFTWARE_UPDATES && (
+                    <SoftwareUpdates
+                        onClose={this.action.closeModal}
+                        title={modal.params.title}
+                        versions={modal.params.versions}
                     />
                 )}
                 <div

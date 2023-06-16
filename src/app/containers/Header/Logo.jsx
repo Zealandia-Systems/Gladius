@@ -15,7 +15,8 @@ export default ({
     arrowOffsetLeft = null,
     arrowOffsetTop = null,
     settings = null,
-    newUpdateAvailable = null
+    newUpdateAvailable = null,
+    newSwordfishUpdateAvailable = null
 }) => {
     return (
         <Anchor
@@ -52,6 +53,14 @@ export default ({
                 })}
             >
                 {settings.productName}
+            </div>
+            <div
+                className={classNames({
+                    [styles.logoTitle]: true,
+                    [styles.pulse]: newSwordfishUpdateAvailable
+                })}
+            >
+                {newSwordfishUpdateAvailable}
             </div>
         </Anchor>
     );
