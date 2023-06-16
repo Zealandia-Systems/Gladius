@@ -360,13 +360,13 @@ class Header extends PureComponent {
                                 <MenuItem divider />
                             }
                             <MenuItem
-                                href="https://github.com/Zealandia-Systems/Gladius/wiki"
+                                href="https://help.zealandia.systems/"
                                 target="_blank"
                             >
                                 {i18n._('Help')}
                             </MenuItem>
                             <MenuItem
-                                href="https://github.com/Zealandia-Systems/Gladius/issues"
+                                href="https://zealandia.systems/pages/support"
                                 target="_blank"
                             >
                                 {i18n._('Report an issue')}
