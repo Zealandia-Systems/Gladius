@@ -159,7 +159,6 @@ class Workspace extends PureComponent {
             if (payload !== null && payload.firmware !== null && (this.controllerSettings === null || payload.firmware !== this.controllerSettings.firmware)) {
                 this.controllerSettings = payload;
                 const res = (await api.getLatestSwordFishVersion()).body;
-                
                 const showUpdates = store.get('workspace.updates.showUpdates', {});
                 const showVersion = store.get('workspace.updates.version', {});
 
