@@ -29,9 +29,9 @@ const defaultState = {
         machineProfile: {
             id: null
         },
-        updateNotifications: {
+        updates: {
             showUpdates: true,
-            previousVersion: ''
+            version: '1.0.0'
         }
     },
     widgets: {
