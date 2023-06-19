@@ -17,7 +17,7 @@ import {
     SWORDFISH_ACTIVE_STATE_ALARM,
 } from '../../../app/constants';
 
-const log = logger('runner:Swordfish');
+const log = logger('controller:Swordfish');
 
 class SwordfishRunner extends events.EventEmitter {
     state = {
@@ -108,9 +108,10 @@ class SwordfishRunner extends events.EventEmitter {
             if (!_.isEqual(this.state, nextState)) {
                 this.state = nextState; // enforce change
             }
+            console.log(this.state);
 
             this.emit('firmware', payload);
-            this.emit('state', nextState);
+            this.emit('state', payload);
             return;
         }
         if (type === SwordfishLineParserResultPosition) {
@@ -140,7 +141,7 @@ class SwordfishRunner extends events.EventEmitter {
                 this.state = nextState; // enforce change
             }
             this.emit('pos', payload);
-            this.emit('state', nextState);
+            this.emit('state', payload);
             return;
         }
         if (type === SwordfishLineParserResultRecord) {
@@ -180,10 +181,7 @@ class SwordfishRunner extends events.EventEmitter {
             if (!_.isEqual(this.state.activeState, nextState.activeState)) {
                 this.state = nextState; // enforce change
             }
-            if (payload.modal === null) {
-                log.debug(payload);
-            }
-            this.emit('state', nextState);
+            this.emit('state', payload);
             return;
         }
         if (type === SwordfishLineParserResultOk) {
@@ -205,6 +203,7 @@ class SwordfishRunner extends events.EventEmitter {
             return;
         }
         if (data.length > 0) {
+            log.silly(payload);
             this.emit('others', payload);
             return;
         }
