@@ -650,7 +650,7 @@ class SwordfishController {
 
                 this.sender.ack();
             }
-
+            console.log(res);
             // Swordfish state
             if (this.state !== res) {
                 this.state = res;
