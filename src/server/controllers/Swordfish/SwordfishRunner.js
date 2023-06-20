@@ -1,6 +1,5 @@
 import events from 'events';
 import _ from 'lodash';
-import logger from '../../lib/logger';
 import SwordfishLineParser from './SwordfishLineParser';
 import SwordfishLineParserResultStart from './SwordfishLineParserResultStart';
 import SwordfishLineParserResultFirmware from './SwordfishLineParserResultFirmware';
@@ -17,7 +16,6 @@ import {
     SWORDFISH_ACTIVE_STATE_ALARM,
 } from '../../../app/constants';
 
-const log = logger('runner:Swordfish');
 
 class SwordfishRunner extends events.EventEmitter {
     state = {
