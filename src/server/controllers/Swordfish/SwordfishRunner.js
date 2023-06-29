@@ -1,6 +1,5 @@
 import events from 'events';
 import _ from 'lodash';
-import logger from '../../lib/logger';
 import SwordfishLineParser from './SwordfishLineParser';
 import SwordfishLineParserResultStart from './SwordfishLineParserResultStart';
 import SwordfishLineParserResultFirmware from './SwordfishLineParserResultFirmware';
@@ -17,7 +16,6 @@ import {
     SWORDFISH_ACTIVE_STATE_ALARM,
 } from '../../../app/constants';
 
-const log = logger('controller:Swordfish');
 
 class SwordfishRunner extends events.EventEmitter {
     state = {
@@ -100,7 +98,17 @@ class SwordfishRunner extends events.EventEmitter {
                 this.settings = nextSettings; // enforce change
             }
 
-            this.emit('firmware', payload);
+            const nextState = {
+                ...this.state,
+                firmware: firmware
+            };
+
+            if (!_.isEqual(this.state, nextState)) {
+                this.state = nextState; // enforce change
+            }
+
+            this.emit('firmware', nextSettings);
+            this.emit('state', nextState);
             return;
         }
         if (type === SwordfishLineParserResultPosition) {
@@ -130,7 +138,7 @@ class SwordfishRunner extends events.EventEmitter {
                 this.state = nextState; // enforce change
             }
             this.emit('pos', payload);
-            this.emit('state', payload);
+            this.emit('state', nextState);
             return;
         }
         if (type === SwordfishLineParserResultRecord) {
@@ -170,7 +178,7 @@ class SwordfishRunner extends events.EventEmitter {
             if (!_.isEqual(this.state.activeState, nextState.activeState)) {
                 this.state = nextState; // enforce change
             }
-            this.emit('state', payload);
+            this.emit('state', nextState);
             return;
         }
         if (type === SwordfishLineParserResultOk) {
@@ -192,7 +200,6 @@ class SwordfishRunner extends events.EventEmitter {
             return;
         }
         if (data.length > 0) {
-            log.silly(payload);
             this.emit('others', payload);
             return;
         }
