@@ -52,7 +52,7 @@ class Header extends PureComponent {
                 const { checkForUpdates } = res.body;
 
                 if (checkForUpdates) {
-                    const res = await api.getLatestVersion();
+                    const res = await api.getLatestGladiusVersion();
                     const { time, version } = res.body;
 
                     this._isMounted && this.setState({
@@ -251,8 +251,8 @@ class Header extends PureComponent {
 
     render() {
         const { pushPermission, commands, runningTasks, currentVersion, latestVersion, port } = this.state;
-        const newUpdateAvailable = semver.lt(currentVersion, latestVersion);
-        const tooltip = newUpdateAvailable ? newUpdateAvailableTooltip() : <div />;
+        const newGladiusUpdateAvailable = semver.lt(currentVersion, latestVersion);
+        const tooltip = newGladiusUpdateAvailable ? newUpdateAvailableTooltip() : <div />;
         const showCommands = commands.length > 0;
 
         return (
@@ -274,7 +274,7 @@ class Header extends PureComponent {
                     >
                         <Logo
                             settings={settings}
-                            newUpdateAvailable={newUpdateAvailable}
+                            newUpdateAvailable={newGladiusUpdateAvailable}
                         />
                     </OverlayTrigger>
                     <Navbar.Toggle />

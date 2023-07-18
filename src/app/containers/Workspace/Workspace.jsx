@@ -32,8 +32,10 @@ import {
     MODAL_PROMPT,
     MODAL_SERVER_DISCONNECTED,
     MODAL_OUTDATED_POSTS,
-    MODAL_EXPORT
+    MODAL_EXPORT,
+    MODAL_SOFTWARE_UPDATES
 } from './constants';
+import SoftwareUpdates from './modals/SoftwareUpdates';
 
 const WAIT = '%wait';
 
@@ -148,7 +150,26 @@ class Workspace extends PureComponent {
 
     defaultContainer = null;
 
+    controllerSettings = null;
+
     controllerEvents = {
+        'controller:settings': async (controllerName, payload) => {
+            //payload contains firmware details
+            //controller state isn't updated or firmware is out of data
+            if (payload !== null && payload.firmware !== null && (this.controllerSettings === null || payload.firmware !== this.controllerSettings.firmware)) {
+                this.controllerSettings = payload;
+                const res = (await api.getLatestSwordFishVersion()).body;
+                const showUpdates = store.get('workspace.updates.showUpdates', {});
+                const showVersion = store.get('workspace.updates.version', {});
+
+                if (this.controllerSettings.firmware !== null && semver.lt(this.controllerSettings.firmware.version, res.version) && (showUpdates || semver.lt(showVersion, res.version))) {
+                    this.action.openModal(MODAL_SOFTWARE_UPDATES, {
+                        title: 'Updates Advised: ',
+                        versions: [{ name: res.name, current: this.controllerSettings.firmware.version, new: res.version, link: 'https://github.com/Zealandia-Systems/Swordfish' }]
+                    });
+                }
+            }
+        },
         'connect': () => {
             if (controller.connected) {
                 this.action.closeModal();
@@ -529,6 +550,17 @@ class Workspace extends PureComponent {
                         onClose={this.action.closeModal}
                         keys={modal.params.keys}
                         data={modal.params.data}
+                    />
+                )}
+                {modal.name === MODAL_SOFTWARE_UPDATES && (
+                    <SoftwareUpdates
+                        onClose={(checked, version) => {
+                            this.action.closeModal();
+                            store.set('workspace.updates.showUpdates', checked);
+                            store.set('workspace.updates.version', version);
+                        }}
+                        title={modal.params.title}
+                        versions={modal.params.versions}
                     />
                 )}
                 <div

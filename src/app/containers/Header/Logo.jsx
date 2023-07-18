@@ -15,7 +15,7 @@ export default ({
     arrowOffsetLeft = null,
     arrowOffsetTop = null,
     settings = null,
-    newUpdateAvailable = null
+    newUpdateAvailable = null,
 }) => {
     return (
         <Anchor

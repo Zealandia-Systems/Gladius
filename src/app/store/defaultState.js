@@ -28,6 +28,10 @@ const defaultState = {
         },
         machineProfile: {
             id: null
+        },
+        updates: {
+            showUpdates: true,
+            version: '1.0.0'
         }
     },
     widgets: {

@@ -256,7 +256,8 @@ const appMain = () => {
 
     { // Register API routes with authorized access
         // Version
-        app.get(urljoin(settings.route, 'api/version/latest'), api.version.getLatestVersion);
+        app.get(urljoin(settings.route, 'api/version/swordfish-latest'), api.version.getLatestSwordFishVersion);
+        app.get(urljoin(settings.route, 'api/version/gladius-latest'), api.version.getLatestGladiusVersion);
 
         // Posts
         app.get(urljoin(settings.route, 'api/posts'), api.posts.get);

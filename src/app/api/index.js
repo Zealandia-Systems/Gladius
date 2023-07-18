@@ -46,11 +46,26 @@ const signin = (options) => new Promise((resolve, reject) => {
 });
 
 //
-// Latest Version
+// Latest Gladius Version
 //
-const getLatestVersion = () => new Promise((resolve, reject) => {
+const getLatestGladiusVersion = () => new Promise((resolve, reject) => {
     authrequest
-        .get('/api/version/latest')
+        .get('/api/version/gladius-latest')
+        .end((err, res) => {
+            if (err) {
+                reject(res);
+            } else {
+                resolve(res);
+            }
+        });
+});
+
+//
+// Latest SwordFish Version
+//
+const getLatestSwordFishVersion = () => new Promise((resolve, reject) => {
+    authrequest
+        .get('/api/version/swordfish-latest')
         .end((err, res) => {
             if (err) {
                 reject(res);
@@ -783,7 +798,8 @@ const probeCycles = {
 };
 
 export default {
-    getLatestVersion,
+    getLatestGladiusVersion,
+    getLatestSwordFishVersion,
     posts,
 
     // State
