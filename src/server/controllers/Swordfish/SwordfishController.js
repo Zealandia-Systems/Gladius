@@ -28,7 +28,7 @@ import {
 import SwordfishRunner from './SwordfishRunner';
 import interpret, { parseLine } from './interpret';
 import { SWORDFISH } from './constants';
-import { getMacros, toolChangeMacroId } from '../../services/macros';
+import { getMacros } from '../../services/macros';
 import { SWORDFISH_ACTIVE_STATE_ESTOP } from '../../../app/constants';
 
 // % commands
@@ -202,9 +202,9 @@ class SwordfishController {
 
                     // wcs
                     /*if (new RegExp('G5[3456789]\\.\\d').test(cmd)) {
-                            nextState.modal.wcs = cmd;
+                                    nextState.modal.wcs = cmd;
                     } else if (new RegExp('G5[3456789]').test(cmd)) {
-                            nextState.modal.wcs = cmd + '.0';
+                                    nextState.modal.wcs = cmd + '.0';
                     }*/
 
                     // plane
@@ -242,9 +242,9 @@ class SwordfishController {
                         nextState.modal.spindle = cmd;
 
                         /*if (cmd === 'M3' || cmd === 'M4') {
-                                if (params.S !== undefined) {
-                                        nextState.spindle.rpm = params.S;
-                                }
+                                        if (params.S !== undefined) {
+                                                        nextState.spindle.rpm = params.S;
+                                        }
                         }*/
                     }
 
@@ -328,8 +328,8 @@ class SwordfishController {
 
                 // M6 Tool Change
                 /*if (_.includes(words, 'M6')) {
-                        log.debug('M6 Tool Change');
-                        this.feeder.hold({ data: 'M6' }); // Hold reason
+                                log.debug('M6 Tool Change');
+                                this.feeder.hold({ data: 'M6' }); // Hold reason
                 }*/
 
                 return line;
@@ -420,12 +420,12 @@ class SwordfishController {
 
                 // M6 Tool Change
                 /*if (_.includes(words, 'M6')) {
-                        log.debug(
-                                `M6 Tool Change: line=${
-                                        sent + 1
-                                }, sent=${sent}, received=${received}`
-                        );
-                        this.workflow.pause({ data: 'M6' });
+                                log.debug(
+                                                `M6 Tool Change: line=${
+                                                                sent + 1
+                                                }, sent=${sent}, received=${received}`
+                                );
+                                this.workflow.pause({ data: 'M6' });
                 }*/
 
                 return line;
@@ -559,12 +559,12 @@ class SwordfishController {
 
         this.runner.on('pos', (res) => {
             /*if (
-                    _.includes(
-                            [WRITE_SOURCE_CLIENT, WRITE_SOURCE_FEEDER],
-                            this.history.writeSource
-                    )
+                            _.includes(
+                                            [WRITE_SOURCE_CLIENT, WRITE_SOURCE_FEEDER],
+                                            this.history.writeSource
+                            )
             ) {
-                    this.emit('serialport:read', res.raw);
+                            this.emit('serialport:read', res.raw);
             }*/
         });
 
@@ -1235,11 +1235,7 @@ class SwordfishController {
                 // Unsupported
             },
             toolChange: () => {
-                if (this.settings.firmware.smartM6) {
-                    this.command('gcode', 'M6');
-                } else {
-                    this.command('macro:run', toolChangeMacroId);
-                }
+                this.command('gcode', 'M6');
             },
             reset: () => {
                 this.workflow.stop();
