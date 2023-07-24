@@ -516,5 +516,17 @@
     "Probe Distance": "Probe Distance",
     "Disconnected": "Disconnected",
     "Connected": "Connected",
-    "A web-based interface for CNC milling controller running Swordfish": "A web-based interface for CNC milling controller running Swordfish"
+    "A web-based interface for CNC milling controller running Swordfish": "A web-based interface for CNC milling controller running Swordfish",
+    "Temporary Offset (G92)": "Temporary Offset (G92)",
+    "Home Axis": "Home Axis",
+    "Zero Work Offset": "Zero Work Offset",
+    "Set Work Offset": "Set Work Offset",
+    "Jogging": "Jogging",
+    "Decrease Step": "Decrease Step",
+    "Increase Step": "Increase Step",
+    "Overrides": "Overrides",
+    "Reset All": "Reset All",
+    "Spindle Forward {M3}": "Spindle Forward {M3}",
+    "Spindle Backward {M4}": "Spindle Backward {M4}",
+    "Spindle Stop {M5}": "Spindle Stop {M5}"
 }

@@ -3,16 +3,44 @@
     border: 1px solid transparent;
     box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
     margin-bottom: 10px;
+
+    .panel-title {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 32px;
+        display: inline-block;
+        vertical-align: middle;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 0px 5px;
+
+        // Truncate string with ellipsis
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        max-width: 100%;
+    }
+
+    .panel-controls {
+        cursor: auto;
+        float: right;
+        flex-grow: 1;
+    }
+
+    .panel-heading {
+        padding: 5px 5px;
+        border-bottom: 1px solid transparent;
+        width: 100%;
+        display: flex;
+        background: linear-gradient(135deg, #FFFFFFFF 0%,rgba(255,230,230,1) 100%);
+    }
+
+    .panel-body {
+        padding: 10px;
+        background: linear-gradient(135deg, #FFFFFFFF 0%,rgba(210,245,247,1) 100%);
+    }
 }
 
-.panel-heading {
-    padding: 5px 10px;
-    border-bottom: 1px solid transparent;
-}
-
-.panel-body {
-    padding: 10px;
-}
 
 .panel-default {
     border-color: #ccc;

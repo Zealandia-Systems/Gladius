@@ -14,30 +14,17 @@ import defaultState from './defaultState';
 
 const store = new ImmutableStore(defaultState);
 
-let userData = null;
-
-// Check whether the code is running in Electron renderer process
-if (isElectron()) {
-    const electron = window.require('electron');
-    const path = window.require('path'); // Require the path module within Electron
-    const app = electron.remote.app;
-    userData = {
-        path: path.join(app.getPath('userData'), 'cnc.json')
-    };
-}
-
 const getConfig = () => {
     let content = '';
 
     // Check whether the code is running in Electron renderer process
     if (isElectron()) {
-        const fs = window.require('fs'); // Require the fs module within Electron
-        if (fs.existsSync(userData.path)) {
-            content = fs.readFileSync(userData.path, 'utf8') || '{}';
-        }
+        content = window.ipcRenderer.sendSync('config.read') || '{}';
     } else {
         content = localStorage.getItem('cnc') || '{}';
     }
+
+    console.log(JSON.stringify(content));
 
     return content;
 };
@@ -58,8 +45,7 @@ const persist = (data) => {
 
         // Check whether the code is running in Electron renderer process
         if (isElectron()) {
-            const fs = window.require('fs'); // Use window.require to require fs module in Electron
-            fs.writeFileSync(userData.path, value);
+            window.ipcRenderer.send('config.write', value);
         } else {
             localStorage.setItem('cnc', value);
         }

@@ -14,14 +14,6 @@ export default (word, group, object) => {
         'G38.5': i18n._('Probing (G38.5)', { ns: 'gcode' }),
         'G80': i18n._('Cancel Mode (G80)', { ns: 'gcode' }),
 
-        // Work Coordinate System
-        'G54': i18n._('P1 (G54)', { ns: 'gcode' }),
-        'G55': i18n._('P2 (G55)', { ns: 'gcode' }),
-        'G56': i18n._('P3 (G56)', { ns: 'gcode' }),
-        'G57': i18n._('P4 (G57)', { ns: 'gcode' }),
-        'G58': i18n._('P5 (G58)', { ns: 'gcode' }),
-        'G59': i18n._('P6 (G59)', { ns: 'gcode' }),
-
         // Plane
         'G17': i18n._('XY Plane (G17)', { ns: 'gcode' }),
         'G18': i18n._('XZ Plane (G18)', { ns: 'gcode' }),
@@ -65,8 +57,35 @@ export default (word, group, object) => {
         'M9': i18n._('Coolant Off (M9)', { ns: 'gcode' })
     };
 
+    const regex = new RegExp('G(\\d\\d)\\.(\\d)');
+
+    const splitWCS = (wcs) => {
+        const result = regex.exec(wcs);
+
+        if (result === undefined || result === null) {
+            return wcs;
+        }
+
+        const code = Number(result[1]);
+        const subcode = Number(result[2]);
+
+        return { code, subcode };
+    };
+
+    const wcsToP = (wcs) => {
+        const { code, subcode } = splitWCS(wcs);
+
+        return ((code - 54) * 10) + subcode + 1;
+    };
+
     const words = ensureArray(word)
-        .map(word => (resText[word] || word));
+        .map(word => {
+            if (regex.test(word)) {
+                return `${word} (P${wcsToP(word)})`;
+            }
+
+            return (resText[word] || word);
+        });
 
     return (words.length > 1) ? words : words[0];
 };

@@ -1,5 +1,7 @@
 import '@babel/polyfill';
-import { app, Menu } from 'electron';
+import fs from 'fs';
+import path from 'path';
+import { app, Menu, ipcMain } from 'electron';
 import Store from 'electron-store';
 import chalk from 'chalk';
 import mkdirp from 'mkdirp';
@@ -7,6 +9,8 @@ import menuTemplate from './electron-app/menu-template';
 import WindowManager from './electron-app/WindowManager';
 import launchServer from './server-cli';
 import pkg from './package.json';
+
+require('electron-debug')();
 
 // The selection menu
 const selectionMenu = Menu.buildFromTemplate([
@@ -54,59 +58,78 @@ const main = () => {
         }
     });
 
-    const store = new Store();
-
     // Create the user data directory if it does not exist
     const userData = app.getPath('userData');
     mkdirp.sync(userData);
 
-    app.on('ready', async () => {
+    const store = new Store();
+
+    const configPath = path.join(app.getPath('userData'), 'cnc.json');
+
+    ipcMain.on('config.read', (event) => {
+        if (fs.existsSync(configPath)) {
+            event.returnValue = fs.readFileSync(configPath, 'utf8');
+        }
+    });
+
+    ipcMain.on('config.write', (event, data) => {
+        fs.writeFileSync(configPath, data);
+    });
+
+    app.whenReady().then(() => {
         try {
-            const res = await launchServer();
-            const { address, port, mountPoints } = { ...res };
-            if (!(address && port)) {
-                console.error('Unable to start the server at ' + chalk.cyan(`http://${address}:${port}`));
-                return;
-            }
+            launchServer().then(({ address, port, mountPoints }) => {
+                try {
+                    if (!(address && port)) {
+                        console.error('Unable to start the server at ' + chalk.cyan(`http://${address}:${port}`));
+                        return;
+                    }
 
-            const menu = Menu.buildFromTemplate(menuTemplate({ address, port, mountPoints }));
-            Menu.setApplicationMenu(menu);
+                    console.log(`Started at ${address}:${port}`);
 
-            windowManager = new WindowManager();
+                    const menu = Menu.buildFromTemplate(menuTemplate({ address, port, mountPoints }));
+                    Menu.setApplicationMenu(menu);
 
-            const url = `http://${address}:${port}`;
-            // The bounds is a rectangle object with the following properties:
-            // * `x` Number - The x coordinate of the origin of the rectangle.
-            // * `y` Number - The y coordinate of the origin of the rectangle.
-            // * `width` Number - The width of the rectangle.
-            // * `height` Number - The height of the rectangle.
-            const bounds = {
-                width: 1280, // Defaults to 1280
-                height: 768, // Defaults to 768
-                ...store.get('bounds')
-            };
-            const options = {
-                ...bounds,
-                //title: `${pkg.name} ${pkg.version}`
-                title: `Gladius ${pkg.version}`
-            };
-            const window = windowManager.openWindow(url, options);
+                    windowManager = new WindowManager();
 
-            // Save window size and position
-            window.on('close', () => {
-                store.set('bounds', window.getBounds());
-            });
+                    const url = `http://${address}:${port}`;
+                    // The bounds is a rectangle object with the following properties:
+                    // * `x` Number - The x coordinate of the origin of the rectangle.
+                    // * `y` Number - The y coordinate of the origin of the rectangle.
+                    // * `width` Number - The width of the rectangle.
+                    // * `height` Number - The height of the rectangle.
+                    const bounds = {
+                        width: 1280, // Defaults to 1280
+                        height: 768, // Defaults to 768
+                        ...store.get('bounds')
+                    };
+                    const options = {
+                        ...bounds,
+                        //title: `${pkg.name} ${pkg.version}`
+                        title: `Gladius ${pkg.version}`
+                    };
+                    const window = windowManager.openWindow(url, options);
 
-            // https://github.com/electron/electron/issues/4068#issuecomment-274159726
-            window.webContents.on('context-menu', (event, props) => {
-                const { selectionText, isEditable } = props;
+                    // Save window size and position
+                    window.on('close', () => {
+                        store.set('bounds', window.getBounds());
+                    });
 
-                if (isEditable) {
-                    // Shows an input menu if editable
-                    inputMenu.popup(window);
-                } else if (selectionText && String(selectionText).trim() !== '') {
-                    // Shows a selection menu if there was selected text
-                    selectionMenu.popup(window);
+                    // https://github.com/electron/electron/issues/4068#issuecomment-274159726
+                    window.webContents.on('context-menu', (event, props) => {
+                        const { selectionText, isEditable } = props;
+
+                        if (isEditable) {
+                            // Shows an input menu if editable
+                            inputMenu.popup(window);
+                        } else if (selectionText && String(selectionText).trim() !== '') {
+                            // Shows a selection menu if there was selected text
+                            selectionMenu.popup(window);
+                        }
+                    });
+
+                } catch (err) {
+                    console.error('Error:', err);
                 }
             });
         } catch (err) {

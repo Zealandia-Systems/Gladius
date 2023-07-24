@@ -7,7 +7,6 @@ import { Button } from 'app/components/Buttons';
 import Dropdown, { MenuItem } from 'app/components/Dropdown';
 import I18n from 'app/components/I18n';
 import Space from 'app/components/Space';
-import controller from 'app/lib/controller';
 import i18n from 'app/lib/i18n';
 import * as WebGL from 'app/lib/three/WebGL';
 import {
@@ -62,8 +61,6 @@ import {
     SWORDFISH_ACTIVE_STATE_ALARM,
     SWORDFISH_ACTIVE_STATE_ESTOP,
     SWORDFISH_ACTIVE_STATE_CHECK,
-    // Workflow
-    WORKFLOW_STATE_IDLE
 } from 'app/constants';
 import styles from './index.styl';
 
@@ -72,23 +69,6 @@ class PrimaryToolbar extends PureComponent {
         state: PropTypes.object,
         actions: PropTypes.object
     };
-
-    canSendCommand() {
-        const { state } = this.props;
-        const { port, controller, workflow } = state;
-
-        if (!port) {
-            return false;
-        }
-        if (!controller.type || !controller.state) {
-            return false;
-        }
-        if (workflow.state !== WORKFLOW_STATE_IDLE) {
-            return false;
-        }
-
-        return true;
-    }
 
     renderControllerType() {
         const { state } = this.props;
@@ -251,114 +231,15 @@ class PrimaryToolbar extends PureComponent {
         );
     }
 
-    getWorkCoordinateSystem() {
-        const { state } = this.props;
-        const controllerType = state.controller.type;
-        const controllerState = state.controller.state;
-        const defaultWCS = 'G54';
-
-        if (controllerType === GRBL) {
-            return _.get(controllerState, 'parserstate.modal.wcs') || defaultWCS;
-        }
-
-        if (controllerType === MARLIN) {
-            return _.get(controllerState, 'modal.wcs') || defaultWCS;
-        }
-
-        if (controllerType === SMOOTHIE) {
-            return _.get(controllerState, 'parserstate.modal.wcs') || defaultWCS;
-        }
-
-        if (controllerType === TINYG) {
-            return _.get(controllerState, 'sr.modal.wcs') || defaultWCS;
-        }
-
-        if (controllerType === SWORDFISH) {
-            return _.get(controllerState, 'modal.wcs') || defaultWCS;
-        }
-
-        return defaultWCS;
-    }
-
     render() {
         const { state, actions } = this.props;
         const { disabled, gcode, projection, objects } = state;
-        const canSendCommand = this.canSendCommand();
         const canToggleOptions = WebGL.isWebGLAvailable() && !disabled;
-        const wcs = this.getWorkCoordinateSystem();
 
         return (
             <div className={styles.primaryToolbar}>
                 {this.renderControllerState()}
                 <div className="pull-right">
-                    <Dropdown
-                        style={{ marginRight: 5 }}
-                        disabled={!canSendCommand}
-                        pullRight
-                    >
-                        <Dropdown.Toggle
-                            btnSize="sm"
-                            title={i18n._('Work Coordinate System')}
-                        >
-                            {wcs === 'G54' && `${wcs} (P1)`}
-                            {wcs === 'G55' && `${wcs} (P2)`}
-                            {wcs === 'G56' && `${wcs} (P3)`}
-                            {wcs === 'G57' && `${wcs} (P4)`}
-                            {wcs === 'G58' && `${wcs} (P5)`}
-                            {wcs === 'G59' && `${wcs} (P6)`}
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            <MenuItem header>{i18n._('Work Coordinate System')}</MenuItem>
-                            <MenuItem
-                                active={wcs === 'G54'}
-                                onSelect={() => {
-                                    controller.command('gcode', 'G54');
-                                }}
-                            >
-                                G54 (P1)
-                            </MenuItem>
-                            <MenuItem
-                                active={wcs === 'G55'}
-                                onSelect={() => {
-                                    controller.command('gcode', 'G55');
-                                }}
-                            >
-                                G55 (P2)
-                            </MenuItem>
-                            <MenuItem
-                                active={wcs === 'G56'}
-                                onSelect={() => {
-                                    controller.command('gcode', 'G56');
-                                }}
-                            >
-                                G56 (P3)
-                            </MenuItem>
-                            <MenuItem
-                                active={wcs === 'G57'}
-                                onSelect={() => {
-                                    controller.command('gcode', 'G57');
-                                }}
-                            >
-                                G57 (P4)
-                            </MenuItem>
-                            <MenuItem
-                                active={wcs === 'G58'}
-                                onSelect={() => {
-                                    controller.command('gcode', 'G58');
-                                }}
-                            >
-                                G58 (P5)
-                            </MenuItem>
-                            <MenuItem
-                                active={wcs === 'G59'}
-                                onSelect={() => {
-                                    controller.command('gcode', 'G59');
-                                }}
-                            >
-                                G59 (P6)
-                            </MenuItem>
-                        </Dropdown.Menu>
-                    </Dropdown>
                     <Dropdown
                         pullRight
                     >

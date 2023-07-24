@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+  <style>
+    .block {
+        fill: black;
+    }
+
+    .castle {
+        stroke: black;
+        stroke-width: 2px;
+        stroke-linecap: round;
+    }
+
+    .flute {
+        stroke: black;
+        stroke-width: 1px;
+    }
+  </style>
+  <rect class="block" x="3" y="0" width="14" height="2" />
+  <rect class="block" x="6" y="2" width="8" height="5" />
+  <rect class="block" x="7" y="7" width="6" height="2" />
+  <rect class="block" x="6" y="9" width="8" height="4" />
+  <rect class="block" x="9" y="13" width="2" height="6" />
+</svg>

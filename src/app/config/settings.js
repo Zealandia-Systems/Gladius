@@ -94,13 +94,19 @@ const settings = {
             parse: function(data, url) {
                 log.debug(`Loading resource: url="${url}"`);
 
-                // gcode.json
-                // resource.json
-                if (endsWith(url, '/gcode.json') || endsWith(url, '/resource.json')) {
-                    return mapKeys(JSON.parse(data), (value, key) => sha1(key));
+                try {
+                    // gcode.json
+                    // resource.json
+                    if (endsWith(url, '/gcode.json') || endsWith(url, '/resource.json')) {
+                        return mapKeys(JSON.parse(data), (value, key) => sha1(key));
+                    }
+
+                    return JSON.parse(data);
+                } catch (e) {
+                    log.error(e);
                 }
 
-                return JSON.parse(data);
+                return {};
             },
 
             // allow cross domain requests

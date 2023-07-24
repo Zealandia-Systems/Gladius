@@ -21,6 +21,11 @@ class Workspace extends PureComponent {
     static propTypes = {
         initialState: PropTypes.object,
         state: PropTypes.object,
+
+
+
+
+        
         stateChanged: PropTypes.bool,
         actions: PropTypes.object
     };

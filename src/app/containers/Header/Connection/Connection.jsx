@@ -19,6 +19,20 @@ class Connection extends PureComponent {
         actions: PropTypes.object
     };
 
+    overlay = null;
+
+    openPort = () => () => {
+        this.overlay.hide();
+
+        this.props.actions.handleOpenPort();
+    };
+
+    closePort = () => () => {
+        this.overlay.hide();
+
+        this.props.actions.handleClosePort();
+    };
+
     isPortInUse = (port) => {
         const { state } = this.props;
         port = port || state.port;
@@ -113,9 +127,7 @@ class Connection extends PureComponent {
         const canOpenPort = port && baudrate && notConnecting && notConnected;
         const canClosePort = connected;
 
-        const overlay = (props) => {
-            //actions.handleRefreshPorts();
-
+        const createOverlay = (props) => {
             return (
                 <Popover id="connection" title="Connection">
                     <div className="form-group">
@@ -207,7 +219,7 @@ class Connection extends PureComponent {
                                 type="button"
                                 className="btn btn-primary"
                                 disabled={!canOpenPort}
-                                onClick={actions.handleOpenPort}
+                                onClick={this.openPort()}
                             >
                                 <i className="fa fa-toggle-off" />
                                 <Space width="8" />
@@ -219,7 +231,7 @@ class Connection extends PureComponent {
                                 type="button"
                                 className="btn btn-danger"
                                 disabled={!canClosePort}
-                                onClick={actions.handleClosePort}
+                                onClick={this.closePort()}
                             >
                                 <i className="fa fa-toggle-on" />
                                 <Space width="8" />
@@ -236,10 +248,11 @@ class Connection extends PureComponent {
                 <ul className="nav navbar-nav">
                     <li className="btn-group btn-group-lg" role="group">
                         <OverlayTrigger
+                            ref={(ref) => this.overlay = ref}
                             trigger="click"
                             rootClose
                             placement="bottom"
-                            overlay={overlay()}
+                            overlay={createOverlay()}
                             onEntering={actions.handleRefreshPorts}
                         >
                             <Button>

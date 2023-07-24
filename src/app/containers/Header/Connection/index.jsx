@@ -32,19 +32,6 @@ class ConnectionWidget extends PureComponent {
     state = this.getInitialState();
 
     actions = {
-        toggleFullscreen: () => {
-            const { minimized, isFullscreen } = this.state;
-            this.setState(state => ({
-                minimized: isFullscreen ? minimized : false,
-                isFullscreen: !isFullscreen
-            }));
-        },
-        toggleMinimized: () => {
-            const { minimized } = this.state;
-            this.setState(state => ({
-                minimized: !minimized
-            }));
-        },
         clearAlert: () => {
             this.setState(state => ({
                 alertMessage: ''

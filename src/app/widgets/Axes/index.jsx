@@ -751,9 +751,7 @@ class AxesWidget extends PureComponent {
             feedrate = feedrate.toFixed(3) * 1;
             relativeDistance = relativeDistance.toFixed(4) * 1;
 
-            controller.command('gcode', 'G91'); // relative
-            controller.command('gcode', 'G1 F' + feedrate + ' ' + axis + relativeDistance);
-            controller.command('gcode', 'G90'); // absolute
+            controller.command('gcode', 'G91 G1 F' + feedrate + ' ' + axis + relativeDistance);
         });
     }
 

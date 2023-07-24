@@ -1,4 +1,5 @@
 /* eslint import/no-unresolved: 0 */
+import path from 'path';
 import { app, BrowserWindow, shell } from 'electron';
 //import AutoUpdater from './AutoUpdater';
 
@@ -49,7 +50,12 @@ class WindowManager {
     openWindow(url, options) {
         const window = new BrowserWindow({
             ...options,
-            show: false
+            webPreferences: {
+                contextIsolation: true,
+                nodeIntegration: true,
+                preload: path.join(__dirname, 'preload.js')
+            },
+            //show: false
         });
         const webContents = window.webContents;
 
@@ -70,11 +76,9 @@ class WindowManager {
             window.show();
         });
 
-        // Call `ses.setProxy` to ignore proxy settings
-        // http://electron.atom.io/docs/latest/api/session/#sessetproxyconfig-callback
-        const ses = webContents.session;
-        ses.setProxy({ proxyRules: 'direct://' }, () => {
-            window.loadURL(url);
+        console.log(`loading url: ${url}`);
+        window.loadURL(url).catch(reason => {
+            console.log(`couldn't load url: ${reason}`);
         });
 
         this.windows.push(window);

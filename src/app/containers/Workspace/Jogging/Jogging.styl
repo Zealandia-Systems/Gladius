@@ -1,0 +1,68 @@
+.flipX {
+    transform: scaleX(-1);
+}
+
+.flipY {
+    transform: scaleY(-1);
+}
+
+.flipXY {
+    transform: scaleX(-1) scaleY(-1);
+}
+
+.rotate45 {
+    transform: rotate(45deg);
+}
+
+.rotate135 {
+    transform: rotate(135deg);
+}
+
+.rotate225 {
+    transform: rotate(225deg);
+}
+
+.rotate315 {
+    transform: rotate(315deg);
+}
+
+.jog-control {
+    width: 100%;
+}
+
+.jog-control > tbody > tr > td {
+    text-align: center;
+}
+
+.jog-control > tbody > tr > td.spacer {
+    width: 99%;
+}
+
+.jog-control > tbody > tr > td > button {
+    position: relative;
+}
+
+.arrow {
+    fill: gray;
+    stroke-width: 2px;
+    stroke: black;
+    stroke-linejoin: round;
+}
+
+ .highlight {
+    background-color: rgba(200, 200, 200, .8) !important;
+    background-image: none;
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, .2);
+    border-color: rgba(0, 0, 0, .4);
+
+    &:hover,
+    &.hover {
+        background-color: rgba(0, 0, 0, .1);
+    }
+
+    &:active,
+    &.active {
+        box-shadow: 0 0 2px rgba(0, 0, 0, .2);
+        transform: translate(1px, 1px);
+    }
+}

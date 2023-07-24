@@ -1,4 +1,5 @@
-import _ from 'lodash';
+import { map, size, includes, pick, difference, pullAll, throttle } from 'lodash';
+import ensureArray from 'ensure-array';
 import classNames from 'classnames';
 import Dropzone from 'react-dropzone';
 import pubsub from 'pubsub-js';
@@ -7,15 +8,27 @@ import ReactDOM from 'react-dom';
 import { Button, ButtonGroup, ButtonToolbar } from 'app/components/Buttons';
 import api from 'app/api';
 import {
+    // Units
+    IMPERIAL_UNITS,
+    IMPERIAL_STEPS,
+    METRIC_UNITS,
+    METRIC_STEPS,
+    // Workflow
+    WORKFLOW_STATE_RUNNING,
     WORKFLOW_STATE_IDLE
 } from 'app/constants';
-import controller from 'app/lib/controller';
 import i18n from 'app/lib/i18n';
 import log from 'app/lib/log';
+import controller from 'app/lib/controller';
+import combokeys from 'app/lib/combokeys';
+import { preventDefault } from 'app/lib/dom-events';
+import { limit } from 'app/lib/normalize-range';
 import store from 'app/store';
 import * as widgetManager from './WidgetManager';
 import DefaultWidgets from './DefaultWidgets';
-import PrimaryWidgets from './PrimaryWidgets';
+//import PrimaryWidgets from './PrimaryWidgets';
+import Coordinates from './Coordinates';
+import Jogging from './Jogging';
 import SecondaryWidgets from './SecondaryWidgets';
 import FeederPaused from './modals/FeederPaused';
 import FeederWait from './modals/FeederWait';
@@ -27,6 +40,9 @@ import {
     MODAL_FEEDER_WAIT,
     MODAL_SERVER_DISCONNECTED
 } from './constants';
+import ShuttleControl from './ShuttleControl';
+import Overrides from './Overrides';
+import Spindle from './Spindle';
 
 const WAIT = '%wait';
 
@@ -48,6 +64,10 @@ class Workspace extends PureComponent {
     state = {
         mounted: false,
         port: '',
+        units: METRIC_UNITS,
+        workflow: {
+            state: controller.workflow.state
+        },
         modal: {
             name: MODAL_NONE,
             params: {}
@@ -57,10 +77,22 @@ class Workspace extends PureComponent {
         isUploading: false,
         showPrimaryContainer: store.get('workspace.container.primary.show'),
         showSecondaryContainer: store.get('workspace.container.secondary.show'),
-        inactiveCount: _.size(widgetManager.getInactiveWidgets())
+        inactiveCount: size(widgetManager.getInactiveWidgets()),
+        jog: {
+            axis: '', // Defaults to empty
+            keypad: store.get('jog.keypad'),
+            imperial: {
+                step: store.get('jog.imperial.step'),
+                distances: ensureArray(store.get('jog.imperial.distances', []))
+            },
+            metric: {
+                step: store.get('jog.metric.step'),
+                distances: ensureArray(store.get('jog.metric.distances', []))
+            }
+        }
     };
 
-    action = {
+    actions = {
         openModal: (name = MODAL_NONE, params = {}) => {
             this.setState(state => ({
                 modal: {
@@ -87,6 +119,163 @@ class Workspace extends PureComponent {
                     }
                 }
             }));
+        },
+        jog: (params = {}) => {
+            const s = map(params, (value, letter) => ('' + letter.toUpperCase() + value)).join(' ');
+            controller.command('gcode', 'G91 G0 ' + s);
+        },
+        move: (params = {}) => {
+            const s = map(params, (value, letter) => ('' + letter.toUpperCase() + value)).join(' ');
+            controller.command('gcode', 'G0 ' + s);
+        },
+        getJogDistance: () => {
+            const { units } = this.state;
+
+            if (units === IMPERIAL_UNITS) {
+                const step = store.get('jog.imperial.step');
+                const imperialJogDistances = ensureArray(store.get('jog.imperial.distances', []));
+                const imperialJogSteps = [
+                    ...imperialJogDistances,
+                    ...IMPERIAL_STEPS
+                ];
+                const distance = Number(imperialJogSteps[step]) || 0;
+                return distance;
+            }
+
+            if (units === METRIC_UNITS) {
+                const step = store.get('jog.metric.step');
+                const metricJogDistances = ensureArray(store.get('jog.metric.distances', []));
+                const metricJogSteps = [
+                    ...metricJogDistances,
+                    ...METRIC_STEPS
+                ];
+                const distance = Number(metricJogSteps[step]) || 0;
+                return distance;
+            }
+
+            return 0;
+        },
+        toggleKeypadJogging: () => {
+            this.setState(state => ({
+                jog: {
+                    ...state.jog,
+                    keypad: !state.jog.keypad
+                }
+            }));
+        },
+        selectAxis: (axis = '') => {
+            this.setState(state => ({
+                jog: {
+                    ...state.jog,
+                    axis: axis
+                }
+            }));
+        },
+        selectStep: (value = '') => {
+            const step = Number(value);
+            this.setState(state => ({
+                jog: {
+                    ...state.jog,
+                    imperial: {
+                        ...state.jog.imperial,
+                        step: (state.units === IMPERIAL_UNITS) ? step : state.jog.imperial.step,
+                    },
+                    metric: {
+                        ...state.jog.metric,
+                        step: (state.units === METRIC_UNITS) ? step : state.jog.metric.step
+                    }
+                }
+            }));
+        },
+        stepForward: () => {
+            this.setState(state => {
+                const imperialJogSteps = [
+                    ...state.jog.imperial.distances,
+                    ...IMPERIAL_STEPS
+                ];
+                const metricJogSteps = [
+                    ...state.jog.metric.distances,
+                    ...METRIC_STEPS
+                ];
+
+                return {
+                    jog: {
+                        ...state.jog,
+                        imperial: {
+                            ...state.jog.imperial,
+                            step: (state.units === IMPERIAL_UNITS)
+                                ? limit(state.jog.imperial.step + 1, 0, imperialJogSteps.length - 1)
+                                : state.jog.imperial.step
+                        },
+                        metric: {
+                            ...state.jog.metric,
+                            step: (state.units === METRIC_UNITS)
+                                ? limit(state.jog.metric.step + 1, 0, metricJogSteps.length - 1)
+                                : state.jog.metric.step
+                        }
+                    }
+                };
+            });
+        },
+        stepBackward: () => {
+            this.setState(state => {
+                const imperialJogSteps = [
+                    ...state.jog.imperial.distances,
+                    ...IMPERIAL_STEPS
+                ];
+                const metricJogSteps = [
+                    ...state.jog.metric.distances,
+                    ...METRIC_STEPS
+                ];
+
+                return {
+                    jog: {
+                        ...state.jog,
+                        imperial: {
+                            ...state.jog.imperial,
+                            step: (state.units === IMPERIAL_UNITS)
+                                ? limit(state.jog.imperial.step - 1, 0, imperialJogSteps.length - 1)
+                                : state.jog.imperial.step,
+                        },
+                        metric: {
+                            ...state.jog.metric,
+                            step: (state.units === METRIC_UNITS)
+                                ? limit(state.jog.metric.step - 1, 0, metricJogSteps.length - 1)
+                                : state.jog.metric.step
+                        }
+                    }
+                };
+            });
+        },
+        stepNext: () => {
+            this.setState(state => {
+                const imperialJogSteps = [
+                    ...state.jog.imperial.distances,
+                    ...IMPERIAL_STEPS
+                ];
+                const metricJogSteps = [
+                    ...state.jog.metric.distances,
+                    ...METRIC_STEPS
+                ];
+
+                return {
+                    jog: {
+                        ...state.jog,
+                        imperial: {
+                            ...state.jog.imperial,
+                            step: (state.units === IMPERIAL_UNITS)
+                                ? (state.jog.imperial.step + 1) % imperialJogSteps.length
+                                : state.jog.imperial.step,
+                        },
+                        metric: {
+                            ...state.jog.metric,
+                            step: (state.units === METRIC_UNITS)
+                                ? (state.jog.metric.step + 1) % metricJogSteps.length
+                                : state.jog.metric.step
+                        }
+                    }
+                };
+            });
         }
     };
 
@@ -112,23 +301,23 @@ class Workspace extends PureComponent {
     controllerEvents = {
         'connect': () => {
             if (controller.connected) {
-                this.action.closeModal();
+                this.actions.closeModal();
             } else {
-                this.action.openModal(MODAL_SERVER_DISCONNECTED);
+                this.actions.openModal(MODAL_SERVER_DISCONNECTED);
             }
         },
         'connect_error': () => {
             if (controller.connected) {
-                this.action.closeModal();
+                this.actions.closeModal();
             } else {
-                this.action.openModal(MODAL_SERVER_DISCONNECTED);
+                this.actions.openModal(MODAL_SERVER_DISCONNECTED);
             }
         },
         'disconnect': () => {
             if (controller.connected) {
-                this.action.closeModal();
+                this.actions.closeModal();
             } else {
-                this.action.openModal(MODAL_SERVER_DISCONNECTED);
+                this.actions.openModal(MODAL_SERVER_DISCONNECTED);
             }
         },
         'serialport:open': (options) => {
@@ -138,13 +327,30 @@ class Workspace extends PureComponent {
         'serialport:close': (options) => {
             this.setState({ port: '' });
         },
+        'workflow:state': (workflowState) => {
+            const canJog = (workflowState !== WORKFLOW_STATE_RUNNING);
+
+            // Disable keypad jogging and shuttle wheel when the workflow state is 'running'.
+            // This prevents accidental movement while sending G-code commands.
+            this.setState(state => ({
+                jog: {
+                    ...state.jog,
+                    axis: canJog ? state.jog.axis : '',
+                    keypad: canJog ? state.jog.keypad : false
+                },
+                workflow: {
+                    ...state.workflow,
+                    state: workflowState
+                }
+            }));
+        },
         'feeder:status': (status) => {
             const { modal } = this.state;
             const { hold, holdReason } = { ...status };
 
             if (!hold) {
-                if (_.includes([MODAL_FEEDER_PAUSED, MODAL_FEEDER_WAIT], modal.name)) {
-                    this.action.closeModal();
+                if (includes([MODAL_FEEDER_PAUSED, MODAL_FEEDER_WAIT], modal.name)) {
+                    this.actions.closeModal();
                 }
                 return;
             }
@@ -152,14 +358,14 @@ class Workspace extends PureComponent {
             const { err, data } = { ...holdReason };
 
             if (err) {
-                this.action.openModal(MODAL_FEEDER_PAUSED, {
+                this.actions.openModal(MODAL_FEEDER_PAUSED, {
                     title: i18n._('Error')
                 });
                 return;
             }
 
             if (data === WAIT) {
-                this.action.openModal(MODAL_FEEDER_WAIT, {
+                this.actions.openModal(MODAL_FEEDER_WAIT, {
                     title: '%wait'
                 });
                 return;
@@ -175,8 +381,115 @@ class Workspace extends PureComponent {
                 'M190': i18n._('M190 Set Heated Bed Temperature')
             }[data] || data;
 
-            this.action.openModal(MODAL_FEEDER_PAUSED, {
+            this.actions.openModal(MODAL_FEEDER_PAUSED, {
                 title: title
+            });
+        },
+        'controller:state': (type, controllerState) => {
+            const { modal = {} } = { ...controllerState };
+            const units = {
+                'G20': IMPERIAL_UNITS,
+                'G21': METRIC_UNITS
+            }[modal.units] || this.state.units;
+
+            this.setState(state => ({
+                units: units,
+                controller: {
+                    ...state.controller,
+                    type: type,
+                    state: controllerState
+                }
+            }));
+        }
+    };
+
+    shuttleControlEvents = {
+        SELECT_AXIS: (event, { axis }) => {
+            const { jog } = this.state;
+
+            if (!this.canClick()) {
+                return;
+            }
+
+            if (jog.axis === axis) {
+                this.actions.selectAxis(); // deselect axis
+            } else {
+                this.actions.selectAxis(axis);
+            }
+        },
+        JOG: (event, { axis = null, direction = 1, factor = 1 }) => {
+            const { jog } = this.state;
+
+            if (!this.canClick()) {
+                return;
+            }
+
+            if (axis !== null && !jog.keypad) {
+                // keypad jogging is disabled
+                return;
+            }
+
+            // The keyboard events of arrow keys for X-axis/Y-axis and pageup/pagedown for Z-axis
+            // are not prevented by default. If a jog command will be executed, it needs to
+            // stop the default behavior of a keyboard combination in a browser.
+            preventDefault(event);
+
+            axis = axis || jog.axis;
+            const distance = this.actions.getJogDistance();
+            const jogAxis = {
+                x: () => this.actions.jog({ X: direction * distance * factor }),
+                y: () => this.actions.jog({ Y: direction * distance * factor }),
+                z: () => this.actions.jog({ Z: direction * distance * factor }),
+                a: () => this.actions.jog({ A: direction * distance * factor }),
+                b: () => this.actions.jog({ B: direction * distance * factor }),
+                c: () => this.actions.jog({ C: direction * distance * factor })
+            }[axis];
+
+            jogAxis && jogAxis();
+        },
+        JOG_LEVER_SWITCH: (event, { key = '' }) => {
+            if (key === '-') {
+                this.actions.stepBackward();
+            } else if (key === '+') {
+                this.actions.stepForward();
+            } else {
+                this.actions.stepNext();
+            }
+        },
+        SHUTTLE: (event, { zone = 0 }) => {
+            const { jog } = this.state;
+
+            if (!this.canClick()) {
+                return;
+            }
+
+            if (zone === 0) {
+                // Clear accumulated result
+                this.shuttleControl.clear();
+
+                if (jog.axis) {
+                    controller.command('gcode', 'G90');
+                }
+                return;
+            }
+
+            if (!jog.axis) {
+                return;
+            }
+
+            const distance = Math.min(this.actions.getJogDistance(), 1);
+            const feedrateMin = this.config.get('shuttle.feedrateMin');
+            const feedrateMax = this.config.get('shuttle.feedrateMax');
+            const hertz = this.config.get('shuttle.hertz');
+            const overshoot = this.config.get('shuttle.overshoot');
+
+            this.shuttleControl.accumulate(zone, {
+                axis: jog.axis,
+                distance: distance,
+                feedrateMin: feedrateMin,
+                feedrateMax: feedrateMax,
+                hertz: hertz,
+                overshoot: overshoot
             });
         }
     };
@@ -274,7 +587,7 @@ class Workspace extends PureComponent {
                 return;
             }
 
-            log.debug('FileReader:', _.pick(file, [
+            log.debug('FileReader:', pick(file, [
                 'lastModified',
                 'lastModifiedDate',
                 'meta',
@@ -316,24 +629,24 @@ class Workspace extends PureComponent {
                 .filter(widgetId => {
                     // e.g. "webcam" or "webcam:d8e6352f-80a9-475f-a4f5-3e9197a48a23"
                     const name = widgetId.split(':')[0];
-                    return _.includes(activeWidgets, name);
+                    return includes(activeWidgets, name);
                 });
 
             const defaultWidgets = store.get('workspace.container.default.widgets');
-            const sortableWidgets = _.difference(widgets, defaultWidgets);
+            const sortableWidgets = difference(widgets, defaultWidgets);
             let primaryWidgets = store.get('workspace.container.primary.widgets');
             let secondaryWidgets = store.get('workspace.container.secondary.widgets');
 
             primaryWidgets = sortableWidgets.slice();
-            _.pullAll(primaryWidgets, secondaryWidgets);
+            pullAll(primaryWidgets, secondaryWidgets);
             pubsub.publish('updatePrimaryWidgets', primaryWidgets);
 
             secondaryWidgets = sortableWidgets.slice();
-            _.pullAll(secondaryWidgets, primaryWidgets);
+            pullAll(secondaryWidgets, primaryWidgets);
             pubsub.publish('updateSecondaryWidgets', secondaryWidgets);
 
             // Update inactive count
-            this.setState({ inactiveCount: _.size(inactiveWidgets) });
+            this.setState({ inactiveCount: size(inactiveWidgets) });
         });
     };
 
@@ -343,30 +656,31 @@ class Workspace extends PureComponent {
                 .filter(widgetId => {
                     // e.g. "webcam" or "webcam:d8e6352f-80a9-475f-a4f5-3e9197a48a23"
                     const name = widgetId.split(':')[0];
-                    return _.includes(activeWidgets, name);
+                    return includes(activeWidgets, name);
                 });
 
             const defaultWidgets = store.get('workspace.container.default.widgets');
-            const sortableWidgets = _.difference(widgets, defaultWidgets);
+            const sortableWidgets = difference(widgets, defaultWidgets);
             let primaryWidgets = store.get('workspace.container.primary.widgets');
             let secondaryWidgets = store.get('workspace.container.secondary.widgets');
 
             secondaryWidgets = sortableWidgets.slice();
-            _.pullAll(secondaryWidgets, primaryWidgets);
+            pullAll(secondaryWidgets, primaryWidgets);
             pubsub.publish('updateSecondaryWidgets', secondaryWidgets);
 
             primaryWidgets = sortableWidgets.slice();
-            _.pullAll(primaryWidgets, secondaryWidgets);
+            pullAll(primaryWidgets, secondaryWidgets);
             pubsub.publish('updatePrimaryWidgets', primaryWidgets);
 
             // Update inactive count
-            this.setState({ inactiveCount: _.size(inactiveWidgets) });
+            this.setState({ inactiveCount: size(inactiveWidgets) });
         });
     };
 
     componentDidMount() {
         this.addControllerEvents();
         this.addResizeEventListener();
+        this.addShuttleControlEvents();
 
         setTimeout(() => {
             // A workaround solution to trigger componentDidUpdate on initial render
@@ -377,11 +691,25 @@ class Workspace extends PureComponent {
     componentWillUnmount() {
         this.removeControllerEvents();
         this.removeResizeEventListener();
+        this.removeShuttleControlEvents();
     }
 
     componentDidUpdate() {
         store.set('workspace.container.primary.show', this.state.showPrimaryContainer);
         store.set('workspace.container.secondary.show', this.state.showSecondaryContainer);
+
+        const {
+            units,
+            jog,
+        } = this.state;
+
+        store.set('jog.keypad', jog.keypad);
+        if (units === IMPERIAL_UNITS) {
+            store.set('jog.imperial.step', Number(jog.imperial.step) || 0);
+        }
+        if (units === METRIC_UNITS) {
+            store.set('jog.metric.step', Number(jog.metric.step) || 0);
+        }
 
         this.resizeDefaultContainer();
     }
@@ -400,8 +728,34 @@ class Workspace extends PureComponent {
         });
     }
 
+    addShuttleControlEvents() {
+        Object.keys(this.shuttleControlEvents).forEach(eventName => {
+            const callback = this.shuttleControlEvents[eventName];
+            combokeys.on(eventName, callback);
+        });
+
+        // Shuttle Zone
+        this.shuttleControl = new ShuttleControl();
+        this.shuttleControl.on('flush', ({ axis, feedrate, relativeDistance }) => {
+            feedrate = feedrate.toFixed(3) * 1;
+            relativeDistance = relativeDistance.toFixed(4) * 1;
+
+            controller.command('gcode', 'G91 G1 F' + feedrate + ' ' + axis + relativeDistance);
+        });
+    }
+
+    removeShuttleControlEvents() {
+        Object.keys(this.shuttleControlEvents).forEach(eventName => {
+            const callback = this.shuttleControlEvents[eventName];
+            combokeys.removeListener(eventName, callback);
+        });
+
+        this.shuttleControl.removeAllListeners('flush');
+        this.shuttleControl = null;
+    }
+
     addResizeEventListener() {
-        this.onResizeThrottled = _.throttle(this.resizeDefaultContainer, 50);
+        this.onResizeThrottled = throttle(this.resizeDefaultContainer, 50);
         window.addEventListener('resize', this.onResizeThrottled);
     }
 
@@ -410,17 +764,35 @@ class Workspace extends PureComponent {
         this.onResizeThrottled = null;
     }
 
+    canClick() {
+        const { port, workflow } = this.state;
+
+        if (!port) {
+            return false;
+        }
+
+        if (workflow.state === WORKFLOW_STATE_RUNNING) {
+            return false;
+        }
+
+        return true;
+    }
+
     render() {
         const { style, className } = this.props;
         const {
             port,
             modal,
+            units,
             isDraggingFile,
             isDraggingWidget,
             showPrimaryContainer,
             showSecondaryContainer,
-            inactiveCount
+            inactiveCount,
+            jog
         } = this.state;
+
+        const canClick = this.canClick();
         const hidePrimaryContainer = !showPrimaryContainer;
         const hideSecondaryContainer = !showSecondaryContainer;
 
@@ -429,13 +801,13 @@ class Workspace extends PureComponent {
                 {modal.name === MODAL_FEEDER_PAUSED && (
                     <FeederPaused
                         title={modal.params.title}
-                        onClose={this.action.closeModal}
+                        onClose={this.actions.closeModal}
                     />
                 )}
                 {modal.name === MODAL_FEEDER_WAIT && (
                     <FeederWait
                         title={modal.params.title}
-                        onClose={this.action.closeModal}
+                        onClose={this.actions.closeModal}
                     />
                 )}
                 {modal.name === MODAL_SERVER_DISCONNECTED &&
@@ -505,6 +877,7 @@ class Workspace extends PureComponent {
                                     { [styles.hidden]: hidePrimaryContainer }
                                 )}
                             >
+                                {/*
                                 <ButtonToolbar style={{ margin: '5px 0' }}>
                                     <ButtonGroup
                                         style={{ marginLeft: 0, marginRight: 10 }}
@@ -570,6 +943,17 @@ class Workspace extends PureComponent {
                                     onDragStart={this.widgetEventHandler.onDragStart}
                                     onDragEnd={this.widgetEventHandler.onDragEnd}
                                 />
+                                */}
+                                <Coordinates jog={jog}/>
+                                <Jogging
+                                    canClick={canClick}
+                                    units={units}
+                                    jog={jog}
+                                    axes={['x', 'y', 'z']}
+                                    actions={this.actions}
+                                />
+                                <Spindle canClick={canClick} controllerState={this.state.controller} />
+                                <Overrides />
                             </div>
                             {hidePrimaryContainer && (
                                 <div

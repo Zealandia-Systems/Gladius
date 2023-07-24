@@ -229,9 +229,15 @@ class SwordfishController {
                     }
 
                     // wcs
-                    if (_.includes(['G54', 'G55', 'G56', 'G57', 'G58', 'G59'], cmd)) {
+                    if (new RegExp('G5[3456789]\\.\\d').test(cmd)) {
                         nextState.modal.wcs = cmd;
+                    } else if (new RegExp('G5[3456789]').test(cmd)) {
+                        nextState.modal.wcs = cmd + '.0';
                     }
+
+                    /*if (_.includes(['G54', 'G55', 'G56', 'G57', 'G58', 'G59'], cmd)) {
+                        nextState.modal.wcs = cmd;
+                    }*/
 
                     // plane
                     if (_.includes(['G17', 'G18', 'G19'], cmd)) {

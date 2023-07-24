@@ -105,6 +105,7 @@ export default () => new Promise((resolve, reject) => {
         controller: program.controller
     }, (err, data) => {
         if (err) {
+            console.error(err);
             reject(err);
             return;
         }
