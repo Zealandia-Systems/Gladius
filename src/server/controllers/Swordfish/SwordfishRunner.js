@@ -109,7 +109,7 @@ class SwordfishRunner extends events.EventEmitter {
 
             this.emit('firmware', nextSettings);
             this.emit('state', nextState);
-          
+
             return;
         }
         if (type === SwordfishLineParserResultPosition) {
