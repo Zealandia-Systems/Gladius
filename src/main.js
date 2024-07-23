@@ -63,7 +63,7 @@ const main = () => {
     app.on('ready', async () => {
         try {
             const res = await launchServer();
-            const { address, port, mountPoints } = { ...res };
+            const { address, port, mountPoints, kiosk } = { ...res };
             if (!(address && port)) {
                 console.error('Unable to start the server at ' + chalk.cyan(`http://${address}:${port}`));
                 return;
@@ -87,7 +87,7 @@ const main = () => {
             };
             const options = {
                 ...bounds,
-                //title: `${pkg.name} ${pkg.version}`
+                kiosk,
                 title: `Gladius ${pkg.version}`
             };
             const window = windowManager.openWindow(url, options);

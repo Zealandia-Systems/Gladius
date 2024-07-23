@@ -244,6 +244,7 @@ const createServer = (options, callback) => {
                 address,
                 port,
                 mountPoints,
+                kiosk: options.kiosk,
             });
 
             if (address !== '0.0.0.0') {
