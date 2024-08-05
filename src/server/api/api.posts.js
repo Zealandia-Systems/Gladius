@@ -142,7 +142,7 @@ async function getAutodeskCAM360Version(postProcessorPath) {
         throw error;
     }
 
-    const re = new RegExp('^([A-Za-z0-9]+(?: +[A-Za-z0-9]+)*) ([1-9]\.[0-9]+)');
+    const re = new RegExp('^([A-Za-z0-9]+(?: +[A-Za-z0-9]+)*) ([1-9]+\.[0-9]+\.[0-9]+)');
 
     const match = stdout.match(re);
 
