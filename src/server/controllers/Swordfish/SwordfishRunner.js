@@ -132,7 +132,7 @@ class SwordfishRunner extends events.EventEmitter {
                     ...this.state.spindle,
                     ...payload.spindle,
                 },
-                ...payload
+                //...payload
             };
 
             if (!_.isEqual(this.state, nextState)) {
