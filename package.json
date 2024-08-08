@@ -55,6 +55,7 @@
 		"build:linux-ia32": "bash -c 'scripts/electron-builder.sh --linux --ia32'",
 		"build:linux-x64": "bash -c 'scripts/electron-builder.sh --linux --x64'",
 		"build:linux-armv7l": "bash -c 'scripts/electron-builder.sh --linux --armv7l'",
+		"build:linux-arm64": "cross-env USE_SYSTEM_FPM=true bash -c 'scripts/electron-builder.sh --linux --arm64'",
 		"build:win-ia32": "bash -c 'scripts/electron-builder.sh --win --ia32'",
 		"build:win-x64": "bash -c 'scripts/electron-builder.sh --win --x64'",
 		"start": "./bin/gladius",
@@ -282,7 +283,8 @@
 		"webappengine": "~1.2.0",
 		"winston": "~3.2.1",
 		"wmic": "^1.0.1",
-		"xterm": "~3.0.2"
+		"xterm": "~3.0.2",
+		"yarn": "^1.22.22"
 	},
 	"devDependencies": {
 		"@babel/cli": "~7.4.3",
@@ -306,7 +308,7 @@
 		"css-loader": "~2.1.1",
 		"css-split-webpack-plugin": "~0.2.6",
 		"dotenv": "~7.0.0",
-		"electron": "~4.2.12",
+		"electron": "^4.2.12",
 		"electron-builder": "~22.8.1",
 		"eslint": "~5.16.0",
 		"eslint-config-trendmicro": "~1.4.1",

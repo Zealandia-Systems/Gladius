@@ -63,52 +63,54 @@ const main = () => {
     app.on('ready', async () => {
         try {
             const res = await launchServer();
-            const { address, port, mountPoints } = { ...res };
+            const { address, port, mountPoints, kiosk, headless } = { ...res };
             if (!(address && port)) {
                 console.error('Unable to start the server at ' + chalk.cyan(`http://${address}:${port}`));
                 return;
             }
 
-            const menu = Menu.buildFromTemplate(menuTemplate({ address, port, mountPoints }));
-            Menu.setApplicationMenu(menu);
+            if (!headless) {
+                const menu = Menu.buildFromTemplate(menuTemplate({ address, port, mountPoints }));
+                Menu.setApplicationMenu(menu);
 
-            windowManager = new WindowManager();
+                windowManager = new WindowManager();
 
-            const url = `http://${address}:${port}`;
-            // The bounds is a rectangle object with the following properties:
-            // * `x` Number - The x coordinate of the origin of the rectangle.
-            // * `y` Number - The y coordinate of the origin of the rectangle.
-            // * `width` Number - The width of the rectangle.
-            // * `height` Number - The height of the rectangle.
-            const bounds = {
-                width: 1280, // Defaults to 1280
-                height: 768, // Defaults to 768
-                ...store.get('bounds')
-            };
-            const options = {
-                ...bounds,
-                //title: `${pkg.name} ${pkg.version}`
-                title: `Gladius ${pkg.version}`
-            };
-            const window = windowManager.openWindow(url, options);
+                const url = `http://${address}:${port}`;
+                // The bounds is a rectangle object with the following properties:
+                // * `x` Number - The x coordinate of the origin of the rectangle.
+                // * `y` Number - The y coordinate of the origin of the rectangle.
+                // * `width` Number - The width of the rectangle.
+                // * `height` Number - The height of the rectangle.
+                const bounds = {
+                    width: 1280, // Defaults to 1280
+                    height: 768, // Defaults to 768
+                    ...store.get('bounds')
+                };
+                const options = {
+                    ...bounds,
+                    kiosk,
+                    title: `Gladius ${pkg.version}`
+                };
+                const window = windowManager.openWindow(url, options);
 
-            // Save window size and position
-            window.on('close', () => {
-                store.set('bounds', window.getBounds());
-            });
+                // Save window size and position
+                window.on('close', () => {
+                    store.set('bounds', window.getBounds());
+                });
 
-            // https://github.com/electron/electron/issues/4068#issuecomment-274159726
-            window.webContents.on('context-menu', (event, props) => {
-                const { selectionText, isEditable } = props;
+                // https://github.com/electron/electron/issues/4068#issuecomment-274159726
+                window.webContents.on('context-menu', (event, props) => {
+                    const { selectionText, isEditable } = props;
 
-                if (isEditable) {
-                    // Shows an input menu if editable
-                    inputMenu.popup(window);
-                } else if (selectionText && String(selectionText).trim() !== '') {
-                    // Shows a selection menu if there was selected text
-                    selectionMenu.popup(window);
-                }
-            });
+                    if (isEditable) {
+                        // Shows an input menu if editable
+                        inputMenu.popup(window);
+                    } else if (selectionText && String(selectionText).trim() !== '') {
+                        // Shows a selection menu if there was selected text
+                        selectionMenu.popup(window);
+                    }
+                });
+            }
         } catch (err) {
             console.error('Error:', err);
         }

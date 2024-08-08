@@ -62,7 +62,9 @@ program
     .option('-w, --watch-directory <path>', 'Watch a directory for changes')
     .option('--access-token-lifetime <lifetime>', 'Access token lifetime in seconds or a time span string (default: 30d)')
     .option('--allow-remote-access', 'Allow remote access to the server (default: false)')
-    .option('--controller <type>', 'Specify CNC controller: Grbl|Marlin|Smoothie|TinyG|g2core (default: \'\')', parseController, 'swordfish');
+    .option('--controller <type>', 'Specify CNC controller: Grbl|Marlin|Smoothie|TinyG|g2core (default: \'\')', parseController, 'swordfish')
+    .option('--kiosk', 'Enter kiosk mode', null, false)
+    .option('--headless', 'Run headless', null, false);
 
 program.on('--help', () => {
     console.log('');
@@ -102,7 +104,9 @@ export default () => new Promise((resolve, reject) => {
         watchDirectory: program.watchDirectory,
         accessTokenLifetime: program.accessTokenLifetime,
         allowRemoteAccess: !!program.allowRemoteAccess,
-        controller: program.controller
+        controller: program.controller,
+        kiosk: program.kiosk,
+        headless: program.headless,
     }, (err, data) => {
         if (err) {
             reject(err);
